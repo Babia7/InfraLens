@@ -77,41 +77,6 @@ const demoPresets: PresetScenario[] = [
   }
 ];
 
-const DemoPortalCard = ({ name, url, credentials, color }: any) => {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(credentials);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl group hover:border-zinc-600 transition-all shadow-lg">
-       <div className="flex justify-between items-start mb-4">
-          <div className={`w-10 h-10 rounded-xl bg-${color}-500/10 border border-${color}-500/20 flex items-center justify-center text-${color}-400`}>
-             {name === 'CV-CUE' ? <Wifi size={20} /> : <Globe size={20} />}
-          </div>
-          <button onClick={() => window.open(url, '_blank')} className="p-2 text-zinc-500 hover:text-white transition-colors">
-             <ExternalLink size={16} />
-          </button>
-       </div>
-       <h3 className="text-lg font-bold text-white mb-1">{name}</h3>
-       <p className="text-[10px] text-zinc-500 font-mono mb-4 uppercase tracking-widest">{url.replace('https://', '')}</p>
-       
-       <button 
-         onClick={handleCopy}
-         className="w-full flex items-center justify-between p-3 bg-black border border-zinc-800 rounded-lg hover:bg-zinc-950 transition-colors group/btn"
-       >
-          <div className="flex flex-col items-start">
-             <span className="text-[8px] font-mono text-zinc-600 uppercase">Credentials</span>
-             <span className="text-xs font-mono text-zinc-300">{credentials}</span>
-          </div>
-          {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} className="text-zinc-600 group-hover/btn:text-zinc-400" />}
-       </button>
-    </div>
-  );
-};
-
 export const DemoCommand: React.FC<DemoCommandProps> = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState<'PRE_FLIGHT' | 'FOUNDATIONS' | 'SCENARIO' | 'IMPROVEMENTS'>('PRE_FLIGHT');
   const [selectedPreset, setSelectedPreset] = useState(0);
@@ -393,14 +358,6 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
 
          <div className="p-8 space-y-8 flex-1">
             <section className="space-y-4">
-                <h3 className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.3em]">Live Surfaces</h3>
-                <div className="grid grid-cols-1 gap-3">
-                   <DemoPortalCard name="CloudVision Global" url="https://cv-global.arista.com" credentials="se-admin / arista2025" color="emerald" />
-                   <DemoPortalCard name="CV-CUE (Wireless)" url="https://wireless.arista.com" credentials="wifi-expert / cue-rocks" color="cyan" />
-                </div>
-            </section>
-
-            <section className="space-y-4 pt-8 border-t border-zinc-900">
                 <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Cognitive Principles</h3>
                 <div className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl space-y-4">
                    <div className="flex items-start gap-3">
