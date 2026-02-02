@@ -80,7 +80,7 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
   const isOnline = typeof navigator === 'undefined' ? true : navigator.onLine;
   const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
   const [pinInput, setPinInput] = useState('');
-  const ADMIN_PIN = '19901991';
+  const ADMIN_PIN = import.meta.env.VITE_ADMIN_PIN || '';
 
   useEffect(() => {
     if (!isBrowser) return;
