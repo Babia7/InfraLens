@@ -1,0 +1,18 @@
+
+# INFRALENS ARCHITECTURAL LEDGER
+## CHRONICLE OF EVOLUTION & DECISION PATHS
+
+---
+
+### ENTRY: 2025-05-15T18:00:00Z
+#### CONTEXT: FORGE_EVOLUTION_0.6 (SENSEMAKING_TAXONOMY)
+1. **Objective**: Shift the OS identity from a generic "app store" to a high-fidelity "Sense-Making System" for complex domains.
+2. **Implementation**:
+    - **Renaming**:
+        - Systems -> **Organic Architectures** (Key: `Organic`)
+        - Craft -> **Structural Technics** (Key: `Technic`)
+        - Ideas -> **Inference Sandbox** (Key: `Inference`)
+        - Recommended -> **Intelligence Registry** (Key: `Intel`)
+    - **UI**: Updated `AppShowcase.tsx` sidebar labels, main headings, and sub-category headers to use specialized operational terminology.
+    - **Logic**: Aligned `AppItem` interfaces and `initialData.ts` app objects with new internal keys to ensure data persistence and filtering integrity.
+3. **Outcome**: InfraLens now presents as a sophisticated cognitive laboratory, framing its tools as "cybernetic interventions" rather than simple apps.
