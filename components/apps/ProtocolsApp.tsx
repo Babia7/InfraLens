@@ -325,6 +325,30 @@ export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }
                   </div>
                </section>
 
+               {active.bestPractices && active.bestPractices.length > 0 && (
+                 <section className="space-y-6">
+                   <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-2">
+                     <CheckCircle2 size={14} className="text-amber-500" /> Best Practices
+                   </h3>
+                   <div className="space-y-3">
+                     {active.bestPractices.map((practice, i) => (
+                       <div key={i} className="flex gap-4 p-4 bg-zinc-900/40 border border-amber-500/10 rounded-xl hover:border-amber-500/30 transition-all group">
+                         <div className="shrink-0 w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-[10px] font-mono font-bold text-amber-500 group-hover:bg-amber-500/20 transition-colors">
+                           {i + 1}
+                         </div>
+                         <p className="text-sm text-zinc-400 leading-relaxed group-hover:text-zinc-200">
+                           {practice.split(/`([^`]+)`/).map((part, j) =>
+                             j % 2 === 1
+                               ? <code key={j} className="px-1.5 py-0.5 bg-zinc-800 rounded text-amber-400 font-mono text-[11px]">{part}</code>
+                               : part
+                           )}
+                         </p>
+                       </div>
+                     ))}
+                   </div>
+                 </section>
+               )}
+
                {active.overview && (
                  <section className="space-y-6">
                    <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-2">

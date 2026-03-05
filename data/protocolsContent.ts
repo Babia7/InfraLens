@@ -18,6 +18,7 @@ export interface ProtocolDetail {
   tagline: string;
   description: string;
   keyBenefits: string[];
+  bestPractices?: string[];
   cliTranslation: { legacy: string; arista: string }[];
   masteryPath?: MasteryLevel[];
   roleConfigs?: RoleConfig[];
@@ -49,6 +50,16 @@ export const PROTOCOL_CONTENT: Record<string, ProtocolDetail> = {
       'Decouples physical topology from logical services.',
       'Deterministic change control: preflight underlay/MTU/RT schema before enabling overlays.',
       'Telemetry-ready: snapshot/rollback + ERSPAN/sFlow/pcaps to prove encapsulation and symmetry.'
+    ],
+    bestPractices: [
+      'Validate underlay MTU end-to-end (≥1600 bytes) before enabling any VXLAN overlay — MTU mismatches cause silent black holes that are hard to diagnose.',
+      'Use a dedicated source loopback (Loopback1) for VXLAN, separate from the BGP router-ID loopback (Loopback0), to decouple data-plane identity from control-plane peering.',
+      'Always pair VXLAN with an EVPN control plane in production; static flood-lists do not scale, have no MAC mobility, and require manual maintenance.',
+      'Run `service routing protocols model multi-agent` before enabling EVPN — without it, EVPN address-family commands will be rejected silently on many EOS versions.',
+      'Define VNI allocations from a documented schema before deployment (e.g. L2 VNI = 10000 + VLAN, L3/VRF VNI = 50000 + VRF index) to prevent RT collisions across sites.',
+      'Use `ip address virtual` for all Anycast Gateway SVIs — unique per-switch addresses prevent consistent gateway behavior and break host mobility.',
+      'Verify symmetric routing end-to-end: asymmetric IRB causes return traffic to miss the Anycast GW and creates intermittent connectivity failures under load.',
+      'Take a snapshot (`show tech-support`, EVPN route counts, ARP table) before and after every change window to enable rapid rollback and RCA.'
     ],
     cliTranslation: [
       { legacy: 'feature otv', arista: 'interface vxlan1' },
@@ -242,6 +253,15 @@ monitor session EVPN erspan ip-destination 10.10.200.10`
       'All-active multi-homing (ESI) maximizes links.',
       'Policy-based logical segmentation via VRF-Lite/EVPN.'
     ],
+    bestPractices: [
+      'Always configure `send-community extended` on every EVPN BGP neighbor — omitting it silently drops all route-target extended communities and breaks the entire EVPN control plane with no error message.',
+      'Peer EVPN sessions from a stable loopback (`update-source Loopback0`), not physical interfaces — physical interface flaps will reset EVPN sessions and cause traffic loss.',
+      'Use iBGP with route-reflector-client for EVPN overlay peering on spines; never mix eBGP ASNs with route-reflector-client in the same session — route reflection is an iBGP-only concept.',
+      'Standardize and document route-target conventions (e.g. L2 VNI RT = VNI:VNI, VRF RT = 50000+index:1) before deployment — ad-hoc RTs cause silent import/export mismatches during DCI or brownfield migrations.',
+      'Enable `bgp log-neighbor-changes` on all EVPN speakers — session flaps are the most common source of MAC/IP withdrawal events and are otherwise invisible without logging.',
+      'Prefer EVPN ESI all-active multi-homing over MLAG for leaf-to-spine uplinks where EVPN is already deployed — ESI eliminates the peer-link as a failure domain.',
+      'After any topology change, verify RT-2, RT-3, and RT-5 route counts match expected values before declaring success — a missing route type is the most common symptom of a misconfigured import RT or missing redistribute learned.'
+    ],
     cliTranslation: [
       { legacy: 'router lisp', arista: 'router bgp 65001' },
       { legacy: 'instance-id 101', arista: 'vlan 10' },
@@ -362,6 +382,15 @@ interface Vlan10
       'Fast convergence on peer-link/keepalive failure.',
       'Simple operational model compared to stacking.'
     ],
+    bestPractices: [
+      'Always run the MLAG keepalive over a dedicated out-of-band path (Mgmt VRF on a separate link) — keepalive shared with data traffic can be disrupted by the very failure it needs to detect.',
+      'Configure `reload-delay` (300s recommended) so the MLAG domain is fully synchronized before the switch begins forwarding traffic after a reload — prevents transient black holes on boot.',
+      'Resolve every MLAG consistency-check warning before go-live; mismatched VLANs or port-channel modes on the two peers cause one-way forwarding failures that are difficult to diagnose under load.',
+      'Use fast LACP timers (`lacp rate fast`) on all MLAG port-channels — the default 30-second LACP timeout means a link failure may go undetected for up to 90 seconds.',
+      'Dimension the peer-link generously (at minimum 2×10G; prefer 100G) — during a peer failover the peer-link carries all traffic for the failed switch, and congestion causes drops.',
+      'Test peer-link failure deliberately in a maintenance window and document observed behaviour before production deployment — split-brain handling varies by design and must be understood in advance.',
+      'Reserve MLAG for server and access-layer dual-homing; prefer EVPN ESI multi-homing for leaf-to-spine uplinks in fabrics already running EVPN — ESI eliminates the peer-link as a blast-radius.'
+    ],
     cliTranslation: [
       { legacy: 'vpc domain 10', arista: 'mlag configuration' },
       { legacy: 'peer-keepalive destination 10.0.0.2', arista: 'peer-address 10.0.0.2 vrf MGMT' },
@@ -424,6 +453,15 @@ interface Port-Channel10
       'Lossless class isolation with PFC + ECN to minimize storage drops.',
       'Deterministic bandwidth allocation via QoS/traffic classes.',
       'Clear evidence: monitor pause storms, ECN marks, and queue depth.'
+    ],
+    bestPractices: [
+      'Validate MTU is 9214 bytes end-to-end across every hop in the storage fabric before enabling RoCE v2 — any undersized MTU causes RDMA message fragmentation and produces latency spikes that are misdiagnosed as storage array problems.',
+      'Never configure PFC without ECN on the same traffic class — PFC alone creates head-of-line blocking; ECN provides early congestion signaling that prevents pause propagation and pause storms.',
+      'Isolate storage traffic to a single dedicated QoS traffic class (TC3 is the established RoCE v2 convention) and keep it strictly separate from all other traffic classes.',
+      'Monitor `show interfaces Ethernet1 priority-flow-control` at steady state — any persistent pause frames indicate a congestion or misconfiguration event, not normal operating behaviour for a healthy lossless fabric.',
+      'Mark RoCE v2 frames DSCP 26 (AF31) end-to-end from the host HBA through every fabric switch — inconsistent DSCP marking causes traffic to fall into the wrong traffic class and lose lossless treatment mid-path.',
+      'Use `show queue-monitor length detail` as the primary fabric health check during and after every change — sustained queue depth on a storage class is the leading indicator of impending pause events or latency degradation.',
+      'Choose NVMe/TCP for environments where full-fabric lossless discipline (consistent MTU, PFC, ECN across all hops) cannot be guaranteed — NVMe/TCP tolerates loss gracefully whereas RoCE v2 does not.'
     ],
     cliTranslation: [
       {
@@ -567,6 +605,15 @@ show queue-monitor length detail`
       'Deterministic RPF via underlay routing; easy troubleshooting with on-box flow tracing.',
       'Inline telemetry and packet capture (tcpdump) for verifying joins/flows.'
     ],
+    bestPractices: [
+      'Prefer SSM (232/8) over ASM wherever applications support IGMPv3 — SSM eliminates the RP entirely for source-known flows, drastically reduces multicast state, and removes the security risk of receivers joining any-source groups.',
+      'Deploy Anycast-RP in redundant pairs with MSDP or PIM Anycast-RP inter-RP signaling — a single RP is a network-wide single point of failure for all multicast traffic.',
+      'Enable IGMP snooping on every Layer 2 VLAN (`ip igmp snooping vlan X`) — without it, all multicast frames flood to every port in the VLAN, consuming bandwidth on non-subscribing hosts.',
+      'Maintain a documented multicast group address allocation plan — unmanaged group sprawl leads to address collisions, unintended cross-VRF leakage, and very difficult RCA when traffic appears on unexpected ports.',
+      'Treat RPF as the first check in any multicast black-hole investigation — the vast majority of multicast forwarding failures are caused by a missing or incorrect RPF entry in the unicast routing table, not a multicast configuration error.',
+      'Configure `ip igmp version 3` on all access interfaces — IGMPv3 is required for SSM joins and provides per-source leave capability that reduces leave latency compared to IGMPv2.',
+      'Collect `show ip pim neighbor`, `show ip mroute`, and `show ip igmp groups` as the standard first-response diagnostic set for any multicast incident — these three commands answer 90% of multicast troubleshooting questions.'
+    ],
     cliTranslation: [
       { legacy: 'ip multicast-routing', arista: 'ip multicast-routing' },
       { legacy: 'ip pim rp-address 10.10.10.10', arista: 'ip pim rp-address 10.10.10.10' },
@@ -670,6 +717,15 @@ show ip pim interface`
       'On-box automation via Python/eAPI without scraping.',
       'Visibility into namespaces, storage, and sensors.',
       'Rapid packet capture for live control/data-plane validation.'
+    ],
+    bestPractices: [
+      'Always prefix diagnostic commands with `ip netns exec <vrf-name>` when working inside a VRF — standard Linux tools executed in the default namespace have no VRF awareness and will return empty or misleading results.',
+      'Never make persistent configuration changes through the bash shell; use EOS CLI or CloudVision for all production configuration — bash changes bypass EOS configuration validation, rollback, and audit logging.',
+      'Always pass `-c <count>` to `tcpdump` — runaway captures with no packet limit will fill flash storage, which can crash EOS processes and cause an unplanned reload.',
+      'Avoid destructive Linux commands (`rm -rf`, `kill -9` on ProcMgr agents, `dd` to block devices) without explicit Arista TAC guidance — EOS process recovery from manual agent kills is not guaranteed.',
+      'Prefer Python eAPI scripts over ad-hoc bash scripts for any automation that will run repeatedly — eAPI returns structured JSON, integrates with CI/CD, and supports dry-run validation before commit.',
+      'Check flash utilisation (`df -h /`) before and after upgrades or extended troubleshooting sessions — large pcap files and accumulated log files are the most common and easily overlooked cause of flash exhaustion.',
+      'Be aware that EOS AAA logging captures CLI commands but does not log all activity inside a bash session — enable syslog forwarding of bash history to a central collector for audit compliance in regulated environments.'
     ],
     cliTranslation: [
       { legacy: 'enable\nbash', arista: 'bash' },
