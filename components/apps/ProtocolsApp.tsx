@@ -142,6 +142,96 @@ const NVMeOFVisual = () => (
   </div>
 );
 
+const BGPVisual = () => (
+  <div className="relative w-full h-full flex items-center justify-center bg-card-bg rounded-3xl border border-border p-8 overflow-hidden group">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.08)_0%,transparent_70%)]"></div>
+    <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-sm">
+      <div className="flex justify-between w-full items-center">
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-20 h-12 bg-zinc-950 border border-violet-500/40 rounded-xl flex flex-col items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.2)]">
+            <span className="text-[9px] font-mono font-bold text-violet-400">AS 65001</span>
+            <span className="text-[7px] font-mono text-zinc-600">LEAF</span>
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-1 flex-1 px-4">
+          <div className="w-full h-px bg-gradient-to-r from-violet-500/40 via-violet-500 to-violet-500/40 animate-pulse"></div>
+          <span className="text-[8px] font-mono text-violet-500 uppercase tracking-wider">eBGP NLRI</span>
+          <div className="w-full h-px bg-gradient-to-r from-violet-500/40 via-violet-500 to-violet-500/40 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-20 h-12 bg-zinc-950 border border-violet-500/40 rounded-xl flex flex-col items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.2)]">
+            <span className="text-[9px] font-mono font-bold text-violet-400">AS 65000</span>
+            <span className="text-[7px] font-mono text-zinc-600">SPINE</span>
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-3 opacity-70">
+        {['OPEN', 'UPDATE', 'KEEPALIVE'].map((msg) => (
+          <div key={msg} className="px-2 py-1.5 rounded-lg bg-zinc-950 border border-violet-500/20 text-[7px] font-mono text-violet-400 uppercase tracking-wider text-center">{msg}</div>
+        ))}
+      </div>
+    </div>
+    <div className="absolute bottom-4 left-6 text-[8px] font-mono text-zinc-600 uppercase tracking-widest">Control Plane: BGP Path Vector</div>
+  </div>
+);
+
+const QoSVisual = () => (
+  <div className="relative w-full h-full flex items-center justify-center bg-card-bg rounded-3xl border border-border p-8 overflow-hidden group">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.08)_0%,transparent_70%)]"></div>
+    <div className="relative z-10 flex flex-col items-center gap-4 w-full max-w-sm">
+      <div className="w-full space-y-2">
+        {[
+          { label: 'TC7 · EF  · DSCP 46', color: 'bg-red-500', width: 'w-1/4', tag: 'Voice/PTP' },
+          { label: 'TC5 · CS5 · DSCP 40', color: 'bg-orange-500', width: 'w-2/5', tag: 'Video/RoCE' },
+          { label: 'TC3 · AF31· DSCP 26', color: 'bg-amber-400', width: 'w-3/5', tag: 'Storage' },
+          { label: 'TC0 · BE  · DSCP  0', color: 'bg-zinc-600', width: 'w-full', tag: 'Default' },
+        ].map((q) => (
+          <div key={q.label} className="flex items-center gap-3">
+            <span className="text-[8px] font-mono text-zinc-500 w-36 shrink-0">{q.label}</span>
+            <div className={`h-5 ${q.width} ${q.color}/60 border border-amber-500/20 rounded group-hover:opacity-100 opacity-70 transition-all`}></div>
+            <span className="text-[8px] font-mono text-zinc-600">{q.tag}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div className="absolute bottom-4 left-6 text-[8px] font-mono text-zinc-600 uppercase tracking-widest">EOS Traffic-Policy: Queue Depth Model</div>
+  </div>
+);
+
+const MACsecVisual = () => (
+  <div className="relative w-full h-full flex items-center justify-center bg-card-bg rounded-3xl border border-border p-8 overflow-hidden group">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.08)_0%,transparent_70%)]"></div>
+    <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-sm">
+      <div className="flex items-center gap-3 w-full justify-center">
+        <div className="w-16 h-12 bg-zinc-950 border border-emerald-500/30 rounded-xl flex flex-col items-center justify-center">
+          <Shield size={14} className="text-emerald-500" />
+          <span className="text-[7px] font-mono text-zinc-500 mt-0.5">SW-A</span>
+        </div>
+        <div className="flex-1 relative h-8 flex items-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full h-3 bg-emerald-950 border border-emerald-500/30 rounded flex items-center justify-center overflow-hidden">
+              <span className="text-[7px] font-mono text-emerald-500 tracking-wider animate-pulse">AES-256-GCM ████████████</span>
+            </div>
+          </div>
+        </div>
+        <div className="w-16 h-12 bg-zinc-950 border border-emerald-500/30 rounded-xl flex flex-col items-center justify-center">
+          <Shield size={14} className="text-emerald-500" />
+          <span className="text-[7px] font-mono text-zinc-500 mt-0.5">SW-B</span>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3 opacity-80">
+        {[{ k: 'CAK', v: 'Pre-shared' }, { k: 'SAK', v: 'Session-derived' }].map((item) => (
+          <div key={item.k} className="px-3 py-2 rounded-lg bg-zinc-950 border border-emerald-500/20 text-center">
+            <p className="text-[9px] font-mono text-emerald-400 font-bold">{item.k}</p>
+            <p className="text-[8px] font-mono text-zinc-500 mt-0.5">{item.v}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div className="absolute bottom-4 left-6 text-[8px] font-mono text-zinc-600 uppercase tracking-widest">802.1AE: Wire-Speed L2 Encryption</div>
+  </div>
+);
+
 interface RoleConfigViewerProps {
   roles: RoleConfig[];
 }
@@ -349,6 +439,41 @@ export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }
                  </section>
                )}
 
+               {active.masteryPath && active.masteryPath.length > 0 && (
+                 <section className="space-y-6">
+                   <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-2">
+                     <Target size={14} className="text-purple-500" /> Learning Path
+                   </h3>
+                   <div className="space-y-4">
+                     {active.masteryPath.map((level, i) => {
+                       const levelNum = Math.min(i + 1, 4) * 100;
+                       type LevelStyle = { bg: string; border: string; text: string; badge: string };
+                       const styleMap: Record<string, LevelStyle> = {
+                         Foundation: { bg: 'bg-blue-500/8', border: 'border-blue-500/20', text: 'text-blue-400', badge: 'bg-blue-900/40 text-blue-300 border-blue-500/30' },
+                         Logic:       { bg: 'bg-amber-500/8', border: 'border-amber-500/20', text: 'text-amber-400', badge: 'bg-amber-900/40 text-amber-300 border-amber-500/30' },
+                         Architecture:{ bg: 'bg-emerald-500/8', border: 'border-emerald-500/20', text: 'text-emerald-400', badge: 'bg-emerald-900/40 text-emerald-300 border-emerald-500/30' },
+                       };
+                       const c: LevelStyle = styleMap[level.level] ?? styleMap['Architecture'];
+                       return (
+                         <div key={i} className={`p-5 ${c.bg} border ${c.border} rounded-2xl space-y-3 hover:brightness-125 transition-all`}>
+                           <div className="flex items-center gap-3">
+                             <span className={`px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-widest rounded border ${c.badge}`}>
+                               {levelNum} · {level.level}
+                             </span>
+                             <h4 className={`text-sm font-bold ${c.text}`}>{level.heading}</h4>
+                           </div>
+                           <p className="text-xs text-zinc-400 leading-relaxed">{level.body}</p>
+                           <div className={`px-3 py-1.5 inline-flex items-center gap-2 rounded-lg border ${c.border} ${c.bg}`}>
+                             <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider">Key Concept:</span>
+                             <code className={`text-[10px] font-mono font-bold ${c.text}`}>{level.keyConcept}</code>
+                           </div>
+                         </div>
+                       );
+                     })}
+                   </div>
+                 </section>
+               )}
+
                {active.overview && (
                  <section className="space-y-6">
                    <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-2">
@@ -395,6 +520,9 @@ export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }
                    {active.id === 'evpn' && <EVPNVisual />}
                    {active.id === 'mlag' && <MLAGVisual />}
                    {active.id === 'nvmeof' && <NVMeOFVisual />}
+                   {active.id === 'bgp' && <BGPVisual />}
+                   {active.id === 'qos' && <QoSVisual />}
+                   {active.id === 'macsec' && <MACsecVisual />}
                  </div>
               </section>
 
