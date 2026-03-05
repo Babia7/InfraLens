@@ -231,6 +231,252 @@ const DESIGNS: ValidatedDesign[] = [
       { type: 'Config Snippet', description: 'EVPN + ECN baseline template' },
       { type: 'PDF', description: 'AI pod cutover + validation steps' }
     ]
+  },
+  {
+    id: 'campus-sm',
+    name: 'Campus Spline Small/Medium',
+    fabricType: 'Collapsed Spline (M-LAG)',
+    brownfieldReady: true,
+    scale: '100–500 users · PoE/Multigig',
+    useCases: ['Campus', 'PoE', 'Enterprise Campus'],
+    topology: 'Collapsed Spline 2-node M-LAG core; Multigig/PoE access',
+    rtSchema: 'VRF-lite; no EVPN required at this scale',
+    mtuPlan: '1500 default; 9000 optional on uplinks',
+    underlay: 'Routed access BGP unnumbered or OSPF; DHCP relay per VLAN',
+    overlay: 'VRF-lite (Corp / Guest / IoT); optional MACsec on uplinks',
+    avdSeed: { spines: 2, leaves: 4, linksPerLeaf: 2, uplinkSpeed: '10/25G', vrfs: ['Corp', 'Guest', 'IoT'], notes: 'M-LAG core pair; ZTP via CloudVision' },
+    bom: [
+      { item: '720DP-48S (PoE access)', count: '4', notes: 'LLDP-MED profiles per port' },
+      { item: '720XP-24ZY4 (Multigig spline)', count: '2', notes: 'M-LAG peers; PoE++ on access ports' },
+      { item: 'Optics: 10/25G SFP+/SFP28', notes: 'Validate breakout for uplinks' }
+    ],
+    mandatory: [
+      'MTU consistency core→access',
+      'PoE class discipline per endpoint profile',
+      'M-LAG consistency-check before cutover',
+      'DHCP snooping on access VLANs'
+    ],
+    optional: [
+      'MACsec on uplinks (720XP supports AES-128)',
+      'CloudVision ZTP for access switches',
+      'DHCP guard + ARP inspection per VLAN',
+      'sFlow on uplinks for visibility'
+    ],
+    preflight: [
+      'Verify PoE budget per closet (W per port × connected devices)',
+      'Confirm DHCP relay VRF reachability from core',
+      'Run M-LAG consistency-check: show mlag config-sanity',
+      'Validate uplink MTU: ping sweep with df-bit set'
+    ],
+    runbook: [
+      'Stage config in CV Change Control; snapshot before push',
+      'Bring up M-LAG peer-link and keepalive; verify: show mlag',
+      'Enable routing + DHCP helpers; test client onboarding per VLAN',
+      'Monitor PoE draw: show power inline; confirm DOMs on optics',
+      'Enable MACsec on uplinks if required; revalidate throughput',
+      'Rollback via CV snapshot if any validation step fails'
+    ],
+    evidence: {
+      source: 'Campus Spline VdC (Small/Medium)',
+      lastValidated: 'Q4 FY24',
+      eosTrain: '4.30.5M (M)',
+      caveats: [
+        'Avoid mixed jumbo defaults on access ports',
+        'Document PoE priority for phones, APs, and cameras',
+        'M-LAG keepalive must survive peer-link failure — use separate path'
+      ]
+    },
+    exports: [
+      { type: 'AVD Inventory', description: 'Small campus starter: 2x spline, 4x access' },
+      { type: 'Config Snippet', description: 'M-LAG core + DHCP relay + VRF-lite template' },
+      { type: 'Markdown', description: 'Field kit for campus cutover' }
+    ]
+  },
+  {
+    id: 'zero-trust',
+    name: 'Zero Trust Secure Fabric',
+    fabricType: 'L3 Leaf-Spine (MSS + MACsec)',
+    brownfieldReady: false,
+    scale: '50–500 racks · 25/100G',
+    useCases: ['Security', 'Cloud DC', 'Regulated DC'],
+    topology: 'L3LS with MSS-Group micro-segmentation; MACsec on all ISL; NDR tap ports per leaf',
+    rtSchema: 'RT L2: 20:VLAN · RT L3: 60:VRF (one VRF per security zone)',
+    mtuPlan: '9216 underlay; 9116 effective after MACsec overhead (100B)',
+    underlay: 'ISIS with BFD; MACsec AES-256 on all ISL and spine uplinks',
+    overlay: 'EVPN RT-2/RT-5 with VRF per zone; MSS-Group for intra-VRF micro-segmentation',
+    avdSeed: { spines: 4, leaves: 16, linksPerLeaf: 4, uplinkSpeed: '100G', vrfs: ['Prod', 'PCI', 'DMZ', 'Mgmt'], notes: 'MSS-Group per zone; MACsec on all ISL' },
+    bom: [
+      { item: '7280R3 spine (MACsec + deep buffer)', count: '4', notes: 'RR-capable; MACsec line cards' },
+      { item: '7050X4 leaf (MACsec capable)', count: '16', notes: 'MSS-Group + NDR tap per leaf' },
+      { item: 'MACsec-capable QSFP100 optics', notes: 'Verify per-platform support matrix' },
+      { item: 'NDR probes / tap aggregator', notes: 'Mirror port per leaf for visibility' }
+    ],
+    mandatory: [
+      'MACsec on all ISL — static CAK or MKA',
+      'MSS-Group policy anchored per security zone VRF',
+      'VRF boundary enforcement — no RT leaks across zones without policy',
+      'MACsec overhead: lower MTU to 9116 on all affected links'
+    ],
+    optional: [
+      'NDR tap via ERSPAN/mirror to security SIEM',
+      'PTP if compliance requires timing (PCI, HIPAA)',
+      'LANZ telemetry streaming to CloudVision for anomaly detection',
+      'CloudVision Compliance for config drift alerting'
+    ],
+    preflight: [
+      'Confirm MACsec key parity on both ends of every ISL',
+      'Audit VRF RT uniqueness — no overlap across zones',
+      'Validate MSS-Group rule order; explicit deny at zone boundary',
+      'Verify MACsec capable optics per platform support matrix',
+      'Check MTU: underlay 9216 → reduce to 9116 after MACsec'
+    ],
+    runbook: [
+      'Bring up ISIS underlay with BFD; validate reachability',
+      'Enable MACsec on ISL one link at a time; verify: show mac security',
+      'Enable EVPN AF per zone VRF; validate RT-2/RT-5 advertisements',
+      'Apply MSS-Group policies per zone; test intra-zone and inter-zone traffic',
+      'Configure NDR tap mirror ports; validate probe connectivity',
+      'Capture full show tech before handing off; save CV snapshot'
+    ],
+    evidence: {
+      source: 'Arista Zero Trust Validated Design',
+      url: 'https://www.arista.com/en/solutions/validated-designs',
+      lastValidated: 'Q1 FY25',
+      eosTrain: '4.31.2F (R)',
+      caveats: [
+        'Greenfield recommended — MACsec overhead breaks brownfield MTU assumptions',
+        'MSS-Group rule audit required before production — default deny is aggressive',
+        'MACsec throughput varies by platform and line card — verify datasheet'
+      ]
+    },
+    exports: [
+      { type: 'AVD Inventory', description: 'Zero Trust spine-leaf with zone VRFs' },
+      { type: 'Config Snippet', description: 'MACsec ISL + MSS-Group zone template' },
+      { type: 'Markdown', description: 'Security fabric field kit' }
+    ]
+  },
+  {
+    id: 'branch-wan',
+    name: 'Branch / WAN Edge ZTP',
+    fabricType: 'Branch Collapsed (ZTP)',
+    brownfieldReady: true,
+    scale: '10–100 users · 1/10G WAN',
+    useCases: ['Campus', 'Edge-WAN', 'IoT'],
+    topology: 'Single or dual-switch collapsed branch; CloudVision ZTP; dual WAN uplink with BFD failover',
+    rtSchema: 'VRF-lite; 10:VLAN campus backhaul, 50:VRF WAN',
+    mtuPlan: '1500 WAN; 9000 internal optional',
+    underlay: 'Static or eBGP WAN uplink with BFD; DHCP relay; VRF-aware routing',
+    overlay: 'VRF-lite; optional EVPN RT-5 for campus backhaul via SD-WAN handoff',
+    avdSeed: { spines: 0, leaves: 2, linksPerLeaf: 2, uplinkSpeed: '1/10G', vrfs: ['Corp', 'Guest'], notes: 'ZTP via CVaaS; dual WAN uplink BFD' },
+    bom: [
+      { item: '720XP-24ZY4 (PoE/Multigig branch)', count: '1–2', notes: 'ZTP-capable; dual uplink' },
+      { item: 'WAN router or SD-WAN CPE', notes: 'Handoff to Arista on LAN side' },
+      { item: 'CloudVision-as-a-Service license', notes: 'Required for ZTP provisioning' }
+    ],
+    mandatory: [
+      'CloudVision ZTP — device token pre-staged in CVaaS',
+      'Dual WAN uplink with BFD for fast failover',
+      'DHCP snooping on all access VLANs',
+      'VRF separation: Corp vs Guest traffic'
+    ],
+    optional: [
+      'PoE class policy (phones, APs, cameras)',
+      'MACsec on WAN uplink (720XP supports AES-128)',
+      'sFlow sampling to CVaaS for branch visibility',
+      'LLDP-MED profiles for phone/AP auto-config'
+    ],
+    preflight: [
+      'Validate ZTP token registration in CloudVision',
+      'Confirm both WAN circuits reachable; test BFD timer alignment',
+      'Check VRF RT schema does not collide with campus or DC',
+      'Verify 720XP optics compatibility for WAN handoff interface'
+    ],
+    runbook: [
+      'Pre-stage ZTP token in CVaaS; connect switch to WAN — auto-provisions',
+      'Validate: show cloudvision status; confirm CV connectivity',
+      'Test WAN uplink failover: shut primary; verify BFD reconvergence',
+      'Enable DHCP relay per VLAN; test Corp and Guest client onboarding',
+      'Monitor PoE draw if APs/phones attached; enable sFlow if needed',
+      'Rollback: restore CV snapshot or push baseline via CVaaS'
+    ],
+    evidence: {
+      source: 'Branch ZTP Reference Design',
+      lastValidated: 'Q4 FY24',
+      eosTrain: '4.30.5M (M)',
+      caveats: [
+        'ZTP requires CVaaS reachability at boot — ensure OOB or WAN is up',
+        'Dual WAN BFD timer alignment matters — mismatch causes flapping',
+        'Guest VLAN isolation is mandatory for IoT/BYOD compliance'
+      ]
+    },
+    exports: [
+      { type: 'AVD Inventory', description: 'Branch ZTP starter with dual WAN' },
+      { type: 'Config Snippet', description: 'ZTP bootstrap + dual WAN BFD template' },
+      { type: 'Markdown', description: 'Branch deployment field kit' }
+    ]
+  },
+  {
+    id: 'storage',
+    name: 'NVMe-oF Storage Fabric',
+    fabricType: 'Lossless Leaf-Spine (Storage)',
+    brownfieldReady: false,
+    scale: '4–32 leaf pairs · 25/100G',
+    useCases: ['Storage', 'IP Storage', 'AI/ML Pods'],
+    topology: 'Purpose-built lossless leaf-spine; PFC on storage class; ECN on all queues; LANZ on every leaf',
+    rtSchema: 'RT L2: 30:VLAN · or pure L3 routed access per storage subnet',
+    mtuPlan: '9216 end-to-end; validate NVMe/RoCEv2 MTU on host NICs (must match)',
+    underlay: 'ISIS/OSPF with BFD; ECN + PFC enabled per storage traffic class',
+    overlay: 'EVPN RT-2 for L2 storage VLANs; or pure routed access per VRF',
+    avdSeed: { spines: 2, leaves: 8, linksPerLeaf: 4, uplinkSpeed: '100G', vrfs: ['Storage'], notes: 'PFC + ECN lossless; LANZ on every leaf' },
+    bom: [
+      { item: '7050X4 leaf (deep buffer, ECN)', count: '8', notes: 'LANZ + PFC capable; 25/100G host ports' },
+      { item: '7050X4 spine (deep buffer)', count: '2', notes: 'Deep buffer for storage burst absorption' },
+      { item: '25G/100G DAC or optics per host', notes: 'Validate RoCEv2 NIC driver on hosts' },
+      { item: 'CloudVision LANZ license', notes: 'Required for latency telemetry streaming' }
+    ],
+    mandatory: [
+      'PFC enabled on storage traffic class (TC3 typical)',
+      'ECN threshold tuned per buffer profile (not default)',
+      'MTU parity 9216 host NIC → leaf → spine — no exceptions',
+      'LANZ enabled on all leaf ports carrying storage traffic'
+    ],
+    optional: [
+      'NVMe/TCP as fallback (no PFC required for TCP path)',
+      'LANZ streaming to CloudVision for latency anomaly detection',
+      'sFlow per storage VLAN for flow visibility',
+      'Separate lossless and lossy fabrics if mixed workloads'
+    ],
+    preflight: [
+      'Audit PFC + ECN config: show qos interface; show traffic-policy',
+      'Confirm buffer profile applied on all storage-facing interfaces',
+      'Validate RoCEv2 NIC driver and firmware on all hosts',
+      'MTU sweep: ping 9000 with df-bit from host → remote host',
+      'Verify LANZ license active: show lanz status'
+    ],
+    runbook: [
+      'Apply buffer profile + PFC/ECN on all leaf/spine interfaces',
+      'Bring up underlay with BFD; verify: show ip ospf neighbor / bgp summary',
+      'Enable LANZ on leaf ports; stream to CloudVision',
+      'Connect hosts; validate RoCEv2 traffic lossless via LANZ latency graph',
+      'Run NVMe/TCP as parallel test if fallback path required',
+      'Capture show tech + LANZ baseline before handing off to storage team'
+    ],
+    evidence: {
+      source: 'NVMe-oF Storage Fabric Validation',
+      url: 'https://www.arista.com/en/solutions/validated-designs',
+      lastValidated: 'Q1 FY25',
+      eosTrain: '4.31.2F (R)',
+      caveats: [
+        'Do not mix general-purpose and storage traffic on same PFC domain',
+        'ECN threshold defaults are NOT correct for NVMe-oF — must tune per buffer profile',
+        'Host NIC firmware must support RoCEv2 — validate before fabric turn-up'
+      ]
+    },
+    exports: [
+      { type: 'AVD Inventory', description: 'Storage leaf-spine with LANZ + PFC config' },
+      { type: 'Config Snippet', description: 'PFC + ECN + LANZ lossless template' },
+      { type: 'Markdown', description: 'Storage fabric field kit' }
+    ]
   }
 ];
 
