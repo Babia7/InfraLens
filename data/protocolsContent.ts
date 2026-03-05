@@ -18,6 +18,7 @@ export interface ProtocolDetail {
   tagline: string;
   description: string;
   keyBenefits: string[];
+  bestPractices?: string[];
   cliTranslation: { legacy: string; arista: string }[];
   masteryPath?: MasteryLevel[];
   roleConfigs?: RoleConfig[];
@@ -50,13 +51,23 @@ export const PROTOCOL_CONTENT: Record<string, ProtocolDetail> = {
       'Deterministic change control: preflight underlay/MTU/RT schema before enabling overlays.',
       'Telemetry-ready: snapshot/rollback + ERSPAN/sFlow/pcaps to prove encapsulation and symmetry.'
     ],
+    bestPractices: [
+      'Validate underlay MTU end-to-end (≥1600 bytes) before enabling any VXLAN overlay — MTU mismatches cause silent black holes that are hard to diagnose.',
+      'Use a dedicated source loopback (Loopback1) for VXLAN, separate from the BGP router-ID loopback (Loopback0), to decouple data-plane identity from control-plane peering.',
+      'Always pair VXLAN with an EVPN control plane in production; static flood-lists do not scale, have no MAC mobility, and require manual maintenance.',
+      'Run `service routing protocols model multi-agent` before enabling EVPN — without it, EVPN address-family commands will be rejected silently on many EOS versions.',
+      'Define VNI allocations from a documented schema before deployment (e.g. L2 VNI = 10000 + VLAN, L3/VRF VNI = 50000 + VRF index) to prevent RT collisions across sites.',
+      'Use `ip address virtual` for all Anycast Gateway SVIs — unique per-switch addresses prevent consistent gateway behavior and break host mobility.',
+      'Verify symmetric routing end-to-end: asymmetric IRB causes return traffic to miss the Anycast GW and creates intermittent connectivity failures under load.',
+      'Take a snapshot (`show tech-support`, EVPN route counts, ARP table) before and after every change window to enable rapid rollback and RCA.'
+    ],
     cliTranslation: [
       { legacy: 'feature otv', arista: 'interface vxlan1' },
       { legacy: 'otv control-group 239.1.1.1', arista: 'vxlan source-interface Loopback0' },
       { legacy: 'otv extend-vlan 10', arista: 'vxlan vlan 10 vni 10010' },
       { legacy: 'otv site-bridge-interface...', arista: 'vxlan flood vtep 1.1.1.1 2.2.2.2' },
-      { legacy: 'mpls l2vpn bridge-domain', arista: 'vxlan udp-port 4789\nvxlan learn-restrict off' },
-      { legacy: 'storm-control broadcast', arista: 'vxlan arp-suppression off|on' }
+      { legacy: 'mpls l2vpn bridge-domain / xconnect', arista: 'vxlan udp-port 4789\nno mac address-table learning vlan 10  ! disable data-plane learn; use EVPN' },
+      { legacy: 'ip directed-broadcast (flood reduction)', arista: 'vxlan arp-suppression  ! proxy ARP at VTEP; cuts ARP floods across fabric' }
     ],
     masteryPath: [
       {
@@ -240,7 +251,16 @@ monitor session EVPN erspan ip-destination 10.10.200.10`
       'Anycast Gateway (VARP) for seamless mobility.',
       'ARP suppression cuts broadcast by up to 70%.',
       'All-active multi-homing (ESI) maximizes links.',
-      'Cryptographic segmentation via VRF-Lite/EVPN.'
+      'Policy-based logical segmentation via VRF-Lite/EVPN.'
+    ],
+    bestPractices: [
+      'Always configure `send-community extended` on every EVPN BGP neighbor — omitting it silently drops all route-target extended communities and breaks the entire EVPN control plane with no error message.',
+      'Peer EVPN sessions from a stable loopback (`update-source Loopback0`), not physical interfaces — physical interface flaps will reset EVPN sessions and cause traffic loss.',
+      'Use iBGP with route-reflector-client for EVPN overlay peering on spines; never mix eBGP ASNs with route-reflector-client in the same session — route reflection is an iBGP-only concept.',
+      'Standardize and document route-target conventions (e.g. L2 VNI RT = VNI:VNI, VRF RT = 50000+index:1) before deployment — ad-hoc RTs cause silent import/export mismatches during DCI or brownfield migrations.',
+      'Enable `bgp log-neighbor-changes` on all EVPN speakers — session flaps are the most common source of MAC/IP withdrawal events and are otherwise invisible without logging.',
+      'Prefer EVPN ESI all-active multi-homing over MLAG for leaf-to-spine uplinks where EVPN is already deployed — ESI eliminates the peer-link as a failure domain.',
+      'After any topology change, verify RT-2, RT-3, and RT-5 route counts match expected values before declaring success — a missing route type is the most common symptom of a misconfigured import RT or missing redistribute learned.'
     ],
     cliTranslation: [
       { legacy: 'router lisp', arista: 'router bgp 65001' },
@@ -300,7 +320,9 @@ interface Vlan10
 !
 router bgp 65101
    router-id 1.1.1.1
-   neighbor 2.2.2.2 remote-as 65000
+   neighbor 2.2.2.2 remote-as 65101
+   neighbor 2.2.2.2 update-source Loopback0
+   neighbor 2.2.2.2 send-community extended
    address-family evpn
       neighbor 2.2.2.2 activate
    vlan 10
@@ -312,10 +334,14 @@ router bgp 65101
       {
         role: 'Spine (RR)',
         description: 'Reflects EVPN routes between leaves while running underlay routing.',
-        config: `router bgp 65000
+        config: `router bgp 65101
    bgp log-neighbor-changes
    neighbor 1.1.1.1 remote-as 65101
-   neighbor 2.2.2.2 remote-as 65102
+   neighbor 1.1.1.1 update-source Loopback0
+   neighbor 1.1.1.1 send-community extended
+   neighbor 2.2.2.2 remote-as 65101
+   neighbor 2.2.2.2 update-source Loopback0
+   neighbor 2.2.2.2 send-community extended
    address-family evpn
       neighbor 1.1.1.1 activate
       neighbor 1.1.1.1 route-reflector-client
@@ -328,6 +354,7 @@ router bgp 65101
         config: `router bgp 65101
    router-id 1.1.1.1
    neighbor 203.0.113.1 remote-as 65200
+   neighbor 203.0.113.1 send-community extended
    address-family evpn
       neighbor 203.0.113.1 activate
    vrf Prod
@@ -338,7 +365,7 @@ router bgp 65101
 !
 interface Vlan10
    vrf Prod
-   ip address 10.10.10.1/24`
+   ip address virtual 10.10.10.1/24`
       }
     ]
   },
@@ -346,7 +373,7 @@ interface Vlan10
     id: 'mlag',
     name: 'MLAG',
     legacyTerm: 'VPC / Stackwise',
-    tagline: 'Non-stop Layer2 Dual-Homing without Stack Dependence.',
+    tagline: 'Non-stop Layer 2 Dual-Homing without Stack Dependence.',
     description:
       'Multi-Chassis Link Aggregation lets two independent switches act as a single logical LAG endpoint to downstream devices, keeping control planes independent while providing active-active connectivity.',
     keyBenefits: [
@@ -354,6 +381,15 @@ interface Vlan10
       'Independent control planes—no chassis master/slave.',
       'Fast convergence on peer-link/keepalive failure.',
       'Simple operational model compared to stacking.'
+    ],
+    bestPractices: [
+      'Always run the MLAG keepalive over a dedicated out-of-band path (Mgmt VRF on a separate link) — keepalive shared with data traffic can be disrupted by the very failure it needs to detect.',
+      'Configure `reload-delay` (300s recommended) so the MLAG domain is fully synchronized before the switch begins forwarding traffic after a reload — prevents transient black holes on boot.',
+      'Resolve every MLAG consistency-check warning before go-live; mismatched VLANs or port-channel modes on the two peers cause one-way forwarding failures that are difficult to diagnose under load.',
+      'Use fast LACP timers (`lacp rate fast`) on all MLAG port-channels — the default 30-second LACP timeout means a link failure may go undetected for up to 90 seconds.',
+      'Dimension the peer-link generously (at minimum 2×10G; prefer 100G) — during a peer failover the peer-link carries all traffic for the failed switch, and congestion causes drops.',
+      'Test peer-link failure deliberately in a maintenance window and document observed behaviour before production deployment — split-brain handling varies by design and must be understood in advance.',
+      'Reserve MLAG for server and access-layer dual-homing; prefer EVPN ESI multi-homing for leaf-to-spine uplinks in fabrics already running EVPN — ESI eliminates the peer-link as a blast-radius.'
     ],
     cliTranslation: [
       { legacy: 'vpc domain 10', arista: 'mlag configuration' },
@@ -410,7 +446,7 @@ interface Port-Channel10
     legacyTerm: 'Fibre Channel / iSCSI',
     tagline: 'Lossless, low-latency storage fabrics over Ethernet.',
     description:
-      'NVMe over Fabrics extends NVMe semantics across the network with microsecond latency. Deployments typically choose NVMe/RoCE v2 for ultra-low latency or NVMe/TCP for simpler operations on standard Ethernet. Success depends on consistent MTU, clear QoS/traffic-class policy, and observable queue behavior. NVMe-oF Overview: Protocol model and transport options (TCP/RDMA) with performance tradeoffs.',
+      'NVMe over Fabrics extends NVMe semantics across the network with microsecond latency. Deployments typically choose NVMe/RoCE v2 for ultra-low latency or NVMe/TCP for simpler operations on standard Ethernet. Success depends on consistent MTU, clear QoS/traffic-class policy, and observable queue behavior.',
     keyBenefits: [
       'NVMe semantics over IP: low latency with end-to-end visibility.',
       'Routable RDMA (RoCE v2) across leaf-spine without FC islands.',
@@ -418,21 +454,38 @@ interface Port-Channel10
       'Deterministic bandwidth allocation via QoS/traffic classes.',
       'Clear evidence: monitor pause storms, ECN marks, and queue depth.'
     ],
+    bestPractices: [
+      'Validate MTU is 9214 bytes end-to-end across every hop in the storage fabric before enabling RoCE v2 — any undersized MTU causes RDMA message fragmentation and produces latency spikes that are misdiagnosed as storage array problems.',
+      'Never configure PFC without ECN on the same traffic class — PFC alone creates head-of-line blocking; ECN provides early congestion signaling that prevents pause propagation and pause storms.',
+      'Isolate storage traffic to a single dedicated QoS traffic class (TC3 is the established RoCE v2 convention) and keep it strictly separate from all other traffic classes.',
+      'Monitor `show interfaces Ethernet1 priority-flow-control` at steady state — any persistent pause frames indicate a congestion or misconfiguration event, not normal operating behaviour for a healthy lossless fabric.',
+      'Mark RoCE v2 frames DSCP 26 (AF31) end-to-end from the host HBA through every fabric switch — inconsistent DSCP marking causes traffic to fall into the wrong traffic class and lose lossless treatment mid-path.',
+      'Use `show queue-monitor length detail` as the primary fabric health check during and after every change — sustained queue depth on a storage class is the leading indicator of impending pause events or latency degradation.',
+      'Choose NVMe/TCP for environments where full-fabric lossless discipline (consistent MTU, PFC, ECN across all hops) cannot be guaranteed — NVMe/TCP tolerates loss gracefully whereas RoCE v2 does not.'
+    ],
     cliTranslation: [
       {
-        legacy: '',
+        legacy: `! FC/iSCSI: verify link and MTU on HBA/initiator
+show interface fc1/1 brief
+netstat -s | grep -i mtu`,
         arista: `show interfaces Ethernet1 | include MTU
 show interfaces Ethernet1 counters | include drop|pause
 show qos interfaces Ethernet1`
       },
       {
-        legacy: '',
-        arista: `show ip ecn
-show queue-monitor length detail
+        legacy: `! FC: check buffer credits and congestion
+show interface fc1/1 counters | grep -i credit
+! iSCSI: check TCP retransmits on initiator
+netstat -s | grep -i retransmit`,
+        arista: `show queue-monitor length detail
+show interfaces Ethernet1 priority-flow-control
 show logging | include PFC`
       },
       {
-        legacy: '',
+        legacy: `! FC: check SFP/optic health on switch
+show interface fc1/1 transceiver
+! iSCSI: check session count and errors
+iscsiadm -m session -P 1`,
         arista: `show interfaces status
 show interfaces Ethernet1 transceiver details
 show interfaces Ethernet1 priority-flow-control`
@@ -542,7 +595,7 @@ show queue-monitor length detail`
   MULTICAST: {
     id: 'multicast',
     name: 'Multicast (PIM/IGMP)',
-    legacyTerm: 'PIM Dense/Anycast-RP (vendor-specific)',
+    legacyTerm: 'PIM Dense Mode / Static RP',
     tagline: 'Deterministic multicast with Anycast-RP and fast failover.',
     description:
       'Arista EOS provides standards-based multicast with PIM Sparse Mode, Anycast-RP, and SSM. It emphasizes simple RPs, clear RPF paths, and modern telemetry for visibility.',
@@ -551,6 +604,15 @@ show queue-monitor length detail`
       'SSM (Source-Specific Multicast) to reduce state and security risks versus ASM.',
       'Deterministic RPF via underlay routing; easy troubleshooting with on-box flow tracing.',
       'Inline telemetry and packet capture (tcpdump) for verifying joins/flows.'
+    ],
+    bestPractices: [
+      'Prefer SSM (232/8) over ASM wherever applications support IGMPv3 — SSM eliminates the RP entirely for source-known flows, drastically reduces multicast state, and removes the security risk of receivers joining any-source groups.',
+      'Deploy Anycast-RP in redundant pairs with MSDP or PIM Anycast-RP inter-RP signaling — a single RP is a network-wide single point of failure for all multicast traffic.',
+      'Enable IGMP snooping on every Layer 2 VLAN (`ip igmp snooping vlan X`) — without it, all multicast frames flood to every port in the VLAN, consuming bandwidth on non-subscribing hosts.',
+      'Maintain a documented multicast group address allocation plan — unmanaged group sprawl leads to address collisions, unintended cross-VRF leakage, and very difficult RCA when traffic appears on unexpected ports.',
+      'Treat RPF as the first check in any multicast black-hole investigation — the vast majority of multicast forwarding failures are caused by a missing or incorrect RPF entry in the unicast routing table, not a multicast configuration error.',
+      'Configure `ip igmp version 3` on all access interfaces — IGMPv3 is required for SSM joins and provides per-source leave capability that reduces leave latency compared to IGMPv2.',
+      'Collect `show ip pim neighbor`, `show ip mroute`, and `show ip igmp groups` as the standard first-response diagnostic set for any multicast incident — these three commands answer 90% of multicast troubleshooting questions.'
     ],
     cliTranslation: [
       { legacy: 'ip multicast-routing', arista: 'ip multicast-routing' },
@@ -655,6 +717,15 @@ show ip pim interface`
       'On-box automation via Python/eAPI without scraping.',
       'Visibility into namespaces, storage, and sensors.',
       'Rapid packet capture for live control/data-plane validation.'
+    ],
+    bestPractices: [
+      'Always prefix diagnostic commands with `ip netns exec <vrf-name>` when working inside a VRF — standard Linux tools executed in the default namespace have no VRF awareness and will return empty or misleading results.',
+      'Never make persistent configuration changes through the bash shell; use EOS CLI or CloudVision for all production configuration — bash changes bypass EOS configuration validation, rollback, and audit logging.',
+      'Always pass `-c <count>` to `tcpdump` — runaway captures with no packet limit will fill flash storage, which can crash EOS processes and cause an unplanned reload.',
+      'Avoid destructive Linux commands (`rm -rf`, `kill -9` on ProcMgr agents, `dd` to block devices) without explicit Arista TAC guidance — EOS process recovery from manual agent kills is not guaranteed.',
+      'Prefer Python eAPI scripts over ad-hoc bash scripts for any automation that will run repeatedly — eAPI returns structured JSON, integrates with CI/CD, and supports dry-run validation before commit.',
+      'Check flash utilisation (`df -h /`) before and after upgrades or extended troubleshooting sessions — large pcap files and accumulated log files are the most common and easily overlooked cause of flash exhaustion.',
+      'Be aware that EOS AAA logging captures CLI commands but does not log all activity inside a bash session — enable syslog forwarding of bash history to a central collector for audit compliance in regulated environments.'
     ],
     cliTranslation: [
       { legacy: 'enable\nbash', arista: 'bash' },
