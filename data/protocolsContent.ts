@@ -55,8 +55,8 @@ export const PROTOCOL_CONTENT: Record<string, ProtocolDetail> = {
       { legacy: 'otv control-group 239.1.1.1', arista: 'vxlan source-interface Loopback0' },
       { legacy: 'otv extend-vlan 10', arista: 'vxlan vlan 10 vni 10010' },
       { legacy: 'otv site-bridge-interface...', arista: 'vxlan flood vtep 1.1.1.1 2.2.2.2' },
-      { legacy: 'mpls l2vpn bridge-domain', arista: 'vxlan udp-port 4789\nvxlan learn-restrict off' },
-      { legacy: 'storm-control broadcast', arista: 'vxlan arp-suppression off|on' }
+      { legacy: 'mpls l2vpn bridge-domain / xconnect', arista: 'vxlan udp-port 4789\nno mac address-table learning vlan 10  ! disable data-plane learn; use EVPN' },
+      { legacy: 'ip directed-broadcast (flood reduction)', arista: 'vxlan arp-suppression  ! proxy ARP at VTEP; cuts ARP floods across fabric' }
     ],
     masteryPath: [
       {
@@ -240,7 +240,7 @@ monitor session EVPN erspan ip-destination 10.10.200.10`
       'Anycast Gateway (VARP) for seamless mobility.',
       'ARP suppression cuts broadcast by up to 70%.',
       'All-active multi-homing (ESI) maximizes links.',
-      'Cryptographic segmentation via VRF-Lite/EVPN.'
+      'Policy-based logical segmentation via VRF-Lite/EVPN.'
     ],
     cliTranslation: [
       { legacy: 'router lisp', arista: 'router bgp 65001' },
@@ -300,7 +300,9 @@ interface Vlan10
 !
 router bgp 65101
    router-id 1.1.1.1
-   neighbor 2.2.2.2 remote-as 65000
+   neighbor 2.2.2.2 remote-as 65101
+   neighbor 2.2.2.2 update-source Loopback0
+   neighbor 2.2.2.2 send-community extended
    address-family evpn
       neighbor 2.2.2.2 activate
    vlan 10
@@ -312,10 +314,14 @@ router bgp 65101
       {
         role: 'Spine (RR)',
         description: 'Reflects EVPN routes between leaves while running underlay routing.',
-        config: `router bgp 65000
+        config: `router bgp 65101
    bgp log-neighbor-changes
    neighbor 1.1.1.1 remote-as 65101
-   neighbor 2.2.2.2 remote-as 65102
+   neighbor 1.1.1.1 update-source Loopback0
+   neighbor 1.1.1.1 send-community extended
+   neighbor 2.2.2.2 remote-as 65101
+   neighbor 2.2.2.2 update-source Loopback0
+   neighbor 2.2.2.2 send-community extended
    address-family evpn
       neighbor 1.1.1.1 activate
       neighbor 1.1.1.1 route-reflector-client
@@ -328,6 +334,7 @@ router bgp 65101
         config: `router bgp 65101
    router-id 1.1.1.1
    neighbor 203.0.113.1 remote-as 65200
+   neighbor 203.0.113.1 send-community extended
    address-family evpn
       neighbor 203.0.113.1 activate
    vrf Prod
@@ -338,7 +345,7 @@ router bgp 65101
 !
 interface Vlan10
    vrf Prod
-   ip address 10.10.10.1/24`
+   ip address virtual 10.10.10.1/24`
       }
     ]
   },
@@ -346,7 +353,7 @@ interface Vlan10
     id: 'mlag',
     name: 'MLAG',
     legacyTerm: 'VPC / Stackwise',
-    tagline: 'Non-stop Layer2 Dual-Homing without Stack Dependence.',
+    tagline: 'Non-stop Layer 2 Dual-Homing without Stack Dependence.',
     description:
       'Multi-Chassis Link Aggregation lets two independent switches act as a single logical LAG endpoint to downstream devices, keeping control planes independent while providing active-active connectivity.',
     keyBenefits: [
@@ -410,7 +417,7 @@ interface Port-Channel10
     legacyTerm: 'Fibre Channel / iSCSI',
     tagline: 'Lossless, low-latency storage fabrics over Ethernet.',
     description:
-      'NVMe over Fabrics extends NVMe semantics across the network with microsecond latency. Deployments typically choose NVMe/RoCE v2 for ultra-low latency or NVMe/TCP for simpler operations on standard Ethernet. Success depends on consistent MTU, clear QoS/traffic-class policy, and observable queue behavior. NVMe-oF Overview: Protocol model and transport options (TCP/RDMA) with performance tradeoffs.',
+      'NVMe over Fabrics extends NVMe semantics across the network with microsecond latency. Deployments typically choose NVMe/RoCE v2 for ultra-low latency or NVMe/TCP for simpler operations on standard Ethernet. Success depends on consistent MTU, clear QoS/traffic-class policy, and observable queue behavior.',
     keyBenefits: [
       'NVMe semantics over IP: low latency with end-to-end visibility.',
       'Routable RDMA (RoCE v2) across leaf-spine without FC islands.',
@@ -420,19 +427,27 @@ interface Port-Channel10
     ],
     cliTranslation: [
       {
-        legacy: '',
+        legacy: `! FC/iSCSI: verify link and MTU on HBA/initiator
+show interface fc1/1 brief
+netstat -s | grep -i mtu`,
         arista: `show interfaces Ethernet1 | include MTU
 show interfaces Ethernet1 counters | include drop|pause
 show qos interfaces Ethernet1`
       },
       {
-        legacy: '',
-        arista: `show ip ecn
-show queue-monitor length detail
+        legacy: `! FC: check buffer credits and congestion
+show interface fc1/1 counters | grep -i credit
+! iSCSI: check TCP retransmits on initiator
+netstat -s | grep -i retransmit`,
+        arista: `show queue-monitor length detail
+show interfaces Ethernet1 priority-flow-control
 show logging | include PFC`
       },
       {
-        legacy: '',
+        legacy: `! FC: check SFP/optic health on switch
+show interface fc1/1 transceiver
+! iSCSI: check session count and errors
+iscsiadm -m session -P 1`,
         arista: `show interfaces status
 show interfaces Ethernet1 transceiver details
 show interfaces Ethernet1 priority-flow-control`
@@ -542,7 +557,7 @@ show queue-monitor length detail`
   MULTICAST: {
     id: 'multicast',
     name: 'Multicast (PIM/IGMP)',
-    legacyTerm: 'PIM Dense/Anycast-RP (vendor-specific)',
+    legacyTerm: 'PIM Dense Mode / Static RP',
     tagline: 'Deterministic multicast with Anycast-RP and fast failover.',
     description:
       'Arista EOS provides standards-based multicast with PIM Sparse Mode, Anycast-RP, and SSM. It emphasizes simple RPs, clear RPF paths, and modern telemetry for visibility.',
