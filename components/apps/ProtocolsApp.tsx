@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Network, Zap, ShieldCheck, Box, ChevronRight, Terminal, Info, Layout, Activity, MessageSquare, Database, ArrowRightLeft, Server, Cpu, Share2, Shield, Radio, Layers, CheckCircle2, BookOpen, Target, Copy, Check } from 'lucide-react';
-import { PROTOCOL_CONTENT, ProtocolDetail } from '@data/protocolsContent';
+import { ArrowLeft, Network, Zap, ShieldCheck, ChevronRight, Terminal, Info, Layout, Activity, MessageSquare, Database, ArrowRightLeft, Server, Cpu, Share2, Shield, Layers, CheckCircle2, BookOpen, Target, Copy, Check, Radio, GitBranch } from 'lucide-react';
+import { PROTOCOL_CONTENT, ProtocolDetail, DCContext } from '@data/protocolsContent';
 import { SectionType } from '@/types';
 import { RelatedActions } from '@/components/RelatedActions';
 import { EvidenceDrawer } from '@/components/EvidenceDrawer';
@@ -232,6 +232,378 @@ const MACsecVisual = () => (
   </div>
 );
 
+const MulticastVisual = () => (
+  <div className="relative w-full h-full flex items-center justify-center bg-card-bg rounded-3xl border border-border p-8 overflow-hidden group">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.08)_0%,transparent_70%)]"></div>
+    <div className="relative z-10 flex flex-col items-center gap-4 w-full max-w-sm">
+      {/* RP node */}
+      <div className="w-20 h-20 rounded-full bg-amber-500/10 border-2 border-amber-500/50 flex flex-col items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.2)] animate-pulse">
+        <Radio size={22} className="text-amber-400 mb-0.5" />
+        <span className="text-[8px] font-mono text-amber-500 font-bold uppercase">RP</span>
+      </div>
+      {/* Tree branches to leaves */}
+      <div className="relative flex gap-8 items-center mt-2">
+        <svg className="absolute inset-x-0 -top-8 w-full h-16 pointer-events-none opacity-60">
+          <line x1="50%" y1="0" x2="12%" y2="100%" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4 3" className="animate-pulse" />
+          <line x1="50%" y1="0" x2="37%" y2="100%" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4 3" className="animate-pulse" style={{ animationDelay: '0.3s' }} />
+          <line x1="50%" y1="0" x2="63%" y2="100%" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4 3" className="animate-pulse" style={{ animationDelay: '0.6s' }} />
+          <line x1="50%" y1="0" x2="88%" y2="100%" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4 3" className="animate-pulse" style={{ animationDelay: '0.9s' }} />
+        </svg>
+        {['LF-01', 'LF-02', 'LF-03', 'LF-04'].map((lf, i) => (
+          <div key={lf} className="flex flex-col items-center gap-2">
+            <div className="w-12 h-10 bg-zinc-950 border border-amber-500/20 rounded-lg flex flex-col items-center justify-center group-hover:border-amber-500/50 transition-colors">
+              <Cpu size={14} className="text-zinc-600 group-hover:text-amber-400 transition-colors" />
+              <span className="text-[7px] font-mono text-zinc-600 mt-0.5">{lf}</span>
+            </div>
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-500/60 animate-ping" style={{ animationDuration: `${1.5 + i * 0.3}s` }}></div>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-3 mt-1">
+        {['IGMP Join', 'PIM-SM', 'SSM (*,G)'].map((t) => (
+          <span key={t} className="px-2 py-1 rounded bg-zinc-950 border border-amber-500/20 text-[7px] font-mono text-amber-500/70 uppercase tracking-wider">{t}</span>
+        ))}
+      </div>
+    </div>
+    <div className="absolute bottom-4 left-6 text-[8px] font-mono text-zinc-600 uppercase tracking-widest">Control Plane: PIM-SM / Anycast RP</div>
+  </div>
+);
+
+const LinuxVisual = () => (
+  <div className="relative w-full h-full flex items-center justify-center bg-card-bg rounded-3xl border border-border p-8 overflow-hidden group">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.08)_0%,transparent_70%)]"></div>
+    <div className="relative z-10 flex flex-col items-center gap-3 w-full max-w-xs">
+      {[
+        { label: 'EOS CLI / NIOS', color: 'border-violet-500/40 bg-violet-500/10', text: 'text-violet-300' },
+        { label: 'SysDB (State Engine)', color: 'border-blue-500/30 bg-blue-500/08', text: 'text-blue-300' },
+        { label: 'Linux Bash / eAPI', color: 'border-zinc-600 bg-zinc-900', text: 'text-zinc-400' },
+      ].map((layer, i) => (
+        <div key={layer.label} className="flex flex-col items-center w-full gap-1">
+          <div className={`w-full py-3 px-4 rounded-xl border ${layer.color} flex items-center justify-between group-hover:brightness-125 transition-all`}>
+            <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${layer.text}`}>{layer.label}</span>
+            {i === 2 && <Terminal size={12} className="text-zinc-600" />}
+            {i === 1 && <Database size={12} className="text-blue-500/60" />}
+            {i === 0 && <GitBranch size={12} className="text-violet-500/60" />}
+          </div>
+          {i < 2 && (
+            <div className="flex flex-col items-center">
+              <div className="w-px h-3 bg-gradient-to-b from-violet-500/40 to-zinc-700"></div>
+              <div className="flex gap-4">
+                <div className="w-2 h-2 rounded-full bg-zinc-700 animate-pulse"></div>
+                <div className="w-2 h-2 rounded-full bg-zinc-700 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+              </div>
+              <div className="w-px h-3 bg-gradient-to-b from-zinc-700 to-violet-500/20"></div>
+            </div>
+          )}
+        </div>
+      ))}
+      <div className="flex gap-2 mt-2 opacity-70">
+        {['eAPI', 'gNMI', 'OpenConfig'].map((t) => (
+          <span key={t} className="px-2 py-0.5 rounded bg-zinc-950 border border-zinc-700 text-[7px] font-mono text-zinc-500 uppercase tracking-wider">{t}</span>
+        ))}
+      </div>
+    </div>
+    <div className="absolute bottom-4 left-6 text-[8px] font-mono text-zinc-600 uppercase tracking-widest">Substrate: EOS Linux Integration</div>
+  </div>
+);
+
+// --- DC TOPOLOGY DIAGRAMS ---
+
+const SPINE_COLOR = { fill: 'rgba(59,130,246,0.15)', stroke: '#3b82f6' };
+const LEAF_COLOR  = { fill: 'rgba(39,39,42,0.8)',    stroke: '#52525b' };
+const HOST_COLOR  = { fill: 'rgba(24,24,27,0.9)',     stroke: '#3f3f46' };
+const BORDER_COLOR = { fill: 'rgba(16,185,129,0.15)', stroke: '#10b981' };
+const SUPERSP_COLOR = { fill: 'rgba(139,92,246,0.15)', stroke: '#8b5cf6' };
+const ISL_COLOR   = '#3b82f6';
+const LINK_COLOR  = '#3f3f46';
+const HL_COLORS: Record<string, string> = {
+  'leaf-spine': '#3b82f6',
+  'isl':        '#f59e0b',
+  'host-edge':  '#10b981',
+  'border':     '#8b5cf6',
+  'all':        '#f59e0b',
+};
+
+const SmallDCDiagram = ({ highlight }: { highlight: string }) => {
+  const hl = HL_COLORS[highlight] ?? ISL_COLOR;
+  const hlLeaf = highlight === 'leaf-spine' || highlight === 'all';
+  const hlHost = highlight === 'host-edge' || highlight === 'all';
+  const hlISL  = highlight === 'isl' || highlight === 'all';
+
+  const spines = [{ x: 90, y: 30 }, { x: 220, y: 30 }];
+  const leaves = [{ x: 40, y: 110 }, { x: 110, y: 110 }, { x: 180, y: 110 }, { x: 250, y: 110 }];
+  const hosts  = [{ x: 20, y: 185 }, { x: 90, y: 185 }, { x: 155, y: 185 }, { x: 230, y: 185 }];
+
+  return (
+    <svg viewBox="0 0 310 225" className="w-full h-full" style={{ maxHeight: 225 }}>
+      {/* ISL spine↔spine */}
+      <line x1={spines[0].x + 30} y1={spines[0].y + 12} x2={spines[1].x} y2={spines[1].y + 12}
+        stroke={hlISL ? hl : '#52525b'} strokeWidth={hlISL ? 2 : 1} strokeDasharray={hlISL ? '0' : '3 2'} />
+      {/* Spine↔Leaf */}
+      {spines.map((sp) => leaves.map((lf) => (
+        <line key={`${sp.x}-${lf.x}`}
+          x1={sp.x + 15} y1={sp.y + 24} x2={lf.x + 15} y2={lf.y}
+          stroke={hlLeaf ? hl : LINK_COLOR} strokeWidth={hlLeaf ? 1.5 : 1} opacity={hlLeaf ? 0.8 : 0.5} />
+      )))}
+      {/* Leaf↔Host */}
+      {leaves.map((lf, i) => (
+        <line key={i} x1={lf.x + 15} y1={lf.y + 24} x2={hosts[i].x + 18} y2={hosts[i].y}
+          stroke={hlHost ? hl : LINK_COLOR} strokeWidth={hlHost ? 1.5 : 1} opacity={hlHost ? 0.8 : 0.5} />
+      ))}
+      {/* Spine nodes */}
+      {spines.map((s, i) => (
+        <g key={i}>
+          <rect x={s.x} y={s.y} width={30} height={24} rx={4}
+            fill={SPINE_COLOR.fill} stroke={SPINE_COLOR.stroke} strokeWidth={1.5} />
+          <text x={s.x + 15} y={s.y + 15} textAnchor="middle" fontSize={6} fill="#93c5fd" fontFamily="monospace">SP-{i + 1}</text>
+        </g>
+      ))}
+      {/* Leaf nodes */}
+      {leaves.map((l, i) => (
+        <g key={i}>
+          <rect x={l.x} y={l.y} width={30} height={24} rx={4}
+            fill={LEAF_COLOR.fill} stroke={hlLeaf ? hl : LEAF_COLOR.stroke} strokeWidth={hlLeaf ? 1.5 : 1} />
+          <text x={l.x + 15} y={l.y + 15} textAnchor="middle" fontSize={6} fill="#a1a1aa" fontFamily="monospace">LF-{i + 1}</text>
+        </g>
+      ))}
+      {/* Host nodes */}
+      {hosts.map((h, i) => (
+        <g key={i}>
+          <rect x={h.x} y={h.y} width={36} height={18} rx={3}
+            fill={HOST_COLOR.fill} stroke={hlHost ? hl : HOST_COLOR.stroke} strokeWidth={hlHost ? 1.5 : 1} />
+          <text x={h.x + 18} y={h.y + 12} textAnchor="middle" fontSize={5.5} fill="#71717a" fontFamily="monospace">SRV</text>
+        </g>
+      ))}
+      {/* Labels */}
+      <text x={295} y={42} textAnchor="end" fontSize={6} fill="#6b7280" fontFamily="monospace">SPINE</text>
+      <text x={295} y={122} textAnchor="end" fontSize={6} fill="#6b7280" fontFamily="monospace">LEAF</text>
+      <text x={295} y={194} textAnchor="end" fontSize={6} fill="#6b7280" fontFamily="monospace">HOST</text>
+    </svg>
+  );
+};
+
+const MediumDCDiagram = ({ highlight }: { highlight: string }) => {
+  const hl = HL_COLORS[highlight] ?? ISL_COLOR;
+  const hlLeaf   = highlight === 'leaf-spine' || highlight === 'all';
+  const hlHost   = highlight === 'host-edge'  || highlight === 'all';
+  const hlISL    = highlight === 'isl'        || highlight === 'all';
+  const hlBorder = highlight === 'border'     || highlight === 'all';
+
+  const borders = [{ x: 115, y: 8 }, { x: 175, y: 8 }];
+  const spines  = [{ x: 40, y: 62 }, { x: 100, y: 62 }, { x: 165, y: 62 }, { x: 225, y: 62 }];
+  const leaves  = [{ x: 15, y: 128 }, { x: 65, y: 128 }, { x: 120, y: 128 }, { x: 170, y: 128 }, { x: 220, y: 128 }, { x: 270, y: 128 }];
+  const hosts   = [{ x: 10, y: 188 }, { x: 60, y: 188 }, { x: 115, y: 188 }, { x: 165, y: 188 }, { x: 215, y: 188 }, { x: 265, y: 188 }];
+
+  return (
+    <svg viewBox="0 0 310 225" className="w-full h-full" style={{ maxHeight: 225 }}>
+      {/* Border↔Spine */}
+      {borders.map((b) => spines.map((sp) => (
+        <line key={`${b.x}-${sp.x}`}
+          x1={b.x + 15} y1={b.y + 18} x2={sp.x + 15} y2={sp.y}
+          stroke={hlBorder ? hl : LINK_COLOR} strokeWidth={hlBorder ? 1.5 : 1} opacity={0.6} />
+      )))}
+      {/* Spine↔Leaf */}
+      {spines.map((sp) => leaves.map((lf) => (
+        <line key={`${sp.x}-${lf.x}`}
+          x1={sp.x + 15} y1={sp.y + 24} x2={lf.x + 14} y2={lf.y}
+          stroke={hlLeaf ? hl : LINK_COLOR} strokeWidth={hlLeaf ? 1.5 : 1} opacity={hlISL || hlLeaf ? 0.6 : 0.35} />
+      )))}
+      {/* ISL spine↔spine */}
+      <line x1={spines[0].x + 30} y1={spines[0].y + 12} x2={spines[3].x} y2={spines[3].y + 12}
+        stroke={hlISL ? hl : '#3f3f46'} strokeWidth={hlISL ? 2 : 1} strokeDasharray="4 2" opacity={0.7} />
+      {/* Leaf↔Host */}
+      {leaves.map((lf, i) => (
+        <line key={i} x1={lf.x + 14} y1={lf.y + 24} x2={hosts[i].x + 14} y2={hosts[i].y}
+          stroke={hlHost ? hl : LINK_COLOR} strokeWidth={hlHost ? 1.5 : 1} opacity={hlHost ? 0.8 : 0.4} />
+      ))}
+      {/* Border nodes */}
+      {borders.map((b, i) => (
+        <g key={i}>
+          <rect x={b.x} y={b.y} width={30} height={18} rx={4}
+            fill={BORDER_COLOR.fill} stroke={hlBorder ? hl : BORDER_COLOR.stroke} strokeWidth={1.5} />
+          <text x={b.x + 15} y={b.y + 12} textAnchor="middle" fontSize={5.5} fill="#6ee7b7" fontFamily="monospace">BL-{i + 1}</text>
+        </g>
+      ))}
+      {/* Spine nodes */}
+      {spines.map((s, i) => (
+        <g key={i}>
+          <rect x={s.x} y={s.y} width={30} height={24} rx={4}
+            fill={SPINE_COLOR.fill} stroke={SPINE_COLOR.stroke} strokeWidth={1.5} />
+          <text x={s.x + 15} y={s.y + 15} textAnchor="middle" fontSize={6} fill="#93c5fd" fontFamily="monospace">SP-{i + 1}</text>
+        </g>
+      ))}
+      {/* Leaf nodes */}
+      {leaves.map((l, i) => (
+        <g key={i}>
+          <rect x={l.x} y={l.y} width={28} height={24} rx={4}
+            fill={LEAF_COLOR.fill} stroke={hlLeaf ? hl : LEAF_COLOR.stroke} strokeWidth={hlLeaf ? 1.5 : 1} />
+          <text x={l.x + 14} y={l.y + 15} textAnchor="middle" fontSize={5.5} fill="#a1a1aa" fontFamily="monospace">L{i + 1}</text>
+        </g>
+      ))}
+      {/* Hosts */}
+      {hosts.map((h, i) => (
+        <g key={i}>
+          <rect x={h.x} y={h.y} width={28} height={16} rx={3}
+            fill={HOST_COLOR.fill} stroke={hlHost ? hl : HOST_COLOR.stroke} strokeWidth={hlHost ? 1.5 : 1} />
+          <text x={h.x + 14} y={h.y + 11} textAnchor="middle" fontSize={5} fill="#71717a" fontFamily="monospace">SRV</text>
+        </g>
+      ))}
+      {/* Labels */}
+      <text x={305} y={20} textAnchor="end" fontSize={6} fill="#6b7280" fontFamily="monospace">BORDER</text>
+      <text x={305} y={76} textAnchor="end" fontSize={6} fill="#6b7280" fontFamily="monospace">SPINE</text>
+      <text x={305} y={142} textAnchor="end" fontSize={6} fill="#6b7280" fontFamily="monospace">LEAF</text>
+      <text x={305} y={200} textAnchor="end" fontSize={6} fill="#6b7280" fontFamily="monospace">HOST</text>
+    </svg>
+  );
+};
+
+const LargeDCDiagram = ({ highlight }: { highlight: string }) => {
+  const hl = HL_COLORS[highlight] ?? ISL_COLOR;
+  const hlLeaf   = highlight === 'leaf-spine' || highlight === 'all';
+  const hlHost   = highlight === 'host-edge'  || highlight === 'all';
+  const hlISL    = highlight === 'isl'        || highlight === 'all';
+  const hlBorder = highlight === 'border'     || highlight === 'all';
+
+  const superSpines = [{ x: 100, y: 8 }, { x: 185, y: 8 }];
+  const spines      = [{ x: 25, y: 66 }, { x: 90, y: 66 }, { x: 155, y: 66 }, { x: 220, y: 66 }];
+  const leaves      = [{ x: 15, y: 130 }, { x: 55, y: 130 }, { x: 105, y: 130 }, { x: 145, y: 130 }, { x: 190, y: 130 }, { x: 235, y: 130 }, { x: 275, y: 130 }];
+  const hosts       = [{ x: 10, y: 188 }, { x: 50, y: 188 }, { x: 100, y: 188 }, { x: 140, y: 188 }, { x: 185, y: 188 }, { x: 230, y: 188 }, { x: 270, y: 188 }];
+
+  return (
+    <svg viewBox="0 0 310 225" className="w-full h-full" style={{ maxHeight: 225 }}>
+      {/* SS↔Spine */}
+      {superSpines.map((ss) => spines.map((sp) => (
+        <line key={`${ss.x}-${sp.x}`}
+          x1={ss.x + 15} y1={ss.y + 20} x2={sp.x + 15} y2={sp.y}
+          stroke={hlBorder ? hl : LINK_COLOR} strokeWidth={hlBorder ? 1.5 : 1} opacity={0.55} />
+      )))}
+      {/* SS ISL */}
+      <line x1={superSpines[0].x + 30} y1={superSpines[0].y + 10} x2={superSpines[1].x} y2={superSpines[1].y + 10}
+        stroke={hlISL ? hl : '#52525b'} strokeWidth={hlISL ? 2 : 1} strokeDasharray="5 2" />
+      {/* Spine↔Leaf */}
+      {spines.map((sp) => leaves.slice(0, 4).map((lf) => (
+        <line key={`${sp.x}-${lf.x}`}
+          x1={sp.x + 15} y1={sp.y + 24} x2={lf.x + 13} y2={lf.y}
+          stroke={hlLeaf ? hl : LINK_COLOR} strokeWidth={hlLeaf ? 1.5 : 1} opacity={hlLeaf ? 0.5 : 0.3} />
+      )))}
+      {spines.slice(2).map((sp) => leaves.slice(3).map((lf) => (
+        <line key={`${sp.x}-${lf.x}-r`}
+          x1={sp.x + 15} y1={sp.y + 24} x2={lf.x + 13} y2={lf.y}
+          stroke={hlLeaf ? hl : LINK_COLOR} strokeWidth={hlLeaf ? 1.5 : 1} opacity={hlLeaf ? 0.5 : 0.3} />
+      )))}
+      {/* Leaf↔Host */}
+      {leaves.map((lf, i) => (
+        <line key={i} x1={lf.x + 13} y1={lf.y + 22} x2={hosts[i].x + 13} y2={hosts[i].y}
+          stroke={hlHost ? hl : LINK_COLOR} strokeWidth={hlHost ? 1.5 : 1} opacity={hlHost ? 0.8 : 0.4} />
+      ))}
+      {/* Super-spine nodes */}
+      {superSpines.map((ss, i) => (
+        <g key={i}>
+          <rect x={ss.x} y={ss.y} width={30} height={20} rx={4}
+            fill={SUPERSP_COLOR.fill} stroke={SUPERSP_COLOR.stroke} strokeWidth={1.5} />
+          <text x={ss.x + 15} y={ss.y + 13} textAnchor="middle" fontSize={5.5} fill="#c4b5fd" fontFamily="monospace">SS-{i + 1}</text>
+        </g>
+      ))}
+      {/* Spine nodes */}
+      {spines.map((s, i) => (
+        <g key={i}>
+          <rect x={s.x} y={s.y} width={30} height={24} rx={4}
+            fill={SPINE_COLOR.fill} stroke={SPINE_COLOR.stroke} strokeWidth={1.5} />
+          <text x={s.x + 15} y={s.y + 15} textAnchor="middle" fontSize={6} fill="#93c5fd" fontFamily="monospace">SP-{i + 1}</text>
+        </g>
+      ))}
+      {/* Leaf nodes */}
+      {leaves.map((l, i) => (
+        <g key={i}>
+          <rect x={l.x} y={l.y} width={26} height={22} rx={4}
+            fill={LEAF_COLOR.fill} stroke={hlLeaf ? hl : LEAF_COLOR.stroke} strokeWidth={hlLeaf ? 1.5 : 1} />
+          <text x={l.x + 13} y={l.y + 14} textAnchor="middle" fontSize={5.5} fill="#a1a1aa" fontFamily="monospace">L{i + 1}</text>
+        </g>
+      ))}
+      {/* Hosts */}
+      {hosts.map((h, i) => (
+        <g key={i}>
+          <rect x={h.x} y={h.y} width={26} height={16} rx={3}
+            fill={HOST_COLOR.fill} stroke={hlHost ? hl : HOST_COLOR.stroke} strokeWidth={hlHost ? 1.5 : 1} />
+          <text x={h.x + 13} y={h.y + 11} textAnchor="middle" fontSize={5} fill="#71717a" fontFamily="monospace">SRV</text>
+        </g>
+      ))}
+      {/* Labels */}
+      <text x={305} y={20} textAnchor="end" fontSize={6} fill="#6b7280" fontFamily="monospace">SUPER-SPINE</text>
+      <text x={305} y={78} textAnchor="end" fontSize={6} fill="#6b7280" fontFamily="monospace">SPINE</text>
+      <text x={305} y={142} textAnchor="end" fontSize={6} fill="#6b7280" fontFamily="monospace">LEAF</text>
+      <text x={305} y={200} textAnchor="end" fontSize={6} fill="#6b7280" fontFamily="monospace">HOST</text>
+    </svg>
+  );
+};
+
+interface DCTopologyViewerProps {
+  dcContext?: DCContext;
+}
+
+const DC_SIZES = [
+  { id: 'small',  label: 'Small',  sub: '≤ 50 switches'   },
+  { id: 'medium', label: 'Medium', sub: '50–500 switches'  },
+  { id: 'large',  label: 'Large',  sub: '500+ switches'    },
+] as const;
+
+type DCSize = 'small' | 'medium' | 'large';
+
+const DCTopologyViewer: React.FC<DCTopologyViewerProps> = ({ dcContext }) => {
+  const [dcSize, setDcSize] = useState<DCSize>('small');
+  const ctx = dcContext?.[dcSize];
+  const hl = ctx?.highlight ?? 'leaf-spine';
+
+  return (
+    <div className="bg-card-bg border border-border rounded-[2rem] overflow-hidden shadow-2xl">
+      <header className="p-5 border-b border-border flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Layout size={16} className="text-blue-400" />
+          <h3 className="text-xs font-bold uppercase tracking-widest text-primary">DC Deployment Context</h3>
+        </div>
+        <div className="flex gap-1 p-1 bg-zinc-900 rounded-xl border border-border">
+          {DC_SIZES.map(({ id, label, sub }) => (
+            <button
+              key={id}
+              onClick={() => setDcSize(id)}
+              className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all ${
+                dcSize === id
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+              title={sub}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      <div className="p-5">
+        <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 flex items-center justify-center" style={{ minHeight: 200 }}>
+          {dcSize === 'small'  && <SmallDCDiagram  highlight={hl} />}
+          {dcSize === 'medium' && <MediumDCDiagram highlight={hl} />}
+          {dcSize === 'large'  && <LargeDCDiagram  highlight={hl} />}
+        </div>
+
+        {ctx && (
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="p-4 bg-zinc-900/60 border border-zinc-800 rounded-xl space-y-2">
+              <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-500">Scale</p>
+              <p className="text-xs font-semibold text-zinc-200">{ctx.scale}</p>
+              <p className="text-xs text-zinc-400 leading-relaxed">{ctx.topologyRole}</p>
+            </div>
+            <div className="p-4 bg-zinc-900/60 border border-zinc-800 rounded-xl space-y-2">
+              <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-500">Key Config</p>
+              <pre className="text-[10px] font-mono text-emerald-400 leading-relaxed whitespace-pre-wrap">{ctx.keyConfig}</pre>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 interface RoleConfigViewerProps {
   roles: RoleConfig[];
 }
@@ -255,12 +627,12 @@ const RoleConfigViewer: React.FC<RoleConfigViewerProps> = ({ roles }) => {
           </div>
           <div className="flex gap-2 p-1 bg-surface-muted rounded-lg border border-border">
              {roles.map((r, i) => (
-                <button 
+                <button
                   key={r.role}
                   onClick={() => setActiveRole(i)}
                   className={`px-3 py-1 rounded text-[9px] font-bold uppercase tracking-wider transition-all ${activeRole === i ? 'bg-card-bg text-primary border border-border' : 'text-secondary hover:text-primary'}`}
                 >
-                  {r.role.split(' ')[0]}
+                  {r.role.split(' ').slice(0, 2).join(' ').slice(0, 14)}
                 </button>
              ))}
           </div>
@@ -341,12 +713,12 @@ export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }
             </div>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto scrollbar-none max-w-2xl">
             {Object.keys(PROTOCOL_CONTENT).map(id => (
                 <button
                     key={id}
                     onClick={() => { setSelectedId(id); }}
-                    className={`px-5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${selectedId === id ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300'}`}
+                    className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${selectedId === id ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300'}`}
                 >
                     {id}
                 </button>
@@ -508,39 +880,103 @@ export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }
                )}
             </div>
 
-            {/* RIGHT: TRANSLATION & VISUALS */}
+            {/* RIGHT: TOPOLOGY & CONFIGS */}
             <div className="lg:col-span-5 space-y-8">
-               
+
+              {/* 1. DC TOPOLOGY VIEWER */}
+              <DCTopologyViewer dcContext={active.dcContext} />
+
+              {/* 2. PROTOCOL MECHANICS (existing per-protocol animation) */}
               <section className="space-y-4">
-                 <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-2">
-                   <Activity size={14} className="text-emerald-500" /> Architectural Flow
-                 </h3>
-                 <div className="h-[320px]">
-                   {active.id === 'vxlan' && <VXLANVisual />}
-                   {active.id === 'evpn' && <EVPNVisual />}
-                   {active.id === 'mlag' && <MLAGVisual />}
-                   {active.id === 'nvmeof' && <NVMeOFVisual />}
-                   {active.id === 'bgp' && <BGPVisual />}
-                   {active.id === 'qos' && <QoSVisual />}
-                   {active.id === 'macsec' && <MACsecVisual />}
-                 </div>
+                <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-2">
+                  <Activity size={14} className="text-emerald-500" /> Protocol Mechanics
+                </h3>
+                <div className="h-[220px]">
+                  {active.id === 'vxlan'     && <VXLANVisual />}
+                  {active.id === 'evpn'      && <EVPNVisual />}
+                  {active.id === 'mlag'      && <MLAGVisual />}
+                  {active.id === 'nvmeof'    && <NVMeOFVisual />}
+                  {active.id === 'bgp'       && <BGPVisual />}
+                  {active.id === 'qos'       && <QoSVisual />}
+                  {active.id === 'macsec'    && <MACsecVisual />}
+                  {active.id === 'multicast' && <MulticastVisual />}
+                  {active.id === 'linux'     && <LinuxVisual />}
+                </div>
               </section>
 
-              {active.id === 'vxlan' && active.roleConfigs && (
+              {/* 3. ROLE-BASED CONFIGURATIONS */}
+              {active.roleConfigs && <RoleConfigViewer roles={active.roleConfigs} />}
+
+              {/* 4. CLI REFERENCE */}
+              <section className="bg-zinc-900 border border-zinc-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
+                <header className="p-6 bg-zinc-800/50 border-b border-zinc-800 flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <Terminal size={18} className="text-blue-400" />
+                    <h3 className="text-xs font-bold uppercase tracking-widest">CLI Reference</h3>
+                  </div>
+                  <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">EOS Native</span>
+                </header>
+                <div className="p-6 space-y-6">
+                  {active.cliTranslation.map((pair, i) => (
+                    <div key={i} className="space-y-3 group">
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[8px] font-mono text-blue-500 uppercase">EOS Native</span>
+                          <CheckCircle2 size={10} className="text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                        <code className="text-[11px] bg-blue-950/20 p-3 rounded-lg border border-blue-500/20 text-blue-300 block truncate font-bold shadow-inner">
+                          {pair.arista}
+                        </code>
+                      </div>
+                      {i < active.cliTranslation.length - 1 && <div className="h-px bg-zinc-800/50 w-full mt-4"></div>}
+                    </div>
+                  ))}
+                </div>
+                <footer className="p-5 bg-zinc-950 text-center border-t border-zinc-800/50">
+                  <p className="text-[9px] text-zinc-600 italic font-mono uppercase tracking-widest">Grounded in RFC Standards</p>
+                </footer>
+              </section>
+
+              {/* 5. REFERENCE MATERIAL */}
+              {active.referenceLinks && active.referenceLinks.length > 0 && (
                 <section className="space-y-4">
                   <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-2">
-                    <Layout size={14} className="text-blue-500" /> Operational Playbook
+                    <BookOpen size={14} className="text-blue-500" /> Reference Material
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {active.roleConfigs
-                      .filter((r) => [
-                        'Preflight Checklist',
-                        'Validation / Proof Hooks',
-                        'Troubleshooting Map',
-                        'Safe Defaults (VXLAN/EVPN)',
-                        'Brownfield Cutover Steps'
-                      ].includes(r.role))
-                      .map((role) => (
+                    {active.referenceLinks.map((ref) => (
+                      <div key={ref.title} className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl space-y-1">
+                        <p className="text-sm font-semibold text-white">{ref.title}</p>
+                        {ref.summary && <p className="text-xs text-zinc-500 leading-relaxed">{ref.summary}</p>}
+                        {ref.url && (
+                          <a className="text-[11px] text-blue-400 hover:underline inline-flex items-center gap-1" href={ref.url} target="_blank" rel="noreferrer">
+                            View <ChevronRight size={12} />
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* 6. EVIDENCE DRAWER */}
+              <EvidenceDrawer contextTags={['Protocol', 'Life Sciences']} />
+
+              {/* 7. OPERATIONAL PLAYBOOK */}
+              {(['vxlan', 'mlag'] as string[]).includes(active.id) && active.roleConfigs && (() => {
+                const playBookRoles: Record<string, string[]> = {
+                  vxlan: ['Preflight Checklist', 'Validation / Proof Hooks', 'Troubleshooting Map', 'Safe Defaults (VXLAN/EVPN)', 'Brownfield Cutover Steps'],
+                  mlag:  ['Preflight Checklist', 'Peer-Link Failure Drill', 'Troubleshooting Map', 'Split-Brain Recovery', 'MLAG Upgrade Runbook'],
+                };
+                const filtered = active.roleConfigs!.filter((r) => playBookRoles[active.id]?.includes(r.role));
+                if (!filtered.length) return null;
+                return (
+                  <section className="space-y-4">
+                    <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-2">
+                      <Layout size={14} className="text-blue-500" /> Operational Playbook
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {filtered.map((role) => (
                         <div key={role.role} className="p-4 bg-zinc-900/60 border border-zinc-800 rounded-xl space-y-2">
                           <div className="flex items-center justify-between">
                             <div>
@@ -564,66 +1000,10 @@ export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }
                           </pre>
                         </div>
                       ))}
-                  </div>
-                </section>
-              )}
-
-               {active.referenceLinks && active.referenceLinks.length > 0 && (
-                 <section className="space-y-4">
-                   <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-2">
-                     <BookOpen size={14} className="text-blue-500" /> Reference Material
-                   </h3>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {active.referenceLinks.map((ref) => (
-                  <div key={ref.title} className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl space-y-1">
-                    <p className="text-sm font-semibold text-white">{ref.title}</p>
-                    {ref.summary && <p className="text-xs text-zinc-500 leading-relaxed">{ref.summary}</p>}
-                    {ref.url && (
-                      <a className="text-[11px] text-blue-400 hover:underline inline-flex items-center gap-1" href={ref.url} target="_blank" rel="noreferrer">
-                        View <ChevronRight size={12} />
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* ROLE-BASED CONFIGS */}
-          {active.roleConfigs && <RoleConfigViewer roles={active.roleConfigs} />}
-
-          <EvidenceDrawer contextTags={['Protocol', 'Life Sciences']} />
-
-               <section className="bg-zinc-900 border border-zinc-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
-                  <header className="p-6 bg-zinc-800/50 border-b border-zinc-800 flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <Terminal size={18} className="text-blue-400" />
-                        <h3 className="text-xs font-bold uppercase tracking-widest">Operational Command Snippets</h3>
                     </div>
-                    <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Source: EOS Native</span>
-                  </header>
-
-                  <div className="p-6 space-y-6">
-                    {active.cliTranslation.map((pair, i) => (
-                        <div key={i} className="space-y-3 group">
-                          <div className="flex flex-col gap-1.5">
-                              <div className="flex justify-between items-center">
-                                <span className="text-[8px] font-mono text-blue-500 uppercase">EOS Native</span>
-                                <CheckCircle2 size={10} className="text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                              </div>
-                              <code className="text-[11px] bg-blue-950/20 p-3 rounded-lg border border-blue-500/20 text-blue-300 block truncate font-bold shadow-inner">
-                                {pair.arista}
-                              </code>
-                          </div>
-                          {i < active.cliTranslation.length - 1 && <div className="h-px bg-zinc-800/50 w-full mt-4"></div>}
-                        </div>
-                    ))}
-                  </div>
-
-                  <footer className="p-5 bg-zinc-950 text-center border-t border-zinc-800/50">
-                    <p className="text-[9px] text-zinc-600 italic font-mono uppercase tracking-widest">Grounded in RFC Standards</p>
-                  </footer>
-               </section>
+                  </section>
+                );
+              })()}
 
             </div>
 
