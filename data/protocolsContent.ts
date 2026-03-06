@@ -590,13 +590,13 @@ show bgp neighbors 2.2.2.2 | include community
       'Simple operational model compared to stacking.'
     ],
     bestPractices: [
-      'Always run the MLAG keepalive over a dedicated out-of-band path (Mgmt VRF on a separate link) — keepalive shared with data traffic can be disrupted by the very failure it needs to detect.',
-      'Configure `reload-delay` (300s recommended) so the MLAG domain is fully synchronized before the switch begins forwarding traffic after a reload — prevents transient black holes on boot.',
-      'Resolve every MLAG consistency-check warning before go-live; mismatched VLANs or port-channel modes on the two peers cause one-way forwarding failures that are difficult to diagnose under load.',
-      'Use fast LACP timers (`lacp rate fast`) on all MLAG port-channels — the default 30-second LACP timeout means a link failure may go undetected for up to 90 seconds.',
-      'Dimension the peer-link generously (at minimum 2×10G; prefer 100G) — during a peer failover the peer-link carries all traffic for the failed switch, and congestion causes drops.',
-      'Test peer-link failure deliberately in a maintenance window and document observed behaviour before production deployment — split-brain handling varies by design and must be understood in advance.',
-      'Reserve MLAG for server and access-layer dual-homing; prefer EVPN ESI multi-homing for leaf-to-spine uplinks in fabrics already running EVPN — ESI eliminates the peer-link as a blast-radius.'
+      'Always run the MLAG keepalive over a dedicated out-of-band path (`peer-address heartbeat <ip> vrf management`) — keepalive shared with data traffic can be disrupted by the very failure it needs to detect. EOS sends heartbeats on both the peer-link and management link simultaneously; both must fail before dual-primary detection triggers.',
+      'Enable `dual-primary detection delay 10 action errdisable all-interfaces` under `mlag configuration` — without it, a split-brain event leaves both peers forwarding independently, causing duplicate-MAC and black-hole conditions. Err-disabling all interfaces on the secondary is the safest recovery action.',
+      'Set `reload-delay mlag 300` and `reload-delay non-mlag 330` on standard fixed-config platforms (7050X3, 720XP, etc.). High-end platforms (7280R, 7500R, 7800R) default to 900s — always verify with `show mlag config` before overriding, as a value too short causes post-boot black holes.',
+      'Resolve every `show mlag config-sanity` warning before go-live. Arista explicitly states these must be rectified in production — mismatched VLANs, STP config, or port-channel modes cause one-way forwarding failures that are difficult to diagnose under load.',
+      'Apply `lacp timer fast` on each Ethernet member interface (not on the Port-Channel) — the default slow timer means a link failure goes undetected for up to 90 seconds. Fast timers reduce detection to ~3 seconds (1s PDU interval × 3 missed PDUs). Note: `lacp rate fast` is Cisco IOS syntax and is not valid in EOS.',
+      'Size the peer-link to match total uplink capacity: if each peer has 4×100G uplinks, the peer-link aggregate should be ≥400G. During failover all traffic for the failed switch redirects across the peer-link — undersizing causes congestion drops at the worst possible moment.',
+      'Reserve MLAG for server and access-layer dual-homing in brownfield environments. For greenfield VXLAN/EVPN fabrics, prefer EVPN ESI All-Active multi-homing for downstream devices — ESI eliminates the peer-link requirement. Leaf-to-spine uplinks are always independent routed links in both models, not LAGs.'
     ],
     cliTranslation: [
       { legacy: 'vpc domain 10', arista: 'mlag configuration\n   domain-id FABRIC' },
