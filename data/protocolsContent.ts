@@ -672,7 +672,7 @@ show bgp neighbors 2.2.2.2 | include community
    local-interface Vlan4094
    peer-address 10.0.0.2 vrf MGMT
    peer-link Port-Channel1
-   reload-delay 300
+   reload-delay mlag 300
 !
 interface Port-Channel10
    switchport mode trunk
@@ -681,14 +681,14 @@ interface Port-Channel10
       },
       {
         role: 'Peer-Link Config',
-        description: 'Peer-link port-channel with STP portfast disabled (peer-link must participate in STP).',
-        config: `! Peer-link — carry all VLANs + keepalive VLAN
+        description: 'Peer-link port-channel carrying all VLANs; no portfast; MLAG keepalive VLAN on SVI.',
+        config: `! Peer-link — carry all VLANs including keepalive VLAN 4094
 interface Port-Channel1
    switchport mode trunk
    switchport trunk allowed vlan 1-4094
-   spanning-tree portfast trunk disabled
+   no spanning-tree portfast
 !
-! Dedicated MLAG keepalive VLAN on separate interface or mgmt
+! Keepalive SVI — in-band option (prefer MGMT VRF path in production)
 interface Vlan4094
    ip address 10.255.0.1/30
    no ip proxy-arp
@@ -697,7 +697,8 @@ mlag configuration
    domain-id FABRIC
    local-interface Vlan4094
    peer-address 10.255.0.2
-   peer-link Port-Channel1`
+   peer-link Port-Channel1
+   reload-delay mlag 300`
       },
       {
         role: 'Consistency Check',
@@ -733,22 +734,167 @@ ping 10.255.0.2 vrf MGMT repeat 5
 show interfaces Port-Channel10 | include members`
       },
       {
-        role: 'ISSU Procedure',
-        description: 'Rolling MLAG upgrade: upgrade secondary first, validate, then primary.',
-        config: `! Step 1: Upgrade MLAG secondary
-!   (ensure fast LACP on all MLAG port-channels first)
-!   On secondary:
+        role: 'MLAG Upgrade Runbook',
+        description: 'Rolling MLAG upgrade: secondary first, validate re-sync, then primary.',
+        config: `! ── PRE-UPGRADE HEALTH CHECKS (both peers) ──────────────────
+show mlag                          ! state: active, peer: connected
+show mlag interfaces               ! all interfaces: active or connected
+show mlag config-sanity            ! must return: No global/interface errors
+ping 10.255.0.2 vrf MGMT repeat 10 ! keepalive path must be 100% success
+!
+! ── STEP 1: UPGRADE SECONDARY ────────────────────────────────
+! On secondary peer:
 reload
 !
-! Step 2: Monitor primary absorbs all traffic
+! ── STEP 2: MONITOR PRIMARY DURING RELOAD ────────────────────
+! Primary absorbs all traffic — watch for congestion on peer-link:
+show interfaces Port-Channel1 counters  ! peer-link — no drops
+show mlag                               ! expect: peer: disconnected (normal)
+!
+! ── STEP 3: VALIDATE SECONDARY AFTER RETURN ──────────────────
+! After secondary boots (wait full reload-delay mlag 300 seconds):
+show mlag                     ! state: active, peer: connected
+show mlag interfaces          ! all MLAG interfaces must be active
+show mlag detail              ! verify sync status: consistent
+!
+! ── STEP 4: UPGRADE PRIMARY ──────────────────────────────────
+! On primary peer:
+reload
+!
+! ── STEP 5: POST-UPGRADE VALIDATION (both peers) ─────────────
 show mlag
-show interfaces Port-Channel10 counters
+show mlag interfaces
+show version  ! confirm new EOS version
+show mlag config-sanity`
+      },
+      {
+        role: 'Preflight Checklist',
+        description: 'Validate MLAG domain health before any change window or go-live.',
+        config: `! ── 1. MLAG DOMAIN STATE ─────────────────────────────────────
+show mlag
+! Expected:
+!   State              : active
+!   Peer State         : active
+!   Peer link          : Port-Channel1
+!   Peer link status   : Up
 !
-! Step 3: After secondary returns, verify MLAG state
-show mlag detail
+! ── 2. KEEPALIVE PATH ────────────────────────────────────────
+ping 10.255.0.2 vrf MGMT repeat 20 timeout 1
+! Must be 100% success — any loss = keepalive risk
 !
-! Step 4: Upgrade primary
-reload`
+! ── 3. CONFIG CONSISTENCY ────────────────────────────────────
+show mlag config-sanity
+! Must return: No global configuration inconsistencies found
+!              No interface configuration inconsistencies found
+!
+! ── 4. MLAG INTERFACES ───────────────────────────────────────
+show mlag interfaces
+! All MLAG IDs must show: active (local) / active (peer)
+!
+! ── 5. PORT-CHANNEL MEMBERSHIP ───────────────────────────────
+show port-channel summary
+! Confirm all MLAG port-channels are bundled (P flag on members)
+!
+! ── 6. LACP TIMERS ───────────────────────────────────────────
+show lacp interface | include rate
+! All MLAG port-channels should show: rate: fast (1s timers)`
+      },
+      {
+        role: 'Peer-Link Failure Drill',
+        description: 'Safely test peer-link loss behavior (split-brain prevention) in a maintenance window.',
+        config: `! ── PRE-DRILL BASELINE ───────────────────────────────────────
+show mlag                    ! confirm both peers active
+show mlag interfaces         ! baseline all interface states
+!
+! ── SIMULATE PEER-LINK FAILURE ───────────────────────────────
+! Shut peer-link on ONE peer only (do NOT shut both peers' keepalive)
+interface Port-Channel1
+   shutdown
+!
+! ── OBSERVE SPLIT-BRAIN PREVENTION ──────────────────────────
+! On peer with keepalive still up — should remain active:
+show mlag
+! Expected: Peer link : Down
+!           Peer link status : Inactive
+!           Secondary peer disables MLAG port-channels
+!
+! On secondary peer — should disable MLAG port-channels:
+show mlag interfaces
+! Expected: all MLAG interfaces disabled (MLAG peer is unreachable)
+!
+! ── RESTORE PEER-LINK ────────────────────────────────────────
+interface Port-Channel1
+   no shutdown
+!
+! ── POST-DRILL VALIDATION ────────────────────────────────────
+show mlag
+show mlag interfaces         ! all back to active
+show mlag config-sanity      ! no inconsistencies after restore`
+      },
+      {
+        role: 'Troubleshooting Map',
+        description: 'Common MLAG failure symptoms, root causes, and targeted show commands.',
+        config: `! ── SYMPTOM: MLAG interfaces in "inactive" state ─────────────
+show mlag interfaces
+! Root causes: keepalive down, config inconsistency, peer-link down
+show mlag                    ! check peer link + peer state
+show mlag config-sanity      ! check for inconsistencies
+ping <peer-keepalive-ip> vrf MGMT  ! check keepalive path
+!
+! ── SYMPTOM: One-way traffic through MLAG port-channel ───────
+show mlag interfaces detail  ! look for "misconfig" flag
+show mlag config-sanity      ! VLAN or mode mismatch on one peer
+show interfaces Port-Channel<N> trunk  ! check VLAN pass-through
+!
+! ── SYMPTOM: Peer link carrying unexpected high traffic ───────
+show interfaces Port-Channel1 counters  ! look for rate spike
+! Cause: asymmetric MAC learning — one peer forwarding to the other
+show mac address-table | include Peer-Link  ! excess MACs via peer-link
+show mlag interfaces  ! look for "inactive" on a local MLAG port
+!
+! ── SYMPTOM: LACP PDU timeout / port-channel flap ────────────
+show lacp counters Port-Channel<N>
+! Check PDU receive counters — if zero, far end may be slow LACP
+show lacp neighbor  ! confirm far-end LACP system ID
+!
+! ── SYMPTOM: Config-sanity reports VLAN mismatch ─────────────
+show mlag config-sanity detail  ! shows specific mismatched VLANs
+! Fix: ensure both peers have identical "switchport trunk allowed vlan"
+!      on all MLAG port-channels and the peer-link`
+      },
+      {
+        role: 'Split-Brain Recovery',
+        description: 'Recover from an MLAG split-brain condition where both peers are independently active.',
+        config: `! ── DETECT SPLIT-BRAIN ───────────────────────────────────────
+! Both peers show "state: active" but peer link is down AND
+! keepalive is also down — both peers are forwarding independently
+show mlag
+! Watch for: State: active, Peer: inactive, keepalive: down on BOTH
+!
+! ── STEP 1: RESTORE KEEPALIVE PATH FIRST ─────────────────────
+! Restore OOB connectivity (mgmt cable, console) before peer-link
+! Confirm keepalive reachable:
+ping <peer-keepalive-ip> vrf MGMT
+!
+! ── STEP 2: BRING ONE PEER DOWN GRACEFULLY ───────────────────
+! Disable MLAG on the secondary (lower priority) peer:
+! On secondary:
+mlag configuration
+   no peer-link Port-Channel1  ! forces secondary into inactive
+!
+! ── STEP 3: RESTORE PEER-LINK ────────────────────────────────
+interface Port-Channel1
+   no shutdown
+!
+! ── STEP 4: RE-ENABLE MLAG ON SECONDARY ──────────────────────
+mlag configuration
+   peer-link Port-Channel1
+!
+! ── STEP 5: VERIFY FULL RECOVERY ─────────────────────────────
+show mlag                   ! both peers active, peer: connected
+show mlag interfaces        ! all MLAG IDs back to active
+show mlag config-sanity     ! clean
+show mac address-table      ! flush stale entries if needed: clear mac address-table dynamic`
       }
     ],
     dcContext: {

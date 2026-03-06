@@ -962,22 +962,21 @@ export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }
               {/* 6. EVIDENCE DRAWER */}
               <EvidenceDrawer contextTags={['Protocol', 'Life Sciences']} />
 
-              {/* 7. OPERATIONAL PLAYBOOK (VXLAN-only) */}
-              {active.id === 'vxlan' && active.roleConfigs && (
-                <section className="space-y-4">
-                  <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-2">
-                    <Layout size={14} className="text-blue-500" /> Operational Playbook
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {active.roleConfigs
-                      .filter((r) => [
-                        'Preflight Checklist',
-                        'Validation / Proof Hooks',
-                        'Troubleshooting Map',
-                        'Safe Defaults (VXLAN/EVPN)',
-                        'Brownfield Cutover Steps'
-                      ].includes(r.role))
-                      .map((role) => (
+              {/* 7. OPERATIONAL PLAYBOOK */}
+              {(['vxlan', 'mlag'] as string[]).includes(active.id) && active.roleConfigs && (() => {
+                const playBookRoles: Record<string, string[]> = {
+                  vxlan: ['Preflight Checklist', 'Validation / Proof Hooks', 'Troubleshooting Map', 'Safe Defaults (VXLAN/EVPN)', 'Brownfield Cutover Steps'],
+                  mlag:  ['Preflight Checklist', 'Peer-Link Failure Drill', 'Troubleshooting Map', 'Split-Brain Recovery', 'MLAG Upgrade Runbook'],
+                };
+                const filtered = active.roleConfigs!.filter((r) => playBookRoles[active.id]?.includes(r.role));
+                if (!filtered.length) return null;
+                return (
+                  <section className="space-y-4">
+                    <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-2">
+                      <Layout size={14} className="text-blue-500" /> Operational Playbook
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {filtered.map((role) => (
                         <div key={role.role} className="p-4 bg-zinc-900/60 border border-zinc-800 rounded-xl space-y-2">
                           <div className="flex items-center justify-between">
                             <div>
@@ -1001,9 +1000,10 @@ export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }
                           </pre>
                         </div>
                       ))}
-                  </div>
-                </section>
-              )}
+                    </div>
+                  </section>
+                );
+              })()}
 
             </div>
 
