@@ -11,6 +11,19 @@ export interface RoleConfig {
   config: string;
 }
 
+export interface DCContextEntry {
+  scale: string;
+  topologyRole: string;
+  keyConfig: string;
+  highlight: 'leaf-spine' | 'isl' | 'host-edge' | 'border' | 'all';
+}
+
+export interface DCContext {
+  small: DCContextEntry;
+  medium: DCContextEntry;
+  large: DCContextEntry;
+}
+
 export interface ProtocolDetail {
   id: string;
   name: string;
@@ -33,6 +46,7 @@ export interface ProtocolDetail {
     title: string;
     body: string;
   };
+  dcContext?: DCContext;
 }
 
 export const PROTOCOL_CONTENT: Record<string, ProtocolDetail> = {
@@ -299,7 +313,27 @@ show vxlan address-table vni 10010
 show arp vrf Prod
 show interfaces vxlan1 counters | include arp-suppress`
       }
-    ]
+    ],
+    dcContext: {
+      small: {
+        scale: '2-tier · 2 spines · 4 leaves · ≤ 200 hosts',
+        topologyRole: 'VTEP on every leaf; VNI-per-VLAN; spines are pure L3 underlay',
+        keyConfig: 'vxlan vlan 10 vni 10010',
+        highlight: 'leaf-spine'
+      },
+      medium: {
+        scale: '3-tier · 4 spines · 8–16 leaves · 2 pods',
+        topologyRole: 'Anycast VTEP pairs per leaf pair; DCI via border-leaf; MTU ≥ 9214 end-to-end',
+        keyConfig: 'ip address virtual 10.10.10.1/24  ! Anycast GW per pod',
+        highlight: 'isl'
+      },
+      large: {
+        scale: 'Multi-pod · super-spine · 32+ leaves · 10k+ hosts',
+        topologyRole: 'Centralized VTEP on border-leaf for inter-pod; distributed VTEPs within pod',
+        keyConfig: 'vxlan flood vtep learned  ! EVPN IMET-driven replication',
+        highlight: 'border'
+      }
+    }
   },
   EVPN: {
     id: 'evpn',
@@ -520,7 +554,27 @@ show bgp evpn route-type ip-prefix 10.10.10.0/24 detail
 show bgp neighbors 2.2.2.2 | include community
 ! Should show: Extended Community: yes`
       }
-    ]
+    ],
+    dcContext: {
+      small: {
+        scale: '2-tier · 2 spines acting as RR · 4 leaves',
+        topologyRole: 'eBGP underlay + EVPN AF on same session; spines are RR for RT-2/RT-5',
+        keyConfig: 'neighbor SPINES activate  ! under address-family evpn',
+        highlight: 'all'
+      },
+      medium: {
+        scale: '3-tier · 4 dedicated RR spines · 8–16 leaves · 2 pods',
+        topologyRole: 'Dedicated RR spines; per-pod iBGP optional; RT-2 and RT-5 across pods via border',
+        keyConfig: 'bgp listen range 10.0.0.0/8 peer-group UNDERLAY  ! dynamic peering',
+        highlight: 'isl'
+      },
+      large: {
+        scale: 'Multi-pod · super-spine RR hierarchy · 32+ leaves',
+        topologyRole: 'Hierarchical BGP RR tiers; EVPN DCI via super-spine EVPN gateways',
+        keyConfig: 'route-reflector-client  ! on super-spine for inter-pod EVPN',
+        highlight: 'border'
+      }
+    }
   },
   MLAG: {
     id: 'mlag',
@@ -696,7 +750,27 @@ show mlag detail
 ! Step 4: Upgrade primary
 reload`
       }
-    ]
+    ],
+    dcContext: {
+      small: {
+        scale: '2-tier · 2-node MLAG core · 4 access leaves',
+        topologyRole: 'MLAG core pair acts as spines; servers dual-home to core; peer-link on 40G/100G',
+        keyConfig: 'mlag configuration\n   domain-id CORE\n   local-interface Vlan4094',
+        highlight: 'isl'
+      },
+      medium: {
+        scale: '3-tier · 8 MLAG leaf pairs · dedicated spines',
+        topologyRole: 'MLAG per leaf pair for server active-active; each leaf pair shares MLAG domain',
+        keyConfig: 'mlag configuration\n   peer-link Port-Channel1\n   reload-delay mlag 300',
+        highlight: 'host-edge'
+      },
+      large: {
+        scale: 'Multi-pod · MLAG at leaf only · ESI-LAG preferred',
+        topologyRole: 'MLAG restricted to leaf pairs; spine-level redundancy via ECMP; ESI-LAG/EVPN preferred at scale',
+        keyConfig: 'evpn ethernet-segment\n   identifier 0000:0001:0002  ! ESI-LAG replaces MLAG at scale',
+        highlight: 'host-edge'
+      }
+    }
   },
   "NVMe-oF": {
     id: 'nvmeof',
@@ -900,6 +974,26 @@ show queue-monitor length events
       title: 'RoCE v2 Primer',
       body:
         'RoCE v2 (Routable RDMA over Converged Ethernet) encapsulates RDMA in UDP/IP so it can traverse L3 fabrics. It delivers low latency by avoiding CPU-heavy TCP processing, but it is sensitive to loss. ECN provides early congestion signaling, while PFC prevents drops on the lossless class. Together, they keep queues stable and avoid pause storms or head-of-line blocking that can destabilize storage traffic.'
+    },
+    dcContext: {
+      small: {
+        scale: '2-tier · dedicated storage fabric · 2 spines · 4 leaves · 25G hosts',
+        topologyRole: 'Purpose-built lossless fabric; PFC + ECN on all ports; separate VLAN from general traffic',
+        keyConfig: 'qos profile storage\n   trust dscp\n   pfc mode on',
+        highlight: 'host-edge'
+      },
+      medium: {
+        scale: '3-tier · converged compute+storage · 8 leaves · LANZ telemetry',
+        topologyRole: 'Per-VLAN PFC policy; LANZ buffer monitoring on leaves; ECN threshold tuned per profile',
+        keyConfig: 'hardware counter feature traffic-class\nlanz\n   enabled',
+        highlight: 'leaf-spine'
+      },
+      large: {
+        scale: 'Multi-pod · isolated storage spine plane · 32+ leaves · RoCEv2 DCQCN',
+        topologyRole: 'Dedicated storage spine plane; RoCEv2 with DCQCN congestion control; deep-buffer 7050CX spines',
+        keyConfig: 'qos profile dcqcn\n   ecn minimum-threshold 150000\n   ecn maximum-threshold 1500000',
+        highlight: 'isl'
+      }
     }
   },
   MULTICAST: {
@@ -1078,7 +1172,27 @@ show ip mroute 239.1.1.1 | include OIL
 ! Debug IGMP joins
 debug ip igmp vlan 10`
       }
-    ]
+    ],
+    dcContext: {
+      small: {
+        scale: '2-tier · single RP on spine · PIM-SM · ≤ 100 groups',
+        topologyRole: 'Single RP on spine; PIM-SM for BUM in VXLAN multicast underlay; IGMP v2/v3 on leaves',
+        keyConfig: 'ip pim rp-address 10.0.0.1\nip pim sparse-mode  ! on all L3 interfaces',
+        highlight: 'leaf-spine'
+      },
+      medium: {
+        scale: '3-tier · Anycast RP pair · PIM-SSM · video/storage groups',
+        topologyRole: 'Anycast RP pair on spines for redundancy; PIM-SSM for video and storage apps; IGMP snooping on all leaves',
+        keyConfig: 'ip pim anycast-rp 10.10.10.10 10.0.0.1\nip pim anycast-rp 10.10.10.10 10.0.0.2',
+        highlight: 'isl'
+      },
+      large: {
+        scale: 'Multi-pod · MSDP inter-pod · per-pod RP · 1k+ groups',
+        topologyRole: 'MSDP between pods for inter-pod group propagation; per-pod RP; selective groups per VRF',
+        keyConfig: 'ip msdp peer 10.1.0.1 remote-as 65001\nip msdp originator-id Loopback0',
+        highlight: 'border'
+      }
+    }
   },
   LINUX: {
     id: 'linux',
@@ -1265,7 +1379,27 @@ df -h /`
     referenceLinks: [
       { title: 'EOS Linux Internals', summary: 'Mapping EOS features to Linux processes and namespaces.' },
       { title: 'On-box Troubleshooting Recipes', summary: 'Tcpdump, ip netns exec, python -m json.tool for eAPI responses.' }
-    ]
+    ],
+    dcContext: {
+      small: {
+        scale: '2-tier · single switch · EOS bash + eAPI',
+        topologyRole: 'ZTP script customization; on-box Python for day-1 automation; sysdb interaction via Bash',
+        keyConfig: 'bash\npython3 /mnt/flash/ztp_init.py  ! ZTP on-box hook',
+        highlight: 'host-edge'
+      },
+      medium: {
+        scale: '3-tier · CloudVision + eAPI · multi-switch automation',
+        topologyRole: 'CloudVision API for multi-switch config push; eAPI JSON for programmatic show commands; Python SDK',
+        keyConfig: 'show version | json  ! eAPI: curl http://localhost/command-api',
+        highlight: 'leaf-spine'
+      },
+      large: {
+        scale: 'Multi-pod · gNMI/gRPC telemetry · Ansible + AVD at scale',
+        topologyRole: 'CVP Telemetry streaming via gNMI; Ansible AVD for Day-2 config; gRPC for real-time state',
+        keyConfig: 'management gnmi\n   provider eos-native\n   transport grpc default',
+        highlight: 'all'
+      }
+    }
   },
   BGP: {
     id: 'bgp',
@@ -1521,7 +1655,27 @@ router bgp 65001
       { title: 'RFC 7938 BGP in DC', summary: 'IETF best practices for BGP in large-scale data centers — Arista follows this model.' },
       { title: 'Arista AVD BGP Design', summary: 'AVD-generated BGP unnumbered templates for leaf-spine fabrics.' },
       { title: 'BFD for BGP (RFC 5882)', summary: 'Sub-second failure detection for BGP neighbors.' }
-    ]
+    ],
+    dcContext: {
+      small: {
+        scale: '2-tier · eBGP unnumbered · 2 spines · 4 leaves',
+        topologyRole: 'eBGP unnumbered underlay; loopback peerings; optional RR on spines for EVPN overlay',
+        keyConfig: 'neighbor interface Ethernet1 peer-group UNDERLAY\nbgp listen range 0.0.0.0/0',
+        highlight: 'leaf-spine'
+      },
+      medium: {
+        scale: '3-tier · eBGP underlay + EVPN overlay · BFD on all peers',
+        topologyRole: 'Dedicated spine ASNs; BFD on all BGP sessions; EVPN AF for RT-2/RT-5 overlay',
+        keyConfig: 'neighbor SPINES bfd\naddress-family evpn\n   neighbor SPINES activate',
+        highlight: 'isl'
+      },
+      large: {
+        scale: 'Multi-pod · hierarchical eBGP · super-spine route policy',
+        topologyRole: 'Leaf → spine → super-spine eBGP tiers; route policy at every boundary; prefix summarization per pod',
+        keyConfig: 'route-map LEAF-OUT permit 10\n   set community 65000:100  ! tag by pod',
+        highlight: 'border'
+      }
+    }
   },
   QOS: {
     id: 'qos',
@@ -1756,7 +1910,27 @@ show queue-monitor length events`
       { title: 'RFC 2474 DiffServ', summary: 'DSCP marking standards and per-hop behavior definitions.' },
       { title: 'Arista AI Fabric QoS Guide', summary: 'RoCE v2 lossless class configuration with PFC/ECN for H100/B200 fabrics.' },
       { title: 'LANZ Telemetry Guide', summary: 'Latency Analytics for microsecond-level queue visibility on Arista platforms.' }
-    ]
+    ],
+    dcContext: {
+      small: {
+        scale: '2-tier · 4-class policy · all ports',
+        topologyRole: '4-class traffic-policy on all ports; default EF/BE/AF31/CS5 queues; DSCP trust on server ports',
+        keyConfig: 'traffic-policy TP-4CLASS\n   match VOICE dscp ef\n   set traffic-class 7',
+        highlight: 'host-edge'
+      },
+      medium: {
+        scale: '3-tier · per-VRF traffic policy · PFC for storage class',
+        topologyRole: 'Per-VRF traffic policy; storage class PFC-enabled on leaf ports; DSCP remarking at border-leaf',
+        keyConfig: 'qos map dscp 46 traffic-class 7\npfc mode on  ! on storage uplinks',
+        highlight: 'leaf-spine'
+      },
+      large: {
+        scale: 'Multi-pod · 8-queue model · per-switch buffer profiles · DTEL',
+        topologyRole: 'Full 8-queue model per switch; per-switch buffer profiles tuned for workload; DTEL/LANZ telemetry per queue',
+        keyConfig: 'hardware counter feature traffic-class\nlanz\n   enabled\n   action-threshold 500000',
+        highlight: 'all'
+      }
+    }
   },
   MACSEC: {
     id: 'macsec',
@@ -1968,6 +2142,26 @@ show running-config | section mac.security
       { title: 'IEEE 802.1X-2010 MKA', summary: 'Key agreement protocol — CAK/SAK management and automatic rotation.' },
       { title: 'Arista MACsec Configuration Guide', summary: 'Platform support matrix, EOS config examples, and FIPS compliance notes.' },
       { title: 'MACsec vs IPsec Comparison', summary: 'Use-case decision guide for link-layer vs network-layer encryption.' }
-    ]
+    ],
+    dcContext: {
+      small: {
+        scale: '2-tier · MACsec on spine↔leaf ISL · GCM-AES-128',
+        topologyRole: 'MACsec on all spine-to-leaf ISL links; CAK pre-shared via EOS keychain; GCM-AES-128',
+        keyConfig: 'mac security profile ISL-MACSEC\n   cipher aes128-gcm\n   key 0 <cak> ckn <ckn>',
+        highlight: 'isl'
+      },
+      medium: {
+        scale: '3-tier · MACsec on all ISL + border uplinks · RADIUS CAK',
+        topologyRole: 'MACsec on all ISL and DCI/border uplinks; CAK distributed via RADIUS for centralized management',
+        keyConfig: 'mac security profile BORDER-MACSEC\n   cipher aes256-gcm\n   mka policy MKA-STRICT',
+        highlight: 'border'
+      },
+      large: {
+        scale: 'Multi-pod · MACsec everywhere · automated SAK rotation · CKMS',
+        topologyRole: 'MACsec on ISL, host NIC-to-leaf, and DCI; automated SAK rotation; CKMS for centralized key management',
+        keyConfig: 'mka policy MKA-CKMS\n   key-server priority 16\n   sak-rekey interval 3600',
+        highlight: 'all'
+      }
+    }
   }
 };
