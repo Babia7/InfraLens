@@ -585,6 +585,32 @@ const DCTopologyViewer: React.FC<DCTopologyViewerProps> = ({ dcContext }) => {
           {dcSize === 'medium' && <MediumDCDiagram highlight={hl} />}
           {dcSize === 'large'  && <LargeDCDiagram  highlight={hl} />}
         </div>
+        {/* Color legend */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 px-1">
+          <span className="flex items-center gap-1.5 text-[9px] text-zinc-500">
+            <span className="w-3 h-3 rounded-sm inline-block" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid #3b82f6' }}></span> Spine
+          </span>
+          <span className="flex items-center gap-1.5 text-[9px] text-zinc-500">
+            <span className="w-3 h-3 rounded-sm inline-block" style={{ background: 'rgba(39,39,42,0.8)', border: '1px solid #52525b' }}></span> Leaf
+          </span>
+          <span className="flex items-center gap-1.5 text-[9px] text-zinc-500">
+            <span className="w-3 h-3 rounded-sm inline-block" style={{ background: 'rgba(24,24,27,0.9)', border: '1px solid #3f3f46' }}></span> Host
+          </span>
+          {dcSize !== 'small' && (
+            <span className="flex items-center gap-1.5 text-[9px] text-zinc-500">
+              <span className="w-3 h-3 rounded-sm inline-block" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid #10b981' }}></span> Border
+            </span>
+          )}
+          {dcSize === 'large' && (
+            <span className="flex items-center gap-1.5 text-[9px] text-zinc-500">
+              <span className="w-3 h-3 rounded-sm inline-block" style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid #8b5cf6' }}></span> Super-Spine
+            </span>
+          )}
+          <span className="flex items-center gap-1.5 text-[9px] text-zinc-500 ml-auto">
+            <span className="w-3 h-1.5 rounded-sm inline-block" style={{ background: HL_COLORS[hl] ?? '#f59e0b' }}></span>
+            <span style={{ color: HL_COLORS[hl] ?? '#f59e0b' }}>Active layer</span>
+          </span>
+        </div>
 
         {ctx && (
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -625,12 +651,12 @@ const RoleConfigViewer: React.FC<RoleConfigViewerProps> = ({ roles }) => {
              <Terminal size={18} className="text-emerald-500" />
              <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Reference Configurations</h3>
           </div>
-          <div className="flex gap-2 p-1 bg-surface-muted rounded-lg border border-border">
+          <div className="flex gap-2 p-1 bg-surface-muted rounded-lg border border-border overflow-x-auto scrollbar-none max-w-xs">
              {roles.map((r, i) => (
                 <button
                   key={r.role}
                   onClick={() => setActiveRole(i)}
-                  className={`px-3 py-1 rounded text-[9px] font-bold uppercase tracking-wider transition-all ${activeRole === i ? 'bg-card-bg text-primary border border-border' : 'text-secondary hover:text-primary'}`}
+                  className={`px-3 py-1 rounded text-[9px] font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 ${activeRole === i ? 'bg-card-bg text-primary border border-border' : 'text-secondary hover:text-primary'}`}
                 >
                   {r.role.split(' ').slice(0, 2).join(' ').slice(0, 14)}
                 </button>
@@ -675,6 +701,18 @@ interface ProtocolsAppProps {
 
 const PROTOCOL_LAB_STORAGE_KEY = 'protocol_lab_active_id';
 
+const PROTOCOL_TAB_COLORS: Record<string, string> = {
+  vxlan:    'bg-blue-600 shadow-blue-900/40',
+  evpn:     'bg-emerald-600 shadow-emerald-900/40',
+  mlag:     'bg-amber-600 shadow-amber-900/40',
+  nvmeof:   'bg-violet-600 shadow-violet-900/40',
+  bgp:      'bg-sky-600 shadow-sky-900/40',
+  qos:      'bg-orange-600 shadow-orange-900/40',
+  macsec:   'bg-teal-600 shadow-teal-900/40',
+  multicast:'bg-rose-600 shadow-rose-900/40',
+  linux:    'bg-cyan-600 shadow-cyan-900/40',
+};
+
 export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }) => {
   const [selectedId, setSelectedId] = useState<string>('VXLAN');
   const [copiedBlock, setCopiedBlock] = useState<string | null>(null);
@@ -718,7 +756,7 @@ export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }
                 <button
                     key={id}
                     onClick={() => { setSelectedId(id); }}
-                    className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${selectedId === id ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300'}`}
+                    className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${selectedId === id ? `${PROTOCOL_TAB_COLORS[id.toLowerCase()] ?? 'bg-blue-600 shadow-blue-900/40'} text-white shadow-lg` : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300'}`}
                 >
                     {id}
                 </button>
@@ -914,21 +952,30 @@ export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }
                     <Terminal size={18} className="text-blue-400" />
                     <h3 className="text-xs font-bold uppercase tracking-widest">CLI Reference</h3>
                   </div>
-                  <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">EOS Native</span>
+                  <div className="flex items-center gap-3 text-[9px] font-mono uppercase tracking-widest">
+                    <span className="text-zinc-500">Legacy</span>
+                    <ArrowRightLeft size={10} className="text-zinc-600" />
+                    <span className="text-blue-400">EOS Native</span>
+                  </div>
                 </header>
-                <div className="p-6 space-y-6">
+                <div className="p-6 space-y-5">
                   {active.cliTranslation.map((pair, i) => (
-                    <div key={i} className="space-y-3 group">
-                      <div className="flex flex-col gap-1.5">
-                        <div className="flex justify-between items-center">
-                          <span className="text-[8px] font-mono text-blue-500 uppercase">EOS Native</span>
-                          <CheckCircle2 size={10} className="text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div key={i} className="group space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                          <span className="text-[8px] font-mono text-zinc-500 uppercase tracking-wider">Cisco / NX-OS</span>
+                          <code className="text-[10px] bg-zinc-950 p-2.5 rounded-lg border border-zinc-800 text-zinc-400 block font-mono leading-relaxed whitespace-pre-wrap break-all">
+                            {pair.legacy}
+                          </code>
                         </div>
-                        <code className="text-[11px] bg-blue-950/20 p-3 rounded-lg border border-blue-500/20 text-blue-300 block truncate font-bold shadow-inner">
-                          {pair.arista}
-                        </code>
+                        <div className="space-y-1">
+                          <span className="text-[8px] font-mono text-blue-500 uppercase tracking-wider">Arista EOS</span>
+                          <code className="text-[10px] bg-blue-950/20 p-2.5 rounded-lg border border-blue-500/20 text-blue-300 block font-mono font-bold leading-relaxed whitespace-pre-wrap break-all">
+                            {pair.arista}
+                          </code>
+                        </div>
                       </div>
-                      {i < active.cliTranslation.length - 1 && <div className="h-px bg-zinc-800/50 w-full mt-4"></div>}
+                      {i < active.cliTranslation.length - 1 && <div className="h-px bg-zinc-800/50 w-full mt-3"></div>}
                     </div>
                   ))}
                 </div>
