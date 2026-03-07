@@ -613,12 +613,6 @@ show bgp neighbors 2.2.2.2 | include community
     ],
     masteryPath: [
       {
-        level: 'Foundation',
-        heading: 'Keepalive Discipline',
-        body: 'Keepalive must be out-of-band (Mgmt VRF) and rate-limited to avoid false splits. No user traffic on keepalive link.',
-        keyConcept: 'Control-plane safety'
-      },
-      {
         level: 'Logic',
         heading: 'Consistency Checks',
         body: 'EOS performs MLAG config checks on VLANs/ports. Fix mismatches before turn-up to prevent secondary from blocking.',
