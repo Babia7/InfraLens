@@ -315,5 +315,19 @@ export const toolsRegistry: Record<SectionType, ToolRegistryItem> = {
     component: load(import('@apps/ResourceHub'), 'ResourceHub'),
     parentId: SectionType.HOME,
     audience: 'Public'
+  },
+  [SectionType.TROUBLESHOOTING_LAB]: {
+    id: SectionType.TROUBLESHOOTING_LAB,
+    path: '/apps/troubleshoot',
+    component: load(import('@apps/TroubleshootingLab'), 'TroubleshootingLab'),
+    parentId: SectionType.APPS,
+    audience: 'Internal'
+  },
+  [SectionType.BROWNFIELD_MIGRATION]: {
+    id: SectionType.BROWNFIELD_MIGRATION,
+    path: '/apps/brownfield',
+    component: load(import('@apps/BrownfieldMigration'), 'BrownfieldMigration'),
+    parentId: SectionType.APPS,
+    audience: 'Internal'
   }
 };

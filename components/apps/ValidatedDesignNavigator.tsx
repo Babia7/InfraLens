@@ -172,15 +172,22 @@ const DESIGNS: ValidatedDesign[] = [
       'Document RT schema for DCI vs campus/edge'
     ],
     preflight: [
-      'Confirm MACsec capability + keying on both ends',
-      'Validate MTU headroom on DCI vs underlay',
-      'Check RT schema alignment with brownfield'
+      'Confirm MACsec capability + keying on both ends (CAK/CKN match, cipher suite aligned)',
+      'Validate WAN underlay MTU ≥ 9100 (VXLAN overhead = 50 bytes; target inner MTU 9000)',
+      'Check RT schema: DCI export RTs must not collide with local fabric RT 10:VLAN / 50:VRF',
+      'Verify VTEP loopback reachability across WAN: ping from BL loopback to remote BL loopback',
+      'Run `show vxlan config-sanity detail` on border leaves — all checks PASS before enabling DCI VNIs',
+      'Confirm ARP suppression planned for L2-stretched VLANs to avoid OTV-style flooding over DCI'
     ],
     runbook: [
-      'Bring up DCI underlay and verify reachability',
-      'Enable EVPN AF with RT-5; validate prefix advertisement',
-      'Test symmetry and failover; capture ERSPAN for proof',
-      'Enable MACsec if required; revalidate throughput/MTU'
+      'Enable WAN underlay: eBGP or static routing between border leaf loopbacks; validate ping',
+      'Configure VXLAN DCI tunnel: `interface Vxlan1 → vxlan source-interface Loopback0`',
+      'Enable EVPN AF with RT-5 for L3 VRFs: `address-family evpn → redistribute connected`',
+      'Validate RT-5 advertisements: `show bgp evpn route-type ip-prefix` at both sites',
+      'For L2 stretch: add VNI-to-VLAN mapping + ARP suppression; verify IMET/RT-2 exchange',
+      'Enable MACsec on DCI uplinks if compliance required; revalidate MTU and throughput',
+      'Test failover: shut one border leaf — verify routes reconverge at remote site in < 5s',
+      'Take CloudVision snapshot at both sites; update compliance baseline'
     ],
     evidence: {
       source: 'EVPN DCI Validation',
