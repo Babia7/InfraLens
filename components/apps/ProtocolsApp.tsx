@@ -1,7 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Network, Zap, ShieldCheck, ChevronRight, Terminal, Info, Layout, Activity, MessageSquare, Database, ArrowRightLeft, Server, Cpu, Share2, Shield, Layers, CheckCircle2, BookOpen, Target, Copy, Check, Radio, GitBranch } from 'lucide-react';
+import { ArrowLeft, Network, Zap, ShieldCheck, ChevronRight, Terminal, Info, Layout, Activity, MessageSquare, Database, ArrowRightLeft, Server, Cpu, Share2, Shield, Layers, CheckCircle2, BookOpen, Target, Copy, Check, Radio, GitBranch, AlertTriangle } from 'lucide-react';
 import { PROTOCOL_CONTENT, ProtocolDetail, DCContext } from '@data/protocolsContent';
+import { TROUBLESHOOT_SCENARIOS, PROTOCOL_TROUBLESHOOT_MAP } from '@data/troubleshootContent';
 import { SectionType } from '@/types';
 import { RelatedActions } from '@/components/RelatedActions';
 import { EvidenceDrawer } from '@/components/EvidenceDrawer';
@@ -792,7 +793,7 @@ export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }
           <RelatedActions
             actions={[
               { label: 'Briefing Theater', onClick: () => onNavigate(SectionType.BRIEFING_THEATER), icon: <MessageSquare size={12} />, tone: 'blue' },
-              { label: 'Narrative Playbook', onClick: () => onNavigate(SectionType.NARRATIVE_PLAYBOOK), icon: <Share2 size={12} />, tone: 'indigo' },
+              { label: 'Troubleshoot Lab', onClick: () => onNavigate(SectionType.TROUBLESHOOTING_LAB), icon: <AlertTriangle size={12} />, tone: 'emerald' },
               { label: 'Collision Mapper', onClick: () => onNavigate(SectionType.PROTOCOL_COLLISION_MAPPER), icon: <ArrowRightLeft size={12} />, tone: 'emerald' },
               { label: 'Validated Designs', onClick: () => onNavigate(SectionType.VALIDATED_DESIGN_NAVIGATOR), icon: <Layout size={12} />, tone: 'blue' }
             ]}
@@ -916,6 +917,56 @@ export const ProtocolsApp: React.FC<ProtocolsAppProps> = ({ onBack, onNavigate }
                    </div>
                  </section>
                )}
+
+               {/* TROUBLESHOOT: inline top failure modes */}
+               {(() => {
+                 const scenarioIds = PROTOCOL_TROUBLESHOOT_MAP[active.id.toUpperCase()] ?? [];
+                 const scenarios = scenarioIds.map(id => TROUBLESHOOT_SCENARIOS.find(s => s.id === id)).filter(Boolean) as typeof TROUBLESHOOT_SCENARIOS;
+                 if (scenarios.length === 0) return null;
+                 return (
+                   <section className="space-y-6">
+                     <div className="flex items-center justify-between">
+                       <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-2">
+                         <AlertTriangle size={14} className="text-red-500" /> Top Failure Modes
+                       </h3>
+                       {onNavigate && (
+                         <button
+                           onClick={() => onNavigate(SectionType.TROUBLESHOOTING_LAB)}
+                           className="text-[9px] font-mono uppercase tracking-wider text-blue-400 hover:text-blue-300 flex items-center gap-1 transition"
+                         >
+                           Full Lab <ChevronRight size={10} />
+                         </button>
+                       )}
+                     </div>
+                     <div className="space-y-3">
+                       {scenarios.map((scenario) => (
+                         <div key={scenario.id} className="p-5 bg-zinc-900/40 border border-red-500/10 rounded-2xl space-y-3 hover:border-red-500/20 transition-all">
+                           <div className="flex items-start justify-between gap-3">
+                             <div className="space-y-1">
+                               <div className="text-sm font-semibold text-zinc-200">{scenario.title}</div>
+                               <div className="flex items-center gap-2">
+                                 <span className={`text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded border ${
+                                   scenario.severity === 'Critical' ? 'border-red-500/30 text-red-400' :
+                                   scenario.severity === 'High' ? 'border-amber-500/30 text-amber-400' :
+                                   'border-blue-500/30 text-blue-400'
+                                 }`}>{scenario.severity}</span>
+                               </div>
+                             </div>
+                           </div>
+                           <p className="text-xs text-zinc-500 leading-relaxed">{scenario.symptom}</p>
+                           <div className="p-3 bg-zinc-950 border border-zinc-800 rounded-xl space-y-1">
+                             <div className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-600">First Check</div>
+                             <code className="text-[11px] font-mono text-emerald-400">{scenario.steps[0]?.command.split('\n')[0]}</code>
+                           </div>
+                           <p className="text-[11px] text-zinc-600 leading-relaxed">
+                             <span className="text-zinc-500 font-semibold">Root cause: </span>{scenario.rootCause.substring(0, 120)}…
+                           </p>
+                         </div>
+                       ))}
+                     </div>
+                   </section>
+                 );
+               })()}
             </div>
 
             {/* RIGHT: TOPOLOGY & CONFIGS */}
