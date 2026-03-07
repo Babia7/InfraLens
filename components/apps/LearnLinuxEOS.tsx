@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Terminal, Brain, Compass, Sparkles, BookOpen, Play, Trophy, CheckCircle2, Clock, Layers, ShieldCheck, BadgeCheck, ChevronRight, Filter, Info } from 'lucide-react';
+import { ArrowLeft, Terminal, Brain, Compass, Sparkles, BookOpen, Play, Trophy, CheckCircle2, Clock, Layers, ShieldCheck, BadgeCheck, ChevronRight, Filter, Info, Zap } from 'lucide-react';
 import { LINUX_CARDS, LINUX_TRACKS, LINUX_SCENARIOS } from '@data/linuxContent';
 import { SectionType } from '@/types';
 
@@ -33,7 +33,7 @@ const PRIMER = {
     { title: 'Flash space', cmd: 'df -h /mnt/flash', why: 'Check persistent storage before upgrades.' },
     { title: 'Quick pcap', cmd: 'tcpdump -i et1 -c 5', why: 'Capture a few packets for proof of transit.' },
     { title: 'eAPI up?', cmd: 'curl -I https://127.0.0.1:443', why: 'Confirm API listener responds (expect 200/301).' },
-    { title: 'Python hello', cmd: 'python + import jsonrpclib', why: 'Test on-box automation SDK availability.' },
+    { title: 'Python hello', cmd: 'python3 -c "import jsonrpclib"', why: 'Test on-box automation SDK availability.' },
     { title: 'Pack logs', cmd: 'tar -czvf logs.tgz /var/log', why: 'Bundle logs; offload to free flash.' }
   ]
 };
@@ -41,7 +41,7 @@ const PRIMER = {
 export const LearnLinuxEOS: React.FC<LearnLinuxEOSProps> = ({ onBack }) => {
   const [trackId, setTrackId] = useState<string>('foundations');
   const [activeIdx, setActiveIdx] = useState(0);
-  const [activeTab, setActiveTab] = useState<'reference' | 'guided' | 'scenarios'>('reference');
+  const [activeTab, setActiveTab] = useState<'reference' | 'guided' | 'scenarios' | 'quickref'>('reference');
   const [completedModules, setCompletedModules] = useState<Record<string, boolean>>({});
   const [quizAnswers, setQuizAnswers] = useState<Record<string, { selected?: string; correct?: boolean }>>({});
   const [search, setSearch] = useState('');
@@ -203,6 +203,12 @@ export const LearnLinuxEOS: React.FC<LearnLinuxEOSProps> = ({ onBack }) => {
                 >
                   Scenarios
                 </button>
+                <button
+                  onClick={() => setActiveTab('quickref')}
+                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-1.5 ${activeTab === 'quickref' ? 'bg-emerald-500/10 text-primary border border-emerald-500/30' : 'text-secondary hover:text-primary'}`}
+                >
+                  <Zap size={13} /> Quick Ref
+                </button>
                 <div className="ml-auto text-[10px] font-mono uppercase tracking-[0.3em] text-emerald-500 flex items-center gap-2">
                   <BadgeCheck size={14} className="text-emerald-400" /> {completionPct}% Complete
                 </div>
@@ -354,8 +360,8 @@ export const LearnLinuxEOS: React.FC<LearnLinuxEOSProps> = ({ onBack }) => {
                     <div className="p-3 bg-page-bg border border-border rounded-xl">
                       <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-emerald-600 mb-2">Starter kit</div>
                       <div className="grid sm:grid-cols-2 gap-1 text-sm text-primary font-mono">
-                        {PRIMER.starter.map((cmd) => (
-                          <div key={cmd} className="px-2 py-1 rounded bg-card-bg border border-border text-emerald-700">{cmd}</div>
+                        {PRIMER.starter.map((item) => (
+                          <div key={item.title} className="px-2 py-1 rounded bg-card-bg border border-border text-emerald-700">{item.cmd}</div>
                         ))}
                       </div>
                     </div>
@@ -490,6 +496,125 @@ export const LearnLinuxEOS: React.FC<LearnLinuxEOSProps> = ({ onBack }) => {
                     </div>
                   </div>
                 </>
+              )}
+
+              {activeTab === 'quickref' && (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <Zap size={16} className="text-emerald-400" />
+                    <div>
+                      <div className="text-sm font-semibold text-primary">SE Quick Reference — EOS Linux</div>
+                      <div className="text-[11px] text-secondary">Field-ready commands grouped by task. Copy and run.</div>
+                    </div>
+                  </div>
+
+                  {[
+                    {
+                      label: 'Entry & Exit',
+                      color: 'border-emerald-500/30 bg-emerald-500/5',
+                      rows: [
+                        { cmd: 'bash', desc: 'Drop into Linux shell from EOS CLI' },
+                        { cmd: 'bash sudo', desc: 'Root shell (use sparingly)' },
+                        { cmd: 'exit', desc: 'Return to EOS CLI from bash' },
+                        { cmd: 'FastCli -p 15 -c "show version"', desc: 'Run EOS command from bash' },
+                      ]
+                    },
+                    {
+                      label: 'Processes & Agents',
+                      color: 'border-sky-500/30 bg-sky-500/5',
+                      rows: [
+                        { cmd: 'ps aux | grep -i bgp', desc: 'Find BGP agent PID' },
+                        { cmd: 'ps aux --sort=-%mem | head', desc: 'Top memory consumers' },
+                        { cmd: 'FastCli -p 15 -c "show agent"', desc: 'List all EOS agents + state' },
+                        { cmd: 'FastCli -p 15 -c "agent Bgp graceful-restart"', desc: 'Safe agent restart (preserves SysDB)' },
+                        { cmd: 'tail -f /var/log/agents/Bgp-*', desc: 'Live BGP agent log' },
+                        { cmd: 'ls -la /var/log/agents/', desc: 'All per-agent log files' },
+                      ]
+                    },
+                    {
+                      label: 'Networking & Capture',
+                      color: 'border-violet-500/30 bg-violet-500/5',
+                      rows: [
+                        { cmd: 'ip link show', desc: 'List kernel interfaces (Eth1 → et1)' },
+                        { cmd: 'ip -d link show et1', desc: 'Detailed interface info (VLAN, bond)' },
+                        { cmd: "tcpdump -i et1 -n 'host 10.0.0.1'", desc: 'Capture packets to specific host' },
+                        { cmd: "tcpdump -i et1 -n 'vlan 10' -c 50 -w /mnt/flash/cap.pcap", desc: 'VLAN-filtered capture to file' },
+                        { cmd: 'ss -tlnp', desc: 'Socket listeners (replaces netstat)' },
+                        { cmd: 'ip route show', desc: 'Kernel routing table (default VRF)' },
+                      ]
+                    },
+                    {
+                      label: 'VRF / NetNS',
+                      color: 'border-amber-500/30 bg-amber-500/5',
+                      rows: [
+                        { cmd: 'ip netns list', desc: 'List all VRF namespaces (ns-MGMT, ns-PROD…)' },
+                        { cmd: 'ip netns exec ns-PROD ip route show', desc: 'Routing table for VRF PROD' },
+                        { cmd: 'ip netns exec ns-PROD ip neigh show', desc: 'ARP table for VRF PROD' },
+                        { cmd: "ip netns exec ns-PROD tcpdump -i et1 -n 'tcp port 179'", desc: 'BGP capture in VRF PROD' },
+                        { cmd: 'ip netns exec ns-PROD ss -tlnp', desc: 'Socket listeners in VRF PROD' },
+                      ]
+                    },
+                    {
+                      label: 'Filesystem & Flash',
+                      color: 'border-orange-500/30 bg-orange-500/5',
+                      rows: [
+                        { cmd: 'df -h /mnt/flash', desc: 'Flash usage (target >20% free pre-ISSU)' },
+                        { cmd: 'du -sh /var/log/* | sort -rh | head', desc: 'Largest log directories' },
+                        { cmd: 'ls -lh /mnt/flash/cores/', desc: 'Coredumps (offload before deleting)' },
+                        { cmd: 'rm -f /mnt/flash/cores/*.core.old', desc: 'Remove old coredumps' },
+                        { cmd: 'tar -czvf /mnt/flash/logs.tgz /var/log/agents', desc: 'Bundle agent logs' },
+                        { cmd: 'scp /mnt/flash/logs.tgz user@host:/tmp/', desc: 'Offload bundle to jump host' },
+                      ]
+                    },
+                    {
+                      label: 'eAPI & Automation',
+                      color: 'border-cyan-500/30 bg-cyan-500/5',
+                      rows: [
+                        { cmd: 'python3', desc: 'On-box Python 3 (SDKs pre-installed)' },
+                        { cmd: 'python3 -c "import jsonrpclib"', desc: 'Verify jsonrpclib available' },
+                        { cmd: 'unix:/var/run/command-api.sock', desc: 'eAPI Unix socket path (no creds needed)' },
+                        { cmd: "curl -sk -u admin:PW -X POST -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"method\":\"runCmds\",\"params\":{\"version\":1,\"cmds\":[\"show version\"]},\"id\":\"1\"}' https://127.0.0.1/command-api", desc: 'HTTPS eAPI call' },
+                        { cmd: 'FastCli -p 15 -c "management api http-commands"', desc: 'Check eAPI config' },
+                      ]
+                    },
+                    {
+                      label: 'Diagnostics & TAC',
+                      color: 'border-red-500/30 bg-red-500/5',
+                      rows: [
+                        { cmd: 'FastCli -p 15 -c "show coredump"', desc: 'Structured coredump list' },
+                        { cmd: 'free -h', desc: 'Memory usage overview' },
+                        { cmd: 'FastCli -p 15 -c "show processes top once"', desc: 'Per-agent CPU/mem usage' },
+                        { cmd: 'FastCli -p 15 -c "show tech-support" > /mnt/flash/tech.log', desc: 'Full tech-support bundle' },
+                        { cmd: 'FastCli -p 15 -c "show issu"', desc: 'ISSU upgrade path readiness' },
+                        { cmd: 'FastCli -p 15 -c "show boot-config"', desc: 'Boot image and next boot target' },
+                      ]
+                    },
+                    {
+                      label: 'Search & Shell Shortcuts',
+                      color: 'border-zinc-500/30 bg-zinc-500/5',
+                      rows: [
+                        { cmd: 'grep -r "error" /var/log/agents --include="*.log"', desc: 'Recursive error search in logs' },
+                        { cmd: 'grep -C 5 "BGP NOTIFICATION" /var/log/messages', desc: 'Context around BGP notification' },
+                        { cmd: "find /mnt/flash -name '*.swi' -mtime -7", desc: 'EOS images modified in last 7 days' },
+                        { cmd: "watch -n 2 \"FastCli -p 15 -c 'show int status'\"", desc: 'Live interface dashboard' },
+                        { cmd: 'Ctrl+R', desc: 'Reverse search command history' },
+                        { cmd: '!! / !$', desc: 'Repeat last cmd / last argument' },
+                      ]
+                    },
+                  ].map((section) => (
+                    <div key={section.label} className={`rounded-2xl border p-4 space-y-2 ${section.color}`}>
+                      <div className="text-[10px] font-bold uppercase tracking-[0.35em] text-secondary mb-3">{section.label}</div>
+                      <div className="divide-y divide-border">
+                        {section.rows.map((row) => (
+                          <div key={row.cmd} className="flex items-start gap-3 py-1.5 group">
+                            <code className="font-mono text-[11px] text-emerald-700 whitespace-pre-wrap flex-1 min-w-0 break-all leading-relaxed">{row.cmd}</code>
+                            <span className="text-[11px] text-secondary flex-shrink-0 max-w-[45%] text-right leading-relaxed">{row.desc}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
 
               {activeTab === 'scenarios' && (
