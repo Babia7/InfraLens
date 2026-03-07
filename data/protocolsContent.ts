@@ -170,7 +170,6 @@ ip routing vrf Prod`
    vxlan multicast-group 239.10.10.10
 !
 interface Vlan10
-   vxlan encapsulation ipv4
    ip address virtual 10.10.10.1/24`
       },
       {
@@ -292,7 +291,7 @@ router bgp 65001
 ! Spine
 router bgp 65000
    neighbor LEAVES peer group
-   neighbor LEAVES remote-as 65001
+   neighbor LEAVES remote-as external
    neighbor interface Ethernet1 peer-group LEAVES
    neighbor interface Ethernet2 peer-group LEAVES
    neighbor LEAVES route-reflector-client`
@@ -565,7 +564,7 @@ show bgp neighbors 2.2.2.2 | include community
       medium: {
         scale: '3-tier · 4 dedicated RR spines · 8–16 leaves · 2 pods',
         topologyRole: 'Dedicated RR spines; per-pod iBGP optional; RT-2 and RT-5 across pods via border',
-        keyConfig: 'bgp listen range 10.0.0.0/8 peer-group UNDERLAY  ! dynamic peering',
+        keyConfig: 'bgp listen range 10.0.0.0/8 peer-group UNDERLAY remote-as external  ! dynamic peering',
         highlight: 'isl'
       },
       large: {
@@ -1119,15 +1118,15 @@ policy-map type qos STORAGE-QOS
         description: 'Quick checks for MTU, QoS, PFC/ECN, and queue depth.',
         config: `show interfaces Ethernet1 | include MTU
 show interfaces Ethernet1 counters | include drop|pause
-show qos interfaces Ethernet1
-show ip ecn
+show qos interfaces Ethernet1 output
+show hardware counter feature qos ecn
 show queue-monitor length detail`
       },
       {
         role: 'Symptom Triage',
         description: 'Fast checks when storage latency or timeouts spike.',
         config: `1) Pause storms: show interfaces Ethernet1 counters | include pause
-2) ECN marking: show ip ecn
+2) ECN marking: show qos interfaces Ethernet1 output | include ECN
 3) Queue depth: show queue-monitor length detail
 4) Optics health: show interfaces Ethernet1 transceiver details
 5) Link errors: show interfaces Ethernet1 counters | include err|crc`
@@ -1416,7 +1415,7 @@ debug ip igmp vlan 10`
       large: {
         scale: 'Multi-pod · MSDP inter-pod · per-pod RP · 1k+ groups',
         topologyRole: 'MSDP between pods for inter-pod group propagation; per-pod RP; selective groups per VRF',
-        keyConfig: 'ip msdp peer 10.1.0.1 remote-as 65001\nip msdp originator-id Loopback0',
+        keyConfig: 'ip msdp peer 10.1.0.1 connect-source Loopback0\nip msdp originator-id Loopback0',
         highlight: 'border'
       }
     }
@@ -1546,7 +1545,7 @@ ip netns exec Prod traceroute 10.10.10.50`
 # Save as /mnt/flash/check_bgp.py, run: bash python3 /mnt/flash/check_bgp.py
 import json, urllib.request, base64
 
-url = 'http://localhost:8765/command-api'
+url = 'http://localhost/command-api'  # EOS eAPI default HTTP port 80
 creds = base64.b64encode(b'admin:').decode()
 payload = json.dumps({
     'jsonrpc': '2.0',
@@ -1887,7 +1886,7 @@ router bgp 65001
       small: {
         scale: '2-tier · eBGP unnumbered · 2 spines · 4 leaves',
         topologyRole: 'eBGP unnumbered underlay; loopback peerings; optional RR on spines for EVPN overlay',
-        keyConfig: 'neighbor interface Ethernet1 peer-group UNDERLAY\nbgp listen range 0.0.0.0/0',
+        keyConfig: 'neighbor interface Ethernet1 peer-group UNDERLAY\nbgp listen range 10.0.0.0/8 peer-group UNDERLAY remote-as external',
         highlight: 'leaf-spine'
       },
       medium: {
@@ -2084,7 +2083,7 @@ qos map cos 7 to traffic-class 7`
       dscp cs1
       actions
          set traffic class 1
-         rate-limit 1 gbps  ! Limit bulk to 1G on 10G uplink
+         police rate 1 gbps burst-size 4 mb  ! Limit bulk to 1G on 10G uplink
    !
    match DEFAULT
       actions
@@ -2148,7 +2147,7 @@ show queue-monitor length events`
       medium: {
         scale: '3-tier · per-VRF traffic policy · PFC for storage class',
         topologyRole: 'Per-VRF traffic policy; storage class PFC-enabled on leaf ports; DSCP remarking at border-leaf',
-        keyConfig: 'qos map dscp 46 traffic-class 7\npfc mode on  ! on storage uplinks',
+        keyConfig: 'qos map dscp 46 to traffic-class 7\npriority-flow-control on  ! on storage uplinks',
         highlight: 'leaf-spine'
       },
       large: {
@@ -2380,7 +2379,7 @@ show running-config | section mac.security
       medium: {
         scale: '3-tier · MACsec on all ISL + border uplinks · RADIUS CAK',
         topologyRole: 'MACsec on all ISL and DCI/border uplinks; CAK distributed via RADIUS for centralized management',
-        keyConfig: 'mac security profile BORDER-MACSEC\n   cipher aes256-gcm\n   mka policy MKA-STRICT',
+        keyConfig: 'mac security profile BORDER-MACSEC\n   cipher aes256-gcm-xpn\n   mka policy MKA-STRICT',
         highlight: 'border'
       },
       large: {
