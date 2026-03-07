@@ -229,9 +229,9 @@ export const SIGNATURE_NARRATIVES: Record<string, BriefingNarrative> = {
         visualIntent: 'Dense, aggressive pulses of magenta light colliding in a high-speed tunnel.'
       },
       {
-        heading: 'Deep Buffer Resilience',
-        caption: '7280R3: The Shock Absorber for AI.',
-        teleprompter: "This is where the 7280R3 series shines. With deep buffers and Virtual Output Queuing, we absorb the bursts that would cause packet loss elsewhere. In AI, a single dropped packet can stall a training job for hours. We ensure that doesn't happen.",
+        heading: 'Deep Buffer Architecture',
+        caption: 'The Shock Absorber for AI.',
+        teleprompter: "Arista deep-buffer platforms shine here. With orders of magnitude more shared packet buffer than shallow-buffer alternatives, and Virtual Output Queuing, we absorb the bursts that would cause packet loss elsewhere. In AI, a single dropped packet can stall a training job for hours. We ensure that doesn't happen.",
         visualIntent: 'A large, translucent indigo rectangular prism acting as a buffer for incoming data streams.'
       },
       {
@@ -249,8 +249,38 @@ export const SIGNATURE_NARRATIVES: Record<string, BriefingNarrative> = {
       {
         heading: 'Non-Blocking Scale',
         caption: 'The foundation for 100,000+ GPU clusters.',
-        teleprompter: "The Arista 7800 and 7280 series allow you to build non-blocking CLOS fabrics that scale to tens of thousands of ports. We are the proven foundation for the world's largest AI clouds.",
+        teleprompter: "Arista high-radix platforms let you build non-blocking CLOS fabrics that scale to tens of thousands of ports. We are the proven foundation for the world's largest AI clouds.",
         visualIntent: 'A massive, interlocking grid of light nodes expanding exponentially.'
+      },
+      {
+        heading: 'DCQCN & ECN',
+        caption: 'Flow control without head-of-line blocking.',
+        teleprompter: "Lossless Ethernet for RoCEv2 requires congestion signals, not drops. Arista applies ECN marking early — at roughly 30% queue fill — so the GPU NIC throttles before the buffer fills. PFC is held in reserve as a last resort at 80%. The result is the DCQCN feedback loop: GPU-to-GPU flows self-regulate without congesting unrelated traffic. This is the difference between a fabric that performs and one that simply survives.",
+        visualIntent: 'A queue-fill bar with two threshold lines and feedback arrows returning to source.'
+      },
+      {
+        heading: 'The Rail Architecture',
+        caption: 'Separate fabrics for compute and storage.',
+        teleprompter: "The largest AI clusters split the network into independent rails. The compute rail carries gradient synchronization traffic — AllReduce, AllGather — between GPUs during training. The storage rail handles checkpoint I/O to distributed storage. By separating failure domains, a storage event cannot interrupt the training iteration, and vice versa. Arista builds both rails on the same OS with unified management.",
+        visualIntent: 'Two parallel horizontal bands — one indigo for compute, one cyan for storage — with distinct traffic flows.'
+      },
+      {
+        heading: 'Ethernet vs InfiniBand',
+        caption: 'Why open Ethernet wins at scale.',
+        teleprompter: "InfiniBand still dominates small-pod AI deployments, but at hyperscale the economics and ecosystem shift decisively. The Ultra Ethernet Consortium — led by Arista, AMD, Broadcom, Cisco, Intel, Meta, Microsoft, and others — is closing the latency gap at 100G and 400G. The cost of InfiniBand lock-in: single-vendor hardware, proprietary management, and a separate skills stack. Arista delivers ROCEv2 performance with standard Ethernet tooling, standard optics, and the existing operations team.",
+        visualIntent: 'A balance scale: InfiniBand logo on one side, Ethernet open consortium logos on the other, tipping toward Ethernet.'
+      },
+      {
+        heading: 'Job Completion Time',
+        caption: 'The one metric that matters in AI.',
+        teleprompter: "GPU clusters are measured in Job Completion Time — how long a training run takes from start to finish. A single dropped packet in an AllReduce collective can pause all 1,024 GPUs while the NIC retransmits. The latency tail compounds. The training throughput falls off a cliff. Arista lossless fabric eliminates that single-packet event. When every burst is absorbed and every flow completes without retransmit, JCT is predictable and optimal.",
+        visualIntent: 'A job-completion timeline that fractures and restarts on a packet drop, vs a smooth unbroken line on Arista fabric.'
+      },
+      {
+        heading: 'Scale to 100,000 GPUs',
+        caption: 'The proof point.',
+        teleprompter: "Arista CLOS fabrics are deployed in the world's largest AI training clusters. Three tiers: GPU servers connected to ToR leaf switches, leaf switches connected to spine, spine connected to super-spine — each hop non-blocking. At 100,000 GPUs the bisection bandwidth must remain full across every tier simultaneously. Arista has delivered this at hyperscale. We are the network that runs the trillion-parameter models.",
+        visualIntent: 'A three-tier CLOS topology expanding outward to fill the frame — ToR, Spine, Super-Spine — all lit green.'
       }
     ]
   },
@@ -287,6 +317,24 @@ export const SIGNATURE_NARRATIVES: Record<string, BriefingNarrative> = {
         caption: 'Trust is built on visibility.',
         teleprompter: "Zero Trust isn't a product; it's a strategy. By combining Segmentation, NDR, and Encryption into the fabric itself, Arista turns the network into a sensor and an enforcer. We don't just move packets; we protect the business.",
         visualIntent: 'A massive, interlocking shield forming over a glowing digital landscape.'
+      },
+      {
+        heading: 'Identity-Based Policy',
+        caption: 'Policy follows the workload, not the port.',
+        teleprompter: "IP addresses are a poor security primitive — they change, they get reused, they are easily spoofed. Arista MSS applies policy based on user identity and device security posture, not port numbers. Security group tags travel with the VM or container. The policy is enforced at the first-hop leaf switch the moment the workload connects. When the workload moves, the policy moves with it — no ACL rewrite, no change control, no lag.",
+        visualIntent: 'A badge icon with a workload VM migrating between leaves, policy shield following it throughout.'
+      },
+      {
+        heading: 'CloudEdge & SASE',
+        caption: 'Zero trust extends to the branch.',
+        teleprompter: "The perimeter died at the branch office years ago. Arista CloudEdge routers integrate with cloud-delivered security services — Prisma Access, Zscaler, and others — to steer branch traffic through a cloud-based policy engine. No backhauling to a central data center. No VPN bottleneck. The user gets the same identity-verified, encrypted, inspected experience whether they are in HQ, a branch, or a hotel room.",
+        visualIntent: 'A branch office icon with traffic arrows flowing up to a cloud security engine before reaching SaaS destinations.'
+      },
+      {
+        heading: 'Compliance Posture',
+        caption: 'Continuous proof, not point-in-time audits.',
+        teleprompter: "Security compliance is traditionally a snapshot exercise — a pen test once a year, a config audit once a quarter. Arista CloudVision generates a continuous compliance diff: the network's actual state versus the golden security policy. NDR health, MSS zone integrity, MACsec status — all tracked in real time. When the auditor arrives, you produce the report instantly. You don't scramble.",
+        visualIntent: 'A compliance dashboard showing a golden-config checkmark and live drift indicators resolving to green.'
       }
     ]
   },
@@ -353,6 +401,138 @@ export const SIGNATURE_NARRATIVES: Record<string, BriefingNarrative> = {
         caption: 'Confidence in the face of scrutiny.',
         teleprompter: "In conclusion, Arista doesn't just move packets; we protect the integrity of your data. We provide the visibility, the security, and the automated evidence you need to operate a GxP environment with absolute confidence. We turn the infrastructure from a compliance risk into your strongest witness for the defense.",
         visualIntent: 'A shield protecting a glowing core data asset.'
+      }
+    ]
+  },
+  'cloudvision-netops': {
+    title: 'CloudVision & NetOps',
+    subtitle: 'The Network Operating System for the Modern Era',
+    scenes: [
+      {
+        heading: 'The Management Gap',
+        caption: 'SNMP polling cannot see microsecond events.',
+        teleprompter: "Traditional network management was designed for a slower era. SNMP polls every five minutes — or ten. In that window, a route flap can occur and recover. A buffer overflow can spike and drain. A BGP session can bounce. None of it appears in your dashboard. You are managing a high-speed system with a low-speed sensor. That gap is where outages hide and auditors find failures.",
+        visualIntent: 'A timeline of poll ticks with a red anomaly spike hidden between them — invisible to the poller.'
+      },
+      {
+        heading: 'State Streaming',
+        caption: 'TerminAttr: every SysDB change, instantly.',
+        teleprompter: "Arista EOS is built on SysDB — a central state database that all processes read and write. TerminAttr is the always-on telemetry agent that watches SysDB and streams every change to CloudVision the moment it occurs. Interface counters, routing table updates, process restarts, hardware telemetry — all streamed at sub-second granularity over gNMI. The network describes itself continuously. You don't poll for truth; truth arrives.",
+        visualIntent: 'A SysDB hub with continuous streaming arrows flowing to a CloudVision cloud node — no gaps, no polling gaps.'
+      },
+      {
+        heading: 'The Time Machine',
+        caption: 'Scroll back to any second in network history.',
+        teleprompter: "When an issue occurs at 2 AM on a Sunday and the ticket is filed Monday morning, the question is always: what was the state of the network at the exact moment of failure? CloudVision stores every streamed state change. You can rewind to 02:14:33 and see the routing table, the ACLs, the buffer occupancy, and the BGP session state at that precise instant. No inference, no guessing — exact state replay. This is forensic clarity.",
+        visualIntent: 'A clock rewinding with a timeline scrubber showing exact network state at the selected moment.'
+      },
+      {
+        heading: 'Change Control',
+        caption: 'Peer review, snapshot, and rollback for every config push.',
+        teleprompter: "Every network change is a risk event. CloudVision change control enforces a workflow: propose the change, snapshot the before-state, get peer approval, execute, compare the after-state against intent. If the diff is wrong, roll back in one click. This isn't just a safety net — it is an audit trail. Every change has an author, a reviewer, a timestamp, and a cryptographic record. Network operations becomes as disciplined as software development.",
+        visualIntent: 'A before-config block and after-config block with a peer-approval badge and a diff comparison between them.'
+      },
+      {
+        heading: 'Zero-Touch Provisioning',
+        caption: 'Cable it in. Walk away.',
+        teleprompter: "Deploying a new switch used to require a pre-staged laptop, a console cable, and a seasoned engineer on-site. With Arista ZTP, the switch boots, contacts the ZTP server, downloads its EOS image and startup config, and is fully operational — all without human intervention. Scale this to a 48-switch data center build-out and the math is compelling: days of configuration work becomes a few hours of racking and cabling.",
+        visualIntent: 'A three-step horizontal flow: cable plug → boot spinner → CONFIGURED green badge.'
+      },
+      {
+        heading: 'Network as Code',
+        caption: 'AVD: YAML declares intent. EOS reflects truth.',
+        teleprompter: "Arista Validated Designs (AVD) turns network design into code. You define your fabric in structured YAML: device roles, BGP ASNs, VLAN allocations, VXLAN VNIs, and security policies. AVD generates the complete EOS configuration for every device, validates it against design rules, and deploys it with full rollback capability. The YAML becomes the source of truth. The running config is the artefact. Change the YAML, redeploy, done.",
+        visualIntent: 'A YAML code block with an animated arrow flowing into a validated EOS configuration block.'
+      },
+      {
+        heading: 'Studio: Intent-Based',
+        caption: 'Draw the topology. Generate the configs.',
+        teleprompter: "CloudVision Studio takes network-as-code further. Engineers describe intent through structured inputs — topology builder, IP address management, tag-based assignment — without writing raw YAML. Studio validates the intent against the platform capabilities and generates the configs. It bridges the gap between network design and network automation, making AVD accessible to engineers who have never touched Python or Jinja2.",
+        visualIntent: 'A topology drag-and-drop canvas with a new link being drawn between two nodes, configs auto-generating on the right.'
+      },
+      {
+        heading: 'Compliance Enforcement',
+        caption: 'Golden-config drift detection and auto-remediation.',
+        teleprompter: "Once the design is in AVD, CloudVision enforces it continuously. If a manual CLI change drifts a device away from the golden config, CloudVision flags the deviation and optionally remediates it automatically. Security-relevant drift — ACL changes, VLAN additions, interface policy modifications — triggers alerts immediately. Compliance is no longer a quarterly audit exercise; it is a real-time property of the network.",
+        visualIntent: 'A golden-config checkmark on the left, a drifted config X on the right, with a remediation arrow returning to compliance.'
+      },
+      {
+        heading: 'Multi-Site Visibility',
+        caption: 'Single pane of glass across 100+ sites.',
+        teleprompter: "Enterprise networks span data centers, campus buildings, branch offices, and cloud regions. CloudVision aggregates telemetry from all of them into one operational view. Device health, change history, compliance posture, and software currency — all visible across the entire estate simultaneously. When an issue surfaces in the Singapore branch, the NOC in New York sees it in the same dashboard, with the same forensic depth.",
+        visualIntent: 'Three geographically distinct site nodes connected to a central CloudVision globe — all green and streaming.'
+      },
+      {
+        heading: 'The Operating Model',
+        caption: "From 'per-device CLI' to 'fabric as a system'.",
+        teleprompter: "This is the shift that matters most. Legacy operations: log in to a device, type commands, hope for the best, document manually afterward. CloudVision operations: define intent, execute with full auditability, validate automatically, detect drift immediately. The team stops being the middleware between design and running state. The platform is. This reduces MTTR, reduces error rate, and — critically — allows a smaller team to manage a larger network with higher confidence.",
+        visualIntent: 'Many individual CLI boxes on the left condensing into a single unified Fabric OS block on the right.'
+      }
+    ]
+  },
+  'ip-fabric': {
+    title: 'BGP/EVPN IP Fabric',
+    subtitle: 'The Modern Data Center Network Architecture',
+    scenes: [
+      {
+        heading: 'STP: The Root Problem',
+        caption: 'Spanning tree blocks half your bandwidth by design.',
+        teleprompter: "Spanning Tree Protocol was designed in 1985 for networks with tens of ports. It works by blocking redundant links to prevent loops. In a data center with hundreds of servers and sub-millisecond failover requirements, STP is structurally wrong. Active-standby uplinks waste 50% of capacity. STP reconvergence takes seconds — an eternity for storage replication and clustering workloads. The protocol that kept your 1990s campus alive is killing your modern data center.",
+        visualIntent: 'A topology diagram with half the links shown in amber with X marks — blocked by STP — while only a spanning tree of paths is active.'
+      },
+      {
+        heading: 'The Leaf-Spine Topology',
+        caption: 'Equal-cost multipath to every port in the fabric.',
+        teleprompter: "The leaf-spine topology eliminates the STP problem by design. Every leaf connects to every spine. There are no blocked links — all paths are active simultaneously. Any server can reach any other server in exactly two hops. Traffic is load-balanced across all available paths via ECMP. When a spine fails, traffic instantly redistributes across the remaining spines with no reconvergence event. The architecture makes reliability a structural property, not a recovery procedure.",
+        visualIntent: 'A clean SVG leaf-spine diagram: 2 spines connected to 4 leaves, all links green and active, ECMP label visible.'
+      },
+      {
+        heading: 'eBGP Underlay',
+        caption: 'RFC 5549 unnumbered: BGP without the IP assignment overhead.',
+        teleprompter: "The leaf-spine fabric runs BGP as its underlay routing protocol. Arista recommends RFC 5549 unnumbered eBGP — interfaces are addressed with link-local IPv6 addresses, eliminating the need to assign and manage point-to-point IPv4 subnets across every fabric link. Each leaf gets a unique ASN. The spines share an ASN. BGP naturally prevents routing loops and provides per-prefix load balancing via ECMP. The underlay is operationally simple and proven at massive scale.",
+        visualIntent: 'A leaf and spine connected by a link labeled "RFC 5549 unnumbered" — no IP addresses on the link, just BGP session arrows.'
+      },
+      {
+        heading: 'EVPN: The Control Plane',
+        caption: 'BGP carries MAC/IP instead of flooding.',
+        teleprompter: "Before EVPN, VXLAN fabrics flooded BUM traffic — Broadcast, Unknown Unicast, and Multicast — across every VTEP in the fabric. This does not scale. EVPN replaces flooding with a BGP control plane. VTEPs advertise the MAC and IP addresses of locally connected hosts as BGP EVPN routes. Remote VTEPs learn host reachability from the control plane, not from data-plane flooding. The fabric becomes as scalable as BGP itself.",
+        visualIntent: 'A BGP control-plane hub replacing a flood cloud — RT-2 and RT-5 route-type pills flowing outward to VTEPs.'
+      },
+      {
+        heading: 'Route Type 2: MAC/IP',
+        caption: 'End-host reachability without flooding.',
+        teleprompter: "EVPN Route Type 2 is the MAC/IP advertisement route. When a server connects to a leaf, the leaf generates a Type 2 BGP update containing the server's MAC address, its IP address, and the VNI of the VXLAN segment. All remote VTEPs receive this update and install the MAC/IP binding locally. The result: any VTEP in the fabric can forward directly to any host without an ARP flood, without unknown unicast flooding, and without any data-plane learning.",
+        visualIntent: 'A BGP update packet containing a MAC address and IP address, being received and installed in remote VTEP MAC tables.'
+      },
+      {
+        heading: 'Route Type 5: IP Prefix',
+        caption: 'Inter-VRF routing at the leaf.',
+        teleprompter: "EVPN Route Type 5 carries IP prefixes — enabling inter-VRF routing within the fabric without a centralized router. Each tenant VRF gets a unique L3 VNI. When traffic needs to cross from the Application VRF to the Database VRF, the leaf performs symmetric IRB: it de-encapsulates the VXLAN frame, routes the packet in the destination VRF, and re-encapsulates. The routing happens at line rate in the ASIC, distributed across every leaf in the fabric.",
+        visualIntent: 'A VRF routing table with an IP prefix entry pointing to a VXLAN tunnel — symmetric IRB arrows at the leaf.'
+      },
+      {
+        heading: 'Anycast Gateway',
+        caption: 'Every leaf shares the same gateway IP.',
+        teleprompter: "In a traditional data center, the default gateway for a VLAN lives on a specific switch. If that switch fails or the server moves to a different rack, the default gateway moves too — causing disruption. Arista VARP (Virtual ARP) implements an Anycast Gateway: every leaf switch in the fabric responds to ARP requests for the same gateway IP and MAC address. Servers see a single, stable gateway regardless of which leaf they connect to. Host mobility is instantaneous.",
+        visualIntent: 'Three leaf nodes all showing the same gateway IP and MAC — a VARP ring indicating anycast operation.'
+      },
+      {
+        heading: 'MLAG: Server Dual-Homing',
+        caption: 'Active-active LAG to two leaves simultaneously.',
+        teleprompter: "Servers need link redundancy without sacrificing bandwidth. Arista MLAG allows a server to form a single Link Aggregation Group across two different leaf switches. Both links are active simultaneously. If one leaf fails, the server continues forwarding on the surviving link with no application disruption. MLAG runs over a dedicated peer-link between the two leaves and a keepalive path for split-brain detection. It is the standard dual-homing mechanism for servers in Arista leaf-spine fabrics.",
+        visualIntent: 'A server with two uplinks to an MLAG leaf pair — both links active, peer-link ISL visible between the leaves.'
+      },
+      {
+        heading: 'DCI: Stretch the Fabric',
+        caption: 'VXLAN tunnel between sites via border leaf.',
+        teleprompter: "Data Center Interconnect extends the IP fabric across sites. Border leaf switches sit at the edge of each fabric and establish VXLAN tunnels to their counterparts at the remote site. EVPN route targets control which VNIs are extended across the DCI link. Workloads can migrate between sites without changing their IP addresses. The same BGP EVPN control plane that manages intra-site reachability manages inter-site reachability — no additional protocols required.",
+        visualIntent: 'A border leaf on each side connected by a VXLAN tunnel arc spanning two sites — route-target labels controlling what crosses.'
+      },
+      {
+        heading: 'One Fabric, One OS',
+        caption: 'EVPN for campus, data center, and cloud edge.',
+        teleprompter: "The BGP/EVPN architecture is not limited to the data center. Arista runs the same leaf-spine IP fabric model in campus buildings, at cloud on-ramp locations, and at the WAN edge. The same EOS, the same EVPN control plane, the same CloudVision management. When your campus, your data center, and your cloud connectivity all speak the same protocol with the same operational model, the network stops being a collection of silos and becomes a single cohesive fabric.",
+        visualIntent: 'A campus switch, a DC leaf, and a cloud PE node — all labeled with the same EOS version, connected to a single CloudVision icon.'
       }
     ]
   }

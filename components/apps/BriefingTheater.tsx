@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { ArrowLeft, ChevronRight, ChevronLeft, Mic2, Tv, Maximize2, Sparkles, Activity, Wifi, Cpu, Database, Server, Layers, Shield, AlertTriangle, Radio, Tablet, Presentation, Plus, Minus, Search, CornerDownLeft, X, Lock, CheckCircle2, Zap, BarChart3, Network, RefreshCw, Smartphone, Globe, Target, Eye, FileKey, ShieldCheck, Beaker, Scale, FileText } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronRight, ChevronLeft, Mic2, Tv, Maximize2, Sparkles, Activity, Wifi, Cpu, Database, Server, Layers, Shield, AlertTriangle, Radio, Tablet, Presentation, Plus, Minus, Search, CornerDownLeft, X, Lock, CheckCircle2, Zap, BarChart3, Network, RefreshCw, Smartphone, Globe, Target, Eye, FileKey, ShieldCheck, Beaker, Scale, FileText, Cloud, Terminal } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BriefingNarrative, TeleprompterContext } from '@/types';
 import { SIGNATURE_NARRATIVES } from '@/data/briefingData';
@@ -43,7 +43,7 @@ const PRESETS = [
   {
     id: 'ai-fabrics',
     title: 'AI Data Center',
-    topic: 'Building AI Data Center Fabrics: Deep Buffers (7280R3) and non-blocking performance.',
+    topic: 'Architecting for the GPU Tsunami: Deep Buffers, RoCEv2, DCQCN, and Non-Blocking Scale.',
     icon: Cpu,
     color: 'text-indigo-400',
     bg: 'bg-indigo-500/10',
@@ -57,6 +57,24 @@ const PRESETS = [
     color: 'text-rose-400',
     bg: 'bg-rose-500/10',
     border: 'border-rose-500/20'
+  },
+  {
+    id: 'cloudvision-netops',
+    title: 'CloudVision & NetOps',
+    topic: 'The Network Operating System: State Streaming, ZTP, Change Control, and AVD at Scale.',
+    icon: Eye,
+    color: 'text-sky-400',
+    bg: 'bg-sky-500/10',
+    border: 'border-sky-500/20'
+  },
+  {
+    id: 'ip-fabric',
+    title: 'BGP/EVPN IP Fabric',
+    topic: 'The Modern Data Center: Leaf-Spine Topology, eBGP Underlay, EVPN Overlay, Anycast Gateway.',
+    icon: Network,
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-500/10',
+    border: 'border-emerald-500/20'
   }
 ];
 
@@ -535,8 +553,94 @@ const WhyAristaLegacyVisuals: React.FC<{ index: number }> = ({ index }) => {
        <span className="text-[10px] font-mono text-zinc-500 uppercase">Unmodified Kernel</span>
     </div>
   );
-  // Fallbacks to generic useful visuals if specific ones aren't defined for 4-11
-  return <VisualObservabilityLoop />; 
+  if (index === 4) return ( // Automation Pivot — AVD YAML → EOS config
+    <div className="relative w-full h-full flex items-center justify-center gap-8">
+      <div className="w-28 h-36 bg-zinc-900 border border-zinc-700 rounded-lg p-3 font-mono text-[8px] text-blue-400 overflow-hidden">
+        {'fabric:\n  spine: 2\n  leaf: 4\n  bgp_as: 65000\n\nvlans:\n  - id: 10\n    name: prod'}
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        {[0,1,2].map(i => <div key={i} className="w-2 h-2 rounded-full bg-blue-500 animate-ping" style={{ animationDelay: `${i * 0.3}s` }}></div>)}
+        <ArrowRight size={18} className="text-blue-500 mt-1" />
+      </div>
+      <div className="w-28 h-36 bg-zinc-900 border border-emerald-500/40 rounded-lg p-3 font-mono text-[8px] text-emerald-400 overflow-hidden">
+        {'router bgp 65000\n  bgp listen range\n  10.0.0.0/8\n\ninterface Vxlan1\n  vxlan source\n  Loopback1'}
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 1.4: AVD Pipeline</div>
+    </div>
+  );
+  if (index === 5) return ( // AI Revolution — GPU all-to-all grid
+    <div className="relative w-full h-full flex items-center justify-center">
+      <div className="grid grid-cols-4 gap-3">
+        {[...Array(16)].map((_, i) => (
+          <div key={i} className="w-12 h-12 bg-zinc-900 border border-violet-500/40 rounded-lg flex items-center justify-center relative">
+            <Cpu size={16} className="text-violet-400" />
+            {i % 3 === 0 && <div className="absolute inset-0 border border-violet-500 rounded-lg animate-pulse"></div>}
+          </div>
+        ))}
+      </div>
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20" xmlns="http://www.w3.org/2000/svg">
+        {[...Array(8)].map((_, i) => <line key={i} x1="20%" y1={`${15 + i * 10}%`} x2="80%" y2={`${85 - i * 10}%`} stroke="#8b5cf6" strokeWidth="1" />)}
+      </svg>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 1.5: All-to-All GPU Fabric</div>
+    </div>
+  );
+  if (index === 6) return <VisualDeepBuffer />; // Deep Buffer Resilience
+  if (index === 7) return <VisualZeroTrust index={1} />; // Zero Trust / MSS zones
+  if (index === 8) return ( // Cognitive Management — CV time-travel
+    <div className="relative w-full h-full flex items-center justify-center">
+      <div className="w-24 h-24 rounded-full border-4 border-dashed border-sky-500/30 flex items-center justify-center relative animate-spin-slow" style={{ animationDirection: 'reverse' }}>
+        <div className="absolute top-0 w-1 h-8 bg-sky-500 rounded"></div>
+      </div>
+      <div className="absolute font-mono text-3xl font-bold text-white tracking-widest">02:14:33</div>
+      <div className="absolute right-16 flex flex-col gap-3">
+        {['STATE_DELTA', 'ROUTE_UPDATE', 'INTF_CHANGE'].map((label, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-sky-500 animate-ping" style={{ animationDelay: `${i * 0.4}s` }}></div>
+            <span className="text-[9px] font-mono text-sky-400 uppercase">{label}</span>
+          </div>
+        ))}
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 1.8: CloudVision Time-Travel</div>
+    </div>
+  );
+  if (index === 9) return ( // Cloud-Grade Operations — concentric rings
+    <div className="relative w-full h-full flex items-center justify-center">
+      {([{ label: 'CAMPUS', size: 280, cls: 'border-blue-500/30' }, { label: 'DATA CENTER', size: 190, cls: 'border-emerald-500/40' }, { label: 'CLOUD', size: 100, cls: 'border-violet-500/50' }] as const).map(({ label, size, cls }) => (
+        <div key={label} className={`absolute rounded-full border-2 ${cls} flex items-center justify-center`} style={{ width: size, height: size }}>
+          <span className="absolute -top-3 bg-black px-1 text-[8px] font-mono text-zinc-500 uppercase">{label}</span>
+        </div>
+      ))}
+      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center z-10">
+        <Network size={14} className="text-white" />
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 1.9: Unified Operational Plane</div>
+    </div>
+  );
+  if (index === 10) return ( // Operational TCO — diverging SVG lines
+    <div className="relative w-full h-full flex items-center justify-center p-12">
+      <div className="relative w-full max-w-xl h-64 border-l border-b border-zinc-700">
+        <svg className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
+          <path d="M 0 50 C 150 60, 350 160, 500 220" stroke="#f43f5e" strokeWidth="2.5" fill="none" strokeDasharray="6 3" />
+          <path d="M 0 220 C 150 200, 350 100, 500 20" stroke="#10b981" strokeWidth="2.5" fill="none" />
+        </svg>
+        <span className="absolute top-2 right-4 text-[9px] font-mono text-emerald-400 uppercase">Performance ↑</span>
+        <span className="absolute bottom-12 right-4 text-[9px] font-mono text-rose-400 uppercase">OpEx ↓</span>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 1.10: TCO Crossover Point</div>
+    </div>
+  );
+  if (index === 11) return ( // Network Renaissance — sunburst
+    <div className="relative w-full h-full flex items-center justify-center">
+      {[200, 160, 120, 80, 40].map((r, i) => (
+        <div key={i} className="absolute rounded-full border border-blue-500/20 animate-pulse" style={{ width: r * 2, height: r * 2, animationDelay: `${i * 0.4}s` }}></div>
+      ))}
+      <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center z-10 shadow-[0_0_60px_rgba(37,99,235,0.6)]">
+        <Sparkles size={28} className="text-white" />
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 1.11: The Network Renaissance</div>
+    </div>
+  );
+  return <VisualObservabilityLoop />;
 };
 
 const WirelessVisuals: React.FC<{ index: number }> = ({ index }) => {
@@ -563,7 +667,143 @@ const WirelessVisuals: React.FC<{ index: number }> = ({ index }) => {
     </div>
   );
   if (index === 3) return <VisualClientJourney />;
-  // Fallbacks
+  if (index === 4) return ( // Application Awareness — app lanes with priority
+    <div className="relative w-full h-full flex flex-col items-center justify-center gap-3">
+      {([{ label: 'MS Teams', color: 'border-blue-500 text-blue-400', tag: 'EF · P1' }, { label: 'Zoom', color: 'border-sky-500 text-sky-400', tag: 'EF · P1' }, { label: 'Salesforce', color: 'border-emerald-500 text-emerald-400', tag: 'AF · P3' }, { label: 'Backup', color: 'border-zinc-600 text-zinc-500', tag: 'BE · P7' }] as const).map(({ label, color, tag }) => (
+        <div key={label} className={`w-80 h-10 border rounded-lg flex items-center justify-between px-4 ${color} bg-zinc-900/60`}>
+          <span className="text-[10px] font-mono uppercase">{label}</span>
+          <span className="text-[9px] font-mono bg-zinc-800 px-2 py-0.5 rounded">{tag}</span>
+        </div>
+      ))}
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 2.4: App-Aware QoS</div>
+    </div>
+  );
+  if (index === 5) return ( // Root Cause Synthesis — AI inference engine
+    <div className="relative w-full h-full flex items-center justify-center gap-8">
+      <div className="relative w-24 h-24">
+        <div className="w-24 h-24 rounded-full border-2 border-cyan-500/40 flex items-center justify-center bg-zinc-900">
+          <Cpu size={32} className="text-cyan-400" />
+        </div>
+        {['RADIUS', 'RF', 'DHCP', 'DNS'].map((src, i) => (
+          <svg key={src} className="absolute inset-0 w-full h-full overflow-visible pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+            <line x1={12 + i * 22} y1={i % 2 === 0 ? -20 : 140} x2="50%" y2="50%" stroke="#06b6d4" strokeWidth="1" strokeDasharray="3 2" strokeOpacity="0.5" />
+            <text x={i * 22} y={i % 2 === 0 ? -24 : 152} fontSize="8" fill="#71717a" fontFamily="monospace">{src}</text>
+          </svg>
+        ))}
+      </div>
+      <div className="w-56 p-4 bg-zinc-900 border border-cyan-500/30 rounded-lg">
+        <div className="text-[8px] font-mono text-zinc-500 uppercase mb-2">Root Cause</div>
+        <div className="text-xs font-mono text-cyan-300 leading-relaxed">"RADIUS cert expired on VLAN 10 SSID at 14:02:15"</div>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 2.5: Inference Engine</div>
+    </div>
+  );
+  if (index === 6) return ( // WIPS Air Guardian — rogue AP neutralization
+    <div className="relative w-full h-full flex items-center justify-center">
+      <div className="w-80 h-64 border-2 border-dashed border-blue-500/40 rounded-3xl relative flex items-center justify-center bg-blue-500/5">
+        <span className="absolute -top-3 bg-black px-2 text-[10px] font-mono text-blue-400 uppercase">Protected Airspace</span>
+        <div className="w-16 h-16 rounded-full border-2 border-blue-500/40 flex items-center justify-center bg-zinc-900">
+          <Wifi size={24} className="text-blue-400" />
+        </div>
+        <div className="absolute -top-4 -right-4 w-10 h-10 bg-rose-500/10 border border-rose-500 rounded-full flex items-center justify-center animate-pulse">
+          <AlertTriangle size={16} className="text-rose-500" />
+        </div>
+        <div className="absolute -top-4 right-8 text-[9px] font-mono text-rose-400 uppercase">Rogue AP</div>
+        <div className="absolute inset-0 border-4 border-blue-500/10 rounded-3xl animate-pulse"></div>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 2.6: WIPS Containment</div>
+    </div>
+  );
+  if (index === 7) return ( // Location Intelligence — triangulation
+    <div className="relative w-full h-full flex items-center justify-center">
+      <div className="w-72 h-56 border border-zinc-700 rounded-lg bg-zinc-900/50 relative overflow-hidden">
+        <div className="absolute inset-0 grid" style={{ backgroundSize: '24px 24px', backgroundImage: 'linear-gradient(to right,rgba(63,63,70,0.3) 1px,transparent 1px),linear-gradient(to bottom,rgba(63,63,70,0.3) 1px,transparent 1px)' }}></div>
+        {([{ x: '15%', y: '20%', c: 'bg-sky-500' }, { x: '80%', y: '15%', c: 'bg-sky-500' }, { x: '50%', y: '80%', c: 'bg-sky-500' }] as const).map((b, i) => (
+          <div key={i} className={`absolute w-3 h-3 ${b.c} rounded-full animate-ping`} style={{ left: b.x, top: b.y }}></div>
+        ))}
+        <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <line x1="15%" y1="20%" x2="50%" y2="50%" stroke="#0ea5e9" strokeWidth="1" strokeDasharray="4 2" strokeOpacity="0.5" />
+          <line x1="80%" y1="15%" x2="50%" y2="50%" stroke="#0ea5e9" strokeWidth="1" strokeDasharray="4 2" strokeOpacity="0.5" />
+          <line x1="50%" y1="80%" x2="50%" y2="50%" stroke="#0ea5e9" strokeWidth="1" strokeDasharray="4 2" strokeOpacity="0.5" />
+          <circle cx="50%" cy="50%" r="6" fill="#0ea5e9" />
+        </svg>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 2.7: Location Triangulation</div>
+    </div>
+  );
+  if (index === 8) return ( // Unified Edge Operations — converge to CV
+    <div className="relative w-full h-full flex items-center justify-center gap-6">
+      <div className="flex flex-col items-center gap-2">
+        <div className="w-14 h-14 bg-zinc-900 border border-zinc-700 rounded-xl flex items-center justify-center"><Server size={24} className="text-zinc-400" /></div>
+        <span className="text-[8px] font-mono text-zinc-500 uppercase">Wired Switch</span>
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <div className="h-px w-12 bg-zinc-600"></div>
+        <ArrowRight size={14} className="text-sky-400" />
+        <div className="h-px w-12 bg-zinc-600"></div>
+      </div>
+      <div className="w-16 h-16 bg-sky-600/20 border-2 border-sky-500/60 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(14,165,233,0.3)]">
+        <Eye size={24} className="text-sky-400" />
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <div className="h-px w-12 bg-zinc-600"></div>
+        <ArrowLeft size={14} className="text-sky-400" />
+        <div className="h-px w-12 bg-zinc-600"></div>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <div className="w-14 h-14 bg-zinc-900 border border-zinc-700 rounded-xl flex items-center justify-center"><Wifi size={24} className="text-zinc-400" /></div>
+        <span className="text-[8px] font-mono text-zinc-500 uppercase">Access Point</span>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 2.8: Unified Edge — CloudVision</div>
+    </div>
+  );
+  if (index === 9) return ( // Automated RF Planning — self-adjusting circles
+    <div className="relative w-full h-full flex items-center justify-center">
+      <div className="grid grid-cols-4 gap-6">
+        {([{ r: 50, cls: 'border-cyan-500/60 bg-cyan-500/5' }, { r: 38, cls: 'border-cyan-400/40 bg-cyan-400/5' }, { r: 60, cls: 'border-sky-500/50 bg-sky-500/5' }, { r: 35, cls: 'border-sky-400/40 bg-sky-400/5' }, { r: 55, cls: 'border-cyan-500/60 bg-cyan-500/5' }, { r: 42, cls: 'border-cyan-400/40 bg-cyan-400/5' }, { r: 48, cls: 'border-sky-500/50 bg-sky-500/5' }, { r: 40, cls: 'border-cyan-500/60 bg-cyan-500/5' }] as const).map((c, i) => (
+          <div key={i} className={`rounded-full border-2 ${c.cls} flex items-center justify-center animate-pulse`} style={{ width: c.r * 1.4, height: c.r * 1.4, animationDelay: `${i * 0.25}s` }}>
+            <Wifi size={10} className="text-cyan-400 opacity-50" />
+          </div>
+        ))}
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 2.9: Cognitive RRM</div>
+    </div>
+  );
+  if (index === 10) return ( // Cloud vs On-Prem Freedom — balance scale
+    <div className="relative w-full h-full flex flex-col items-center justify-center gap-4">
+      <div className="flex items-end gap-16">
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-20 h-20 bg-zinc-900 border border-zinc-700 rounded-2xl flex flex-col items-center justify-center gap-1">
+            <Cloud size={28} className="text-sky-400" />
+            <span className="text-[8px] font-mono text-zinc-500 uppercase">Arista Cloud</span>
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-0 -mb-2">
+          <div className="w-2 h-12 bg-zinc-700 rounded-full"></div>
+          <div className="w-20 h-1 bg-zinc-500 rounded"></div>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-20 h-20 bg-zinc-900 border border-zinc-700 rounded-2xl flex flex-col items-center justify-center gap-1">
+            <Server size={28} className="text-emerald-400" />
+            <span className="text-[8px] font-mono text-zinc-500 uppercase">On-Prem</span>
+          </div>
+        </div>
+      </div>
+      <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Identical Feature Set</div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 2.10: Deployment Freedom</div>
+    </div>
+  );
+  if (index === 11) return ( // Wireless Renaissance — cyan sunburst
+    <div className="relative w-full h-full flex items-center justify-center">
+      {[200, 160, 120, 80, 40].map((r, i) => (
+        <div key={i} className="absolute rounded-full border border-cyan-500/20 animate-pulse" style={{ width: r * 2, height: r * 2, animationDelay: `${i * 0.4}s` }}></div>
+      ))}
+      <div className="w-16 h-16 bg-cyan-600 rounded-full flex items-center justify-center z-10 shadow-[0_0_60px_rgba(8,145,178,0.6)]">
+        <Wifi size={28} className="text-white" />
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 2.11: Wireless Renaissance</div>
+    </div>
+  );
   return <VisualObservabilityLoop />;
 };
 
@@ -609,10 +849,428 @@ const AiFabricsVisuals: React.FC<{ index: number }> = ({ index }) => {
   return <VisualObservabilityLoop />;
 };
 
+// --- CLOUDVISION & NETOPS VISUALS ---
+
+const CloudVisionVisuals: React.FC<{ index: number }> = ({ index }) => {
+  if (index === 0) return ( // Management Gap — SNMP poll bar with missed event
+    <div className="relative w-full h-full flex flex-col items-center justify-center gap-8">
+      <div className="flex gap-4 items-end h-32 w-full max-w-lg px-8 border-b border-zinc-700 relative">
+        {[0, 20, 40, 60, 80, 100].map(p => (
+          <div key={p} className="w-1 h-8 bg-zinc-600 absolute bottom-0" style={{ left: `${p}%` }}></div>
+        ))}
+        <div className="absolute left-[50%] bottom-0 w-1 h-24 bg-rose-500 animate-pulse shadow-[0_0_20px_#f43f5e]"></div>
+        <div className="absolute left-[50%] -top-8 -translate-x-1/2 text-[10px] font-mono text-rose-500 uppercase bg-black px-2 border border-rose-500/50 rounded">Missed Event</div>
+      </div>
+      <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">SNMP Poll Interval: 5 min</span>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 5.0: The Visibility Gap</div>
+    </div>
+  );
+  if (index === 1) return ( // State Streaming — SysDB → CV
+    <div className="relative w-full h-full flex items-center justify-center gap-12">
+      <div className="w-24 h-24 bg-zinc-900 border border-sky-500/40 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-[0_0_30px_rgba(14,165,233,0.15)]">
+        <Database size={28} className="text-sky-400" />
+        <span className="text-[8px] font-mono text-sky-500 uppercase">SysDB</span>
+      </div>
+      <div className="flex flex-col gap-2">
+        {[0,1,2].map(i => (
+          <div key={i} className="flex items-center gap-1">
+            <div className="w-16 h-1 bg-sky-500/30 relative overflow-hidden rounded">
+              <div className="absolute h-full w-4 bg-sky-400 animate-[slide_1.5s_linear_infinite]" style={{ animationDelay: `${i * 0.4}s` }}></div>
+            </div>
+            <ArrowRight size={10} className="text-sky-500" />
+          </div>
+        ))}
+      </div>
+      <div className="w-24 h-24 bg-sky-600/10 border-2 border-sky-500/50 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-[0_0_30px_rgba(14,165,233,0.2)]">
+        <Eye size={28} className="text-sky-400" />
+        <span className="text-[8px] font-mono text-sky-400 uppercase">CloudVision</span>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 5.1: TerminAttr Streaming</div>
+    </div>
+  );
+  if (index === 2) return ( // Time Machine — rewind clock
+    <div className="relative w-full h-full flex items-center justify-center">
+      <div className="w-64 h-64 rounded-full border-4 border-dashed border-sky-500/30 flex items-center justify-center relative animate-spin-slow" style={{ animationDirection: 'reverse' }}>
+        <div className="absolute top-0 w-1 h-10 bg-sky-500"></div>
+      </div>
+      <div className="absolute font-mono text-4xl font-bold text-white tracking-widest">02:14:33</div>
+      <div className="absolute bottom-12 text-[10px] font-mono text-sky-500 uppercase tracking-widest">State Replay Active</div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 5.2: Time-Machine Forensics</div>
+    </div>
+  );
+  if (index === 3) return ( // Change Control — before/after diff
+    <div className="relative w-full h-full flex items-center justify-center gap-6">
+      <div className="w-32 h-36 bg-zinc-900 border border-zinc-700 rounded-lg p-3 font-mono text-[8px] text-zinc-400 overflow-hidden">
+        {'interface Eth1\n  shutdown\n  no ip addr\n\nvlan 10\n  name old_prod'}
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <div className="px-2 py-1 border border-emerald-500/50 rounded text-[8px] font-mono text-emerald-400 uppercase">Approved</div>
+        <ArrowRight size={18} className="text-emerald-500" />
+      </div>
+      <div className="w-32 h-36 bg-zinc-900 border border-emerald-500/30 rounded-lg p-3 font-mono text-[8px] text-emerald-400 overflow-hidden">
+        {'interface Eth1\n  no shutdown\n  ip addr 10.0.1.1\n\nvlan 10\n  name prod_v2'}
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 5.3: Change Control Diff</div>
+    </div>
+  );
+  if (index === 4) return ( // ZTP — cable → boot → configured
+    <div className="relative w-full h-full flex items-center justify-center gap-6">
+      {([{ icon: <Server size={24} className="text-zinc-400" />, label: 'Cable In', sub: 'Power + Network' }, { icon: <RefreshCw size={24} className="text-sky-400 animate-spin" />, label: 'Auto-Boot', sub: 'Fetches EOS + Config' }, { icon: <CheckCircle2 size={24} className="text-emerald-400" />, label: 'Configured', sub: 'Ready to Forward' }] as const).map((step, i) => (
+        <React.Fragment key={i}>
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-16 h-16 bg-zinc-900 border border-zinc-700 rounded-xl flex items-center justify-center">{step.icon}</div>
+            <span className="text-[9px] font-mono text-zinc-400 uppercase">{step.label}</span>
+            <span className="text-[8px] font-mono text-zinc-600">{step.sub}</span>
+          </div>
+          {i < 2 && <ArrowRight size={16} className="text-zinc-600 mb-4" />}
+        </React.Fragment>
+      ))}
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 5.4: Zero-Touch Provisioning</div>
+    </div>
+  );
+  if (index === 5) return ( // AVD YAML → EOS config
+    <div className="relative w-full h-full flex items-center justify-center gap-8">
+      <div className="w-36 h-40 bg-zinc-900 border border-zinc-700 rounded-lg p-3 font-mono text-[8px] text-blue-400 overflow-hidden">
+        {'# AVD fabric.yaml\nfabric_name: PROD\n\nleaf_bgp_as: 65001\nspine_bgp_as: 65000\n\nvlans:\n  - id: 10\n    vni: 10010'}
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        {[0,1,2].map(i => <div key={i} className="w-2 h-2 rounded-full bg-sky-500 animate-ping" style={{ animationDelay: `${i * 0.25}s` }}></div>)}
+        <ArrowRight size={18} className="text-sky-400 mt-1" />
+      </div>
+      <div className="w-36 h-40 bg-zinc-900 border border-sky-500/30 rounded-lg p-3 font-mono text-[8px] text-sky-300 overflow-hidden">
+        {'router bgp 65001\n  router-id 1.1.1.1\n  neighbor SPINE\n    remote-as 65000\n\ninterface Vxlan1\n  vxlan source-interface\n  Loopback1'}
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 5.5: AVD Network as Code</div>
+    </div>
+  );
+  if (index === 6) return ( // Studio — topology builder
+    <div className="relative w-full h-full flex items-center justify-center">
+      <div className="w-80 h-56 border border-zinc-700 rounded-xl bg-zinc-900/50 relative overflow-hidden">
+        <div className="absolute top-3 left-3 text-[8px] font-mono text-zinc-500 uppercase">Studio: Topology Builder</div>
+        <div className="absolute w-14 h-10 bg-zinc-800 border border-zinc-600 rounded-lg flex items-center justify-center" style={{ top: '30%', left: '20%' }}>
+          <span className="text-[8px] font-mono text-zinc-400">LEAF-1</span>
+        </div>
+        <div className="absolute w-14 h-10 bg-zinc-800 border border-zinc-600 rounded-lg flex items-center justify-center" style={{ top: '30%', right: '20%' }}>
+          <span className="text-[8px] font-mono text-zinc-400">LEAF-2</span>
+        </div>
+        <div className="absolute w-14 h-10 bg-sky-900/60 border border-sky-500/60 rounded-lg flex items-center justify-center" style={{ top: '10%', left: '37%' }}>
+          <span className="text-[8px] font-mono text-sky-400">SPINE</span>
+        </div>
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="27%" y1="30%" x2="44%" y2="20%" stroke="#0ea5e9" strokeWidth="1.5" strokeOpacity="0.6" />
+          <line x1="73%" y1="30%" x2="56%" y2="20%" stroke="#0ea5e9" strokeWidth="1.5" strokeOpacity="0.6" />
+          <line x1="27%" y1="40%" x2="73%" y2="40%" stroke="#10b981" strokeWidth="1.5" strokeDasharray="4 2" strokeOpacity="0.5" className="animate-pulse" />
+        </svg>
+        <div className="absolute bottom-3 right-3 px-2 py-1 bg-sky-600 rounded text-[8px] font-mono text-white uppercase">Generate Configs</div>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 5.6: Studio Intent Builder</div>
+    </div>
+  );
+  if (index === 7) return ( // Compliance — golden config drift
+    <div className="relative w-full h-full flex items-center justify-center gap-12">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-20 h-20 bg-emerald-900/20 border-2 border-emerald-500/50 rounded-2xl flex items-center justify-center">
+          <CheckCircle2 size={36} className="text-emerald-400" />
+        </div>
+        <span className="text-[9px] font-mono text-emerald-400 uppercase">Golden Config</span>
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <div className="h-px w-12 bg-zinc-700"></div>
+        <span className="text-[8px] font-mono text-zinc-600">Drift?</span>
+        <div className="h-px w-12 bg-zinc-700"></div>
+      </div>
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-20 h-20 bg-zinc-900 border-2 border-rose-500/50 rounded-2xl flex items-center justify-center animate-pulse">
+          <AlertTriangle size={36} className="text-rose-400" />
+        </div>
+        <span className="text-[9px] font-mono text-rose-400 uppercase">ACL Modified</span>
+      </div>
+      <ArrowRight size={20} className="text-emerald-500" />
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-20 h-20 bg-emerald-900/20 border-2 border-emerald-500/50 rounded-2xl flex items-center justify-center">
+          <CheckCircle2 size={36} className="text-emerald-400" />
+        </div>
+        <span className="text-[9px] font-mono text-emerald-400 uppercase">Remediated</span>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 5.7: Continuous Compliance</div>
+    </div>
+  );
+  if (index === 8) return ( // Multi-site — 3 sites to CV globe
+    <div className="relative w-full h-full flex items-center justify-center">
+      <div className="w-20 h-20 bg-sky-600/10 border-2 border-sky-500/50 rounded-full flex items-center justify-center z-10 shadow-[0_0_40px_rgba(14,165,233,0.2)]">
+        <Eye size={28} className="text-sky-400" />
+      </div>
+      {([{ label: 'NYC DC', x: -180, y: -60 }, { label: 'SIN DC', x: 180, y: -60 }, { label: 'LHR Campus', x: 0, y: 100 }] as const).map(({ label, x, y }) => (
+        <div key={label} className="absolute flex flex-col items-center gap-1" style={{ transform: `translate(${x}px, ${y}px)` }}>
+          <div className="w-14 h-10 bg-zinc-900 border border-zinc-700 rounded-lg flex items-center justify-center">
+            <Server size={16} className="text-zinc-400" />
+          </div>
+          <span className="text-[8px] font-mono text-zinc-500 uppercase">{label}</span>
+          <svg className="absolute" width="200" height="120" style={{ top: '50%', left: '50%', transform: `translate(-50%, -50%) translate(${-x * 0.5}px, ${-y * 0.5}px)`, opacity: 0.3 }}>
+            <line x1="50%" y1="50%" x2={`${50 + x * 0.25}%`} y2={`${50 + y * 0.25}%`} stroke="#0ea5e9" strokeWidth="1" strokeDasharray="4 2" />
+          </svg>
+        </div>
+      ))}
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 5.8: Multi-Site Visibility</div>
+    </div>
+  );
+  // index 9 — Operating Model
+  return (
+    <div className="relative w-full h-full flex items-center justify-center gap-12">
+      <div className="flex flex-col items-center gap-2">
+        <div className="grid grid-cols-3 gap-1">
+          {[...Array(9)].map((_, i) => (
+            <div key={i} className="w-8 h-8 bg-zinc-800 border border-zinc-700 rounded flex items-center justify-center">
+              <Terminal size={10} className="text-zinc-500" />
+            </div>
+          ))}
+        </div>
+        <span className="text-[8px] font-mono text-zinc-500 uppercase">Per-Device CLI</span>
+      </div>
+      <ArrowRight size={24} className="text-sky-400" />
+      <div className="flex flex-col items-center gap-2">
+        <div className="w-28 h-20 bg-sky-600/10 border-2 border-sky-500/50 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-[0_0_30px_rgba(14,165,233,0.2)]">
+          <Eye size={24} className="text-sky-400" />
+          <span className="text-[8px] font-mono text-sky-400 uppercase">Fabric OS</span>
+        </div>
+        <span className="text-[8px] font-mono text-zinc-400 uppercase">One System</span>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 5.9: The Operating Model Shift</div>
+    </div>
+  );
+};
+
+// --- BGP/EVPN IP FABRIC VISUALS ---
+
+const IPFabricVisuals: React.FC<{ index: number }> = ({ index }) => {
+  if (index === 0) return ( // STP — blocked links
+    <div className="relative w-full h-full flex items-center justify-center">
+      <svg width="340" height="240" viewBox="0 0 340 240" xmlns="http://www.w3.org/2000/svg">
+        <rect x="130" y="10" width="80" height="36" rx="6" fill="#18181b" stroke="#3f3f46" strokeWidth="1.5" />
+        <text x="170" y="32" textAnchor="middle" fontSize="9" fill="#71717a" fontFamily="monospace">ROOT BRIDGE</text>
+        <rect x="20" y="100" width="80" height="36" rx="6" fill="#18181b" stroke="#3f3f46" strokeWidth="1.5" />
+        <text x="60" y="122" textAnchor="middle" fontSize="9" fill="#71717a" fontFamily="monospace">SW-A</text>
+        <rect x="240" y="100" width="80" height="36" rx="6" fill="#18181b" stroke="#3f3f46" strokeWidth="1.5" />
+        <text x="280" y="122" textAnchor="middle" fontSize="9" fill="#71717a" fontFamily="monospace">SW-B</text>
+        <rect x="130" y="190" width="80" height="36" rx="6" fill="#18181b" stroke="#3f3f46" strokeWidth="1.5" />
+        <text x="170" y="212" textAnchor="middle" fontSize="9" fill="#71717a" fontFamily="monospace">SW-C</text>
+        <line x1="130" y1="28" x2="100" y2="100" stroke="#10b981" strokeWidth="2" />
+        <line x1="210" y1="28" x2="240" y2="100" stroke="#10b981" strokeWidth="2" />
+        <line x1="100" y1="136" x2="130" y2="190" stroke="#10b981" strokeWidth="2" />
+        <line x1="240" y1="136" x2="210" y2="190" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5 3" />
+        <text x="228" y="172" fontSize="10" fill="#f59e0b" fontFamily="monospace" fontWeight="bold">BLK</text>
+        <line x1="100" y1="118" x2="240" y2="118" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5 3" />
+        <text x="155" y="112" fontSize="10" fill="#f59e0b" fontFamily="monospace" fontWeight="bold">BLK</text>
+      </svg>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 6.0: STP — Half Bandwidth Wasted</div>
+    </div>
+  );
+  if (index === 1) return ( // Leaf-spine ECMP
+    <div className="relative w-full h-full flex items-center justify-center">
+      <svg width="340" height="220" viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg">
+        <rect x="80" y="10" width="70" height="32" rx="6" fill="#18181b" stroke="#10b981" strokeWidth="1.5" />
+        <text x="115" y="30" textAnchor="middle" fontSize="8" fill="#10b981" fontFamily="monospace">SPINE-1</text>
+        <rect x="190" y="10" width="70" height="32" rx="6" fill="#18181b" stroke="#10b981" strokeWidth="1.5" />
+        <text x="225" y="30" textAnchor="middle" fontSize="8" fill="#10b981" fontFamily="monospace">SPINE-2</text>
+        {[30, 120, 210, 300].map((x, i) => (
+          <g key={i}>
+            <rect x={x} y="110" width="50" height="28" rx="4" fill="#18181b" stroke="#3f3f46" strokeWidth="1.5" />
+            <text x={x + 25} y="128" textAnchor="middle" fontSize="7" fill="#a1a1aa" fontFamily="monospace">LEAF-{i + 1}</text>
+            <line x1={x + 25} y1="110" x2="115" y2="42" stroke="#10b981" strokeWidth="1" strokeOpacity="0.6" />
+            <line x1={x + 25} y1="110" x2="225" y2="42" stroke="#10b981" strokeWidth="1" strokeOpacity="0.6" />
+            <rect x={x + 5} y="165" width="40" height="20" rx="3" fill="#27272a" stroke="#3f3f46" strokeWidth="1" />
+            <text x={x + 25} y="178" textAnchor="middle" fontSize="6" fill="#71717a" fontFamily="monospace">SERVER</text>
+            <line x1={x + 25} y1="138" x2={x + 25} y2="165" stroke="#3f3f46" strokeWidth="1" />
+          </g>
+        ))}
+        <text x="170" y="210" textAnchor="middle" fontSize="7" fill="#10b981" fontFamily="monospace">ALL PATHS ACTIVE · ECMP</text>
+      </svg>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 6.1: Leaf-Spine — Full Bandwidth</div>
+    </div>
+  );
+  if (index === 2) return ( // eBGP unnumbered underlay
+    <div className="relative w-full h-full flex items-center justify-center gap-16">
+      <div className="flex flex-col items-center gap-2">
+        <div className="w-20 h-14 bg-zinc-900 border border-zinc-700 rounded-xl flex flex-col items-center justify-center gap-1">
+          <span className="text-[9px] font-mono text-zinc-400">LEAF</span>
+          <span className="text-[7px] font-mono text-zinc-600">AS 65001</span>
+        </div>
+        <div className="text-[7px] font-mono text-zinc-600">Lo0: 1.1.1.1</div>
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <div className="text-[7px] font-mono text-emerald-500 uppercase bg-emerald-900/20 px-2 py-0.5 rounded border border-emerald-500/30">RFC 5549</div>
+        <div className="w-24 h-px bg-zinc-600"></div>
+        <div className="text-[7px] font-mono text-zinc-500 uppercase">No P2P IP</div>
+        <div className="w-24 h-px bg-zinc-600"></div>
+        <div className="text-[7px] font-mono text-sky-500 uppercase">eBGP Session</div>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <div className="w-20 h-14 bg-zinc-900 border border-sky-500/40 rounded-xl flex flex-col items-center justify-center gap-1">
+          <span className="text-[9px] font-mono text-sky-400">SPINE</span>
+          <span className="text-[7px] font-mono text-zinc-600">AS 65000</span>
+        </div>
+        <div className="text-[7px] font-mono text-zinc-600">Lo0: 2.2.2.2</div>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 6.2: RFC 5549 Unnumbered eBGP</div>
+    </div>
+  );
+  if (index === 3) return ( // EVPN control plane — no flooding
+    <div className="relative w-full h-full flex items-center justify-center gap-8">
+      <div className="w-20 h-20 bg-zinc-900 border border-emerald-500/40 rounded-2xl flex flex-col items-center justify-center gap-1 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+        <Database size={24} className="text-emerald-400" />
+        <span className="text-[7px] font-mono text-emerald-500 uppercase">BGP CP</span>
+      </div>
+      <div className="flex flex-col gap-3">
+        {[{ label: 'RT-2 MAC/IP', color: 'text-blue-400 border-blue-500/40' }, { label: 'RT-3 BUM', color: 'text-amber-400 border-amber-500/40' }, { label: 'RT-5 Prefix', color: 'text-emerald-400 border-emerald-500/40' }].map(({ label, color }) => (
+          <div key={label} className={`px-3 py-1 border rounded text-[8px] font-mono ${color} bg-zinc-900`}>{label}</div>
+        ))}
+      </div>
+      <div className="flex flex-col gap-2">
+        {['VTEP-1', 'VTEP-2', 'VTEP-3'].map((v, i) => (
+          <div key={v} className="w-16 h-8 bg-zinc-900 border border-zinc-700 rounded flex items-center justify-center">
+            <span className="text-[7px] font-mono text-zinc-400">{v}</span>
+          </div>
+        ))}
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 6.3: EVPN — No Flooding</div>
+    </div>
+  );
+  if (index === 4) return ( // RT-2 MAC/IP advertisement
+    <div className="relative w-full h-full flex items-center justify-center gap-8">
+      <div className="p-4 bg-zinc-900 border border-blue-500/30 rounded-xl">
+        <div className="text-[8px] font-mono text-zinc-500 uppercase mb-3">BGP EVPN Update</div>
+        <div className="space-y-2">
+          <div className="flex gap-2 items-center"><span className="text-[8px] font-mono text-zinc-600 w-20">Route Type</span><span className="text-[8px] font-mono text-blue-400 bg-blue-900/20 px-2 rounded">2 (MAC/IP)</span></div>
+          <div className="flex gap-2 items-center"><span className="text-[8px] font-mono text-zinc-600 w-20">MAC Addr</span><span className="text-[8px] font-mono text-white">00:50:79:66:68:0a</span></div>
+          <div className="flex gap-2 items-center"><span className="text-[8px] font-mono text-zinc-600 w-20">IP Addr</span><span className="text-[8px] font-mono text-white">10.1.10.101</span></div>
+          <div className="flex gap-2 items-center"><span className="text-[8px] font-mono text-zinc-600 w-20">L2 VNI</span><span className="text-[8px] font-mono text-emerald-400">10010</span></div>
+          <div className="flex gap-2 items-center"><span className="text-[8px] font-mono text-zinc-600 w-20">VTEP IP</span><span className="text-[8px] font-mono text-zinc-400">1.1.1.1</span></div>
+        </div>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 6.4: RT-2 MAC/IP Advertisement</div>
+    </div>
+  );
+  if (index === 5) return ( // RT-5 IP prefix / symmetric IRB
+    <div className="relative w-full h-full flex items-center justify-center gap-6">
+      <div className="flex flex-col gap-2">
+        {['APP VRF', 'DB VRF'].map((v, i) => (
+          <div key={v} className={`w-20 h-12 bg-zinc-900 border rounded-lg flex items-center justify-center ${i === 0 ? 'border-blue-500/40' : 'border-emerald-500/40'}`}>
+            <span className={`text-[8px] font-mono ${i === 0 ? 'text-blue-400' : 'text-emerald-400'} uppercase`}>{v}</span>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <ArrowRight size={14} className="text-zinc-500" />
+        <div className="text-[7px] font-mono text-amber-400 uppercase bg-amber-900/20 px-2 py-0.5 rounded border border-amber-500/30">RT-5</div>
+        <div className="text-[7px] font-mono text-zinc-600">L3 VNI: 50001</div>
+        <ArrowLeft size={14} className="text-zinc-500" />
+      </div>
+      <div className="w-20 h-28 bg-zinc-900 border border-zinc-700 rounded-xl flex flex-col items-center justify-center gap-1">
+        <span className="text-[8px] font-mono text-zinc-400 uppercase">LEAF</span>
+        <span className="text-[7px] font-mono text-zinc-600">Sym. IRB</span>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 6.5: RT-5 Symmetric IRB</div>
+    </div>
+  );
+  if (index === 6) return ( // Anycast Gateway / VARP
+    <div className="relative w-full h-full flex items-center justify-center">
+      <svg width="320" height="220" viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg">
+        {[50, 160, 270].map((x, i) => (
+          <g key={i}>
+            <rect x={x - 30} y="60" width="60" height="28" rx="4" fill="#18181b" stroke="#3f3f46" strokeWidth="1.5" />
+            <text x={x} y="78" textAnchor="middle" fontSize="7" fill="#a1a1aa" fontFamily="monospace">LEAF-{i + 1}</text>
+            <text x={x} y="120" textAnchor="middle" fontSize="7" fill="#10b981" fontFamily="monospace">GW: 10.0.0.1</text>
+            <text x={x} y="133" textAnchor="middle" fontSize="6" fill="#71717a" fontFamily="monospace">VARP</text>
+          </g>
+        ))}
+        <path d="M 50 88 Q 160 30 270 88" stroke="#10b981" strokeWidth="1.5" fill="none" strokeDasharray="5 3" strokeOpacity="0.5" />
+        <text x="160" y="24" textAnchor="middle" fontSize="8" fill="#10b981" fontFamily="monospace">Same GW IP + MAC</text>
+        <rect x="110" y="170" width="100" height="28" rx="4" fill="#27272a" stroke="#3f3f46" strokeWidth="1" />
+        <text x="160" y="188" textAnchor="middle" fontSize="7" fill="#71717a" fontFamily="monospace">HOST: 10.0.0.101</text>
+        <line x1="160" y1="170" x2="160" y2="88" stroke="#3f3f46" strokeWidth="1" strokeDasharray="3 2" />
+      </svg>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 6.6: Anycast Gateway (VARP)</div>
+    </div>
+  );
+  if (index === 7) return ( // MLAG dual-homing
+    <div className="relative w-full h-full flex items-center justify-center">
+      <svg width="300" height="220" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+        <rect x="80" y="20" width="60" height="28" rx="4" fill="#18181b" stroke="#3f3f46" strokeWidth="1.5" />
+        <text x="110" y="38" textAnchor="middle" fontSize="7" fill="#a1a1aa" fontFamily="monospace">LEAF-1</text>
+        <rect x="160" y="20" width="60" height="28" rx="4" fill="#18181b" stroke="#3f3f46" strokeWidth="1.5" />
+        <text x="190" y="38" textAnchor="middle" fontSize="7" fill="#a1a1aa" fontFamily="monospace">LEAF-2</text>
+        <line x1="140" y1="34" x2="160" y2="34" stroke="#f59e0b" strokeWidth="2" />
+        <text x="150" y="28" textAnchor="middle" fontSize="7" fill="#f59e0b" fontFamily="monospace">ISL</text>
+        <rect x="115" y="130" width="70" height="28" rx="4" fill="#27272a" stroke="#3f3f46" strokeWidth="1.5" />
+        <text x="150" y="148" textAnchor="middle" fontSize="7" fill="#71717a" fontFamily="monospace">SERVER</text>
+        <line x1="110" y1="130" x2="110" y2="48" stroke="#10b981" strokeWidth="2" />
+        <line x1="190" y1="130" x2="190" y2="48" stroke="#10b981" strokeWidth="2" />
+        <text x="88" y="95" textAnchor="middle" fontSize="7" fill="#10b981" fontFamily="monospace">Active</text>
+        <text x="212" y="95" textAnchor="middle" fontSize="7" fill="#10b981" fontFamily="monospace">Active</text>
+        <text x="150" y="108" textAnchor="middle" fontSize="8" fill="#10b981" fontFamily="monospace">LACP / LAG</text>
+      </svg>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 6.7: MLAG Active-Active Dual-Homing</div>
+    </div>
+  );
+  if (index === 8) return ( // DCI — border leaf VXLAN tunnel
+    <div className="relative w-full h-full flex items-center justify-center gap-4">
+      <div className="flex flex-col items-center gap-2">
+        <div className="w-16 h-10 bg-zinc-900 border border-zinc-700 rounded-lg flex items-center justify-center">
+          <span className="text-[7px] font-mono text-zinc-400">LEAF</span>
+        </div>
+        <div className="w-1 h-6 bg-zinc-700"></div>
+        <div className="w-20 h-12 bg-zinc-900 border border-emerald-500/50 rounded-xl flex flex-col items-center justify-center gap-1">
+          <span className="text-[7px] font-mono text-emerald-400">BORDER</span>
+          <span className="text-[6px] font-mono text-zinc-600">VTEP</span>
+        </div>
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 5 35 Q 60 -10 115 35" stroke="#10b981" strokeWidth="2" fill="none" strokeDasharray="6 3" />
+          <text x="60" y="10" textAnchor="middle" fontSize="7" fill="#10b981" fontFamily="monospace">VXLAN DCI</text>
+        </svg>
+        <span className="text-[7px] font-mono text-zinc-600 uppercase">VNI-controlled</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <div className="w-16 h-10 bg-zinc-900 border border-zinc-700 rounded-lg flex items-center justify-center">
+          <span className="text-[7px] font-mono text-zinc-400">LEAF</span>
+        </div>
+        <div className="w-1 h-6 bg-zinc-700"></div>
+        <div className="w-20 h-12 bg-zinc-900 border border-emerald-500/50 rounded-xl flex flex-col items-center justify-center gap-1">
+          <span className="text-[7px] font-mono text-emerald-400">BORDER</span>
+          <span className="text-[6px] font-mono text-zinc-600">VTEP</span>
+        </div>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 6.8: DCI via Border Leaf</div>
+    </div>
+  );
+  // index 9 — One Fabric One OS
+  return (
+    <div className="relative w-full h-full flex items-center justify-center gap-8">
+      {([{ label: 'Campus', sub: 'EOS 4.3x', cls: 'border-blue-500/40 text-blue-400' }, { label: 'DC Leaf', sub: 'EOS 4.3x', cls: 'border-emerald-500/40 text-emerald-400' }, { label: 'Cloud PE', sub: 'EOS 4.3x', cls: 'border-violet-500/40 text-violet-400' }] as const).map(({ label, sub, cls }) => (
+        <div key={label} className={`w-20 h-20 bg-zinc-900 border-2 rounded-2xl flex flex-col items-center justify-center gap-1 ${cls}`}>
+          <span className="text-[9px] font-mono uppercase">{label}</span>
+          <span className="text-[7px] font-mono text-zinc-600">{sub}</span>
+        </div>
+      ))}
+      <div className="absolute bottom-16 flex flex-col items-center gap-1">
+        <ArrowRight size={14} className="text-sky-400 rotate-90" />
+        <div className="w-16 h-8 bg-sky-600/10 border border-sky-500/50 rounded-lg flex items-center justify-center">
+          <Eye size={12} className="text-sky-400" />
+        </div>
+        <span className="text-[7px] font-mono text-sky-500 uppercase">CloudVision</span>
+      </div>
+      <div className="absolute bottom-8 left-12 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Fig 6.9: One Fabric, One OS</div>
+    </div>
+  );
+};
+
+// --- SCENE VISUAL ROUTER ---
+
 const SceneVisual: React.FC<{ intent: string; index: number; active: boolean; presetId?: string }> = ({ intent, index, active, presetId }) => {
   return (
     <div className={`relative w-full h-full flex items-center justify-center transition-all duration-700 bg-zinc-950 ${active ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-       
+
        {presetId === 'why-arista-2' ? (
           <div className="scale-90 md:scale-100">
              {index === 0 && <VisualConstraintGraph />}
@@ -631,12 +1289,16 @@ const SceneVisual: React.FC<{ intent: string; index: number; active: boolean; pr
           <WirelessVisuals index={index} />
        ) : presetId === 'ai-fabrics' ? (
           <AiFabricsVisuals index={index} />
+       ) : presetId === 'cloudvision-netops' ? (
+          <CloudVisionVisuals index={index} />
+       ) : presetId === 'ip-fabric' ? (
+          <IPFabricVisuals index={index} />
        ) : presetId === 'life-sciences-gxp' ? (
           <LifeSciencesVisuals index={index} />
        ) : (
           <WhyAristaLegacyVisuals index={index} />
        )}
-       
+
        {/* Meta Tag for Visual Intent (Presenter Aid) */}
        {!active && <div className="absolute inset-0 bg-black z-50"></div>}
     </div>
