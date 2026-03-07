@@ -589,9 +589,9 @@ show bgp neighbors 2.2.2.2 | include community
       'Simple operational model compared to stacking.'
     ],
     bestPractices: [
-      'Always run the MLAG keepalive over a dedicated out-of-band path (`peer-address heartbeat <ip> vrf management`) — keepalive shared with data traffic can be disrupted by the very failure it needs to detect. EOS sends heartbeats on both the peer-link and management link simultaneously; both must fail before dual-primary detection triggers.',
+      'Always run the MLAG keepalive over a dedicated out-of-band path (`peer-address <ip> vrf MGMT` under `mlag configuration`) — keepalive shared with data traffic can be disrupted by the very failure it needs to detect. When the peer-link goes down, EOS consults the keepalive to determine which peer is secondary; if keepalive is also unreachable, both peers forward independently (split-brain).',
       'Enable `dual-primary detection delay 10 action errdisable all-interfaces` under `mlag configuration` — without it, a split-brain event leaves both peers forwarding independently, causing duplicate-MAC and black-hole conditions. Err-disabling all interfaces on the secondary is the safest recovery action.',
-      'Set `reload-delay mlag 300` and `reload-delay non-mlag 330` on standard fixed-config platforms (7050X3, 720XP, etc.). High-end platforms (7280R, 7500R, 7800R) default to 900s — always verify with `show mlag config` before overriding, as a value too short causes post-boot black holes.',
+      'Set `reload-delay mlag 300` and `reload-delay non-mlag 330` on standard fixed-config platforms (7050X3, 720XP, etc.). High-end platforms (7280R, 7500R, 7800R) default to 900s — always verify with `show mlag detail` before overriding, as a value too short causes post-boot black holes.',
       'Resolve every `show mlag config-sanity` warning before go-live. Arista explicitly states these must be rectified in production — mismatched VLANs, STP config, or port-channel modes cause one-way forwarding failures that are difficult to diagnose under load.',
       'Apply `lacp timer fast` on each Ethernet member interface (not on the Port-Channel) — the default slow timer means a link failure goes undetected for up to 90 seconds. Fast timers reduce detection to ~3 seconds (1s PDU interval × 3 missed PDUs). Note: `lacp rate fast` is Cisco IOS syntax and is not valid in EOS.',
       'Size the peer-link to match total uplink capacity: if each peer has 4×100G uplinks, the peer-link aggregate should be ≥400G. During failover all traffic for the failed switch redirects across the peer-link — undersizing causes congestion drops at the worst possible moment.',
@@ -714,6 +714,7 @@ interface Ethernet2
 ! ── MLAG keepalive SVI (in-band fallback; prefer MGMT VRF) ───
 interface Vlan4094
    ip address 10.255.0.1/30
+   no autostate
    no ip proxy-arp
 !
 ! ── MLAG GLOBAL ───────────────────────────────────────────────
@@ -830,7 +831,7 @@ show mlag
 !   Peer state            : active
 !   Peer link             : Port-Channel1
 !   Peer link status      : Up
-!   Reload delay          : 300 seconds
+! (Reload delay values are shown in: show mlag detail)
 !
 ! ── 2. KEEPALIVE PATH ────────────────────────────────────────
 ping 10.255.0.2 vrf MGMT repeat 20 timeout 1
@@ -893,9 +894,10 @@ show mlag interfaces
 interface Port-Channel1
    no shutdown
 !
-! Wait for reload-delay mlag timer to expire before checking:
+! MLAG re-syncs quickly (seconds) after peer-link restore — no reload-delay wait.
+! reload-delay is a BOOT-TIME timer only; it does not apply to peer-link recovery.
 show mlag
-show mlag interfaces         ! all MLAG IDs must return to active
+show mlag interfaces         ! all MLAG IDs must return to active within seconds
 show mlag config-sanity      ! must be clean after restore`
       },
       {
