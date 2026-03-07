@@ -103,7 +103,7 @@ export const visualEssays: ConceptExplainer[] = [
       },
       {
         heading: 'Deep Buffer Platforms: When They Matter',
-        body: 'Arista 7280R3 series ships with up to 32 GB of shared packet buffer — orders of magnitude more than commodity merchant silicon (Trident4: ~64 MB). Deep buffer is critical for: AI training fabrics (RoCE/RDMA), storage fabrics (NVMe-oF over Ethernet), and HFT networks with micro-burst absorption needs. For standard enterprise or web-scale workloads, merchant silicon is often sufficient. The decision framework: if packet loss under burst causes application-level retransmits that cost more than the buffer hardware, deploy deep-buffer platforms.',
+        body: 'Arista deep-buffer platforms ship with orders of magnitude more shared packet buffer than commodity merchant silicon (Trident4: ~64 MB). Deep buffer is critical for: AI training fabrics (RoCE/RDMA), storage fabrics (NVMe-oF over Ethernet), and HFT networks with micro-burst absorption needs. For standard enterprise or web-scale workloads, merchant silicon is often sufficient. The decision framework: if packet loss under burst causes application-level retransmits that cost more than the buffer hardware, deploy deep-buffer platforms.',
         visualPrompt: 'A platform comparison matrix: shallow-buffer switch shown as a thin tank, deep-buffer platform as a massive reservoir; overlaid with workload types mapped to each.'
       },
       {
