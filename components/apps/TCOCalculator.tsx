@@ -31,13 +31,13 @@ const InputField = ({ label, value, onChange, unit, icon: Icon, desc }: any) => 
   </div>
 );
 
-const REGIONS: Record<string, { kwh: number; labor: number }> = {
-  'Global Average': { kwh: 0.15, labor: 125 },
-  'North America': { kwh: 0.16, labor: 165 },
-  'Europe (West)': { kwh: 0.32, labor: 140 },
-  'Asia Pacific': { kwh: 0.18, labor: 110 },
-  'Middle East': { kwh: 0.06, labor: 90 },
-  'Latin America': { kwh: 0.14, labor: 50 }
+const REGIONS: Record<string, { kwh: number; labor: number; co2: number }> = {
+  'Global Average': { kwh: 0.15, labor: 125, co2: 0.40 },
+  'North America':  { kwh: 0.14, labor: 165, co2: 0.38 }, // EIA 2024 US commercial avg
+  'Europe (West)':  { kwh: 0.32, labor: 140, co2: 0.25 }, // high renewables mix
+  'Asia Pacific':   { kwh: 0.18, labor: 110, co2: 0.55 }, // coal-heavy grids (AU/IN)
+  'Middle East':    { kwh: 0.06, labor: 90,  co2: 0.65 }, // fossil-fuel dominated
+  'Latin America':  { kwh: 0.14, labor: 65,  co2: 0.28 }, // large hydro share
 };
 
 export const TCOCalculator: React.FC<TCOCalculatorProps> = ({ onBack, onNavigate }) => {
@@ -50,6 +50,7 @@ export const TCOCalculator: React.FC<TCOCalculatorProps> = ({ onBack, onNavigate
   // Costs (Auto-adjusted by Region, but editable)
   const [kwhPrice, setKwhPrice] = useState(REGIONS['North America'].kwh);
   const [hourlyRate, setHourlyRate] = useState(REGIONS['North America'].labor);
+  const [co2Factor, setCo2Factor] = useState(REGIONS['North America'].co2);
   
   // Power & Environment
   const [pue, setPue] = useState(1.6); // Power Usage Effectiveness
@@ -88,6 +89,7 @@ export const TCOCalculator: React.FC<TCOCalculatorProps> = ({ onBack, onNavigate
     if (REGIONS[newRegion]) {
       setKwhPrice(REGIONS[newRegion].kwh);
       setHourlyRate(REGIONS[newRegion].labor);
+      setCo2Factor(REGIONS[newRegion].co2);
     }
   };
 
@@ -115,7 +117,7 @@ export const TCOCalculator: React.FC<TCOCalculatorProps> = ({ onBack, onNavigate
     const savings = legacyTotal - aristaTotal;
     const powerSavings = legacyPowerCost - aristaPowerCost;
     const laborSavings = legacyLaborCost - aristaLaborCost;
-    const carbonSaved = (legacyTotalKwh - aristaTotalKwh) * 0.4; // 0.4kg CO2 per kWh approx
+    const carbonSaved = (legacyTotalKwh - aristaTotalKwh) * co2Factor;
 
     return {
       legacyTotal, aristaTotal,
@@ -127,7 +129,7 @@ export const TCOCalculator: React.FC<TCOCalculatorProps> = ({ onBack, onNavigate
       laborSavings,
       carbonSaved
     };
-  }, [numSwitches, kwhPrice, pue, years, legacyWatts, aristaWatts, legacyHardwareCost, aristaHardwareCost, hourlyRate, legacyHours, aristaHours]);
+  }, [numSwitches, kwhPrice, pue, years, legacyWatts, aristaWatts, legacyHardwareCost, aristaHardwareCost, hourlyRate, legacyHours, aristaHours, co2Factor]);
 
   const effectiveYears = Math.max(1, years);
   const annualSavings = stats.savings / effectiveYears;
@@ -180,6 +182,7 @@ Key assumptions:
 - Legacy power ${legacyWatts}W vs Arista ${aristaWatts}W; PUE ${pue}
 - Labor ${legacyHours}h -> ${aristaHours}h per switch/year @ $${hourlyRate}/hr
 - Hardware $${legacyHardwareCost} vs $${aristaHardwareCost} per unit
+- Carbon intensity: ${co2Factor} kg CO2/kWh (${region})
 
 Evidence:
 ${evidence.map(e => `- ${e.label}: ${e.source} (${e.confidence})`).join('\n')}
@@ -252,6 +255,8 @@ Scope guardrails:
                <h3 className="text-[10px] font-bold text-secondary uppercase tracking-[0.3em]">Environment</h3>
                <InputField label="Scale" value={numSwitches} onChange={handleNumSwitches} unit="Switches" icon={Server} />
                <InputField label="Duration" value={years} onChange={handleYearsChange} unit="Years" icon={Clock} />
+               <InputField label="PUE" value={pue} onChange={(v: number) => setPue(clampValue(v, 1))} unit="×" icon={Zap} desc="1.1 hyperscale · 1.6 avg · 2.0 legacy" />
+               <InputField label="Carbon Intensity" value={co2Factor} onChange={(v: number) => setCo2Factor(clampValue(v, 0))} unit="kg/kWh" icon={Leaf} desc="Grid CO₂ factor by region" />
             </section>
 
             <section className="space-y-4 pt-6 border-t border-border">
@@ -388,7 +393,7 @@ Scope guardrails:
                   <div className="text-3xl font-bold mb-2 text-emerald-400">
                      {Math.round(stats.carbonSaved / 1000).toFixed(1)} Tons
                   </div>
-                  <p className="text-xs text-secondary leading-relaxed">CO2 emissions avoided. Equivalent to {Math.round(stats.carbonSaved / 20)} trees planted.</p>
+                  <p className="text-xs text-secondary leading-relaxed">CO2 emissions avoided. Equivalent to {Math.round(stats.carbonSaved / (effectiveYears * 21))} trees over {effectiveYears} yr{effectiveYears !== 1 ? 's' : ''} (21 kg/tree/yr, US EPA).</p>
                </div>
             </div>
 
