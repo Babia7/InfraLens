@@ -1,11 +1,25 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Cpu, Terminal, FileCode, Play, Download, ShieldCheck, Box, Loader2, Sparkles, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Cpu, Terminal, FileCode, Play, Download, ShieldCheck, Box, Loader2, Sparkles, AlertCircle, Network, GitBranch } from 'lucide-react';
 import { AVDBrief } from '@/types';
 
 interface AVDStudioProps {
   onBack: () => void;
 }
+
+const PLATFORM_META: Record<string, { tcam: string; bufferNote: string; maxUplinks: number; macsec: boolean; desc: string }> = {
+  '7050X3': { tcam: 'vxlan-routing', bufferNote: 'Shallow (standard DC workloads)', maxUplinks: 4, macsec: false, desc: '48x 25G + 6x 100G QSFP28 — standard leaf' },
+  '7060X5': { tcam: 'vxlan-routing', bufferNote: 'Shallow high-density', maxUplinks: 8, macsec: false, desc: '64x 100G QSFP28 — high density leaf/spine' },
+  '7280R3': { tcam: 'vxlan-routing', bufferNote: 'Deep buffer (500ms+) — AI/Storage', maxUplinks: 8, macsec: true, desc: '48x 400G QSFP-DD — spine / deep buffer' },
+  '7800R4': { tcam: 'vxlan-routing', bufferNote: 'Chassis deep buffer — core spine', maxUplinks: 16, macsec: true, desc: 'Chassis (8-slot) — hyperscale spine' },
+  'vEOS-lab': { tcam: 'N/A (software)', bufferNote: 'Software simulation only', maxUplinks: 4, macsec: false, desc: 'Virtual EOS for lab and CI validation' },
+};
+
+const OVERLAY_META: Record<string, { rtL2: string; rtL3: string; note: string }> = {
+  'evpn-ibgp': { rtL2: '10:VNI', rtL3: '50:VRF-VNI', note: 'Route Reflector required (spine RR)' },
+  'evpn-ebgp': { rtL2: '10:VNI', rtL3: '50:VRF-VNI', note: 'eBGP overlay — ASN per leaf, no RR needed' },
+  'vrf-lite': { rtL2: 'N/A', rtL3: 'Per-VRF static import/export', note: 'Campus/edge only — no VXLAN encap' },
+};
 
 const InputGroup = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="space-y-2">
@@ -15,52 +29,316 @@ const InputGroup = ({ label, children }: { label: string; children: React.ReactN
 );
 
 export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
-  // Parameters
-  const [fabricName, setFabricName] = useState('DCI-CORE-EVPN');
+  const [fabricName, setFabricName] = useState('DC1-SPINE-LEAF');
   const [spines, setSpines] = useState(2);
   const [leafs, setLeafs] = useState(4);
-  const [asnStart, setAsnStart] = useState(65001);
+  const [asnSpine, setAsnSpine] = useState(65000);
+  const [asnLeafBase, setAsnLeafBase] = useState(65001);
   const [platform, setPlatform] = useState('7050X3');
+  const [overlay, setOverlay] = useState('evpn-ebgp');
+  const [vrfList, setVrfList] = useState('Prod,Dev');
+  const [mgmtSubnet, setMgmtSubnet] = useState('10.255.0');
 
-  // Result State
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AVDBrief | null>(null);
   const [activeView, setActiveView] = useState<'YAML' | 'EOS' | 'VALIDATION'>('YAML');
 
   const buildLocalBlueprint = (): AVDBrief => {
+    const vrfs = vrfList.split(',').map(v => v.trim()).filter(Boolean);
+    const pmeta = PLATFORM_META[platform] ?? PLATFORM_META['7050X3'];
+    const ometa = OVERLAY_META[overlay] ?? OVERLAY_META['evpn-ebgp'];
+    const useEvpn = overlay !== 'vrf-lite';
+    const useRR = overlay === 'evpn-ibgp';
+    const leafGroupSize = 2; // MLAG pairs
+    const leafGroups = Math.ceil(leafs / leafGroupSize);
+
+    // --- YAML ---
+    const spineNodes = Array.from({ length: spines }, (_, i) => [
+      `    - name: ${fabricName}-SP${String(i + 1).padStart(2, '0')}`,
+      `      id: ${i + 1}`,
+      `      mgmt_ip: ${mgmtSubnet}.${10 + i}/24`,
+    ].join('\n')).join('\n');
+
+    const leafGroupNodes = Array.from({ length: leafGroups }, (_, g) => {
+      const a = g * leafGroupSize;
+      const b = a + 1;
+      return [
+        `  - group: ${fabricName}-LEAF-GROUP${g + 1}`,
+        `    bgp_as: ${asnLeafBase + g}`,
+        `    nodes:`,
+        `      - name: ${fabricName}-LF${String(a + 1).padStart(2, '0')}`,
+        `        id: ${a + 1}`,
+        `        mgmt_ip: ${mgmtSubnet}.${20 + a}/24`,
+        `        spine_interfaces: [Ethernet1, Ethernet2]`,
+        ...(b < leafs ? [
+          `      - name: ${fabricName}-LF${String(b + 1).padStart(2, '0')}`,
+          `        id: ${b + 1}`,
+          `        mgmt_ip: ${mgmtSubnet}.${20 + b}/24`,
+          `        spine_interfaces: [Ethernet1, Ethernet2]`,
+        ] : []),
+      ].join('\n');
+    }).join('\n\n');
+
+    const vrfBlock = useEvpn ? vrfs.map((v, i) => [
+      `  - name: ${v}`,
+      `    vrf_vni: ${50001 + i}`,
+      `    vtep_diagnostic:`,
+      `      loopback: ${10 + i}`,
+      `      loopback_ip_range: 10.${255 - i}.0.0/27`,
+      `    svis:`,
+      `      - id: ${100 + i * 10}`,
+      `        name: ${v}_SVI`,
+      `        ip_address_virtual: 10.${10 + i}.0.1/24`,
+    ].join('\n')).join('\n\n') : vrfs.map(v => [
+      `  - name: ${v}`,
+      `    description: VRF-lite ${v}`,
+      `    connected_routes: true`,
+    ].join('\n')).join('\n\n');
+
     const yaml = [
+      `---`,
+      `# AVD Fabric Variables — generated by InfraLens AVD Studio`,
+      `# Fabric: ${fabricName}  |  Overlay: ${overlay}  |  Platform: ${platform}`,
+      ``,
       `fabric_name: ${fabricName}`,
-      `spines: ${spines}`,
-      `leafs: ${leafs}`,
-      `asn_start: ${asnStart}`,
-      `platform: ${platform}`,
-      `protocol: evpn-vxlan`,
-      `routing: ebgp`,
-      `mtu: 9214`
+      ``,
+      `# ─── Underlay ────────────────────────────────────────────────────────────────`,
+      `underlay_routing_protocol: EBGP`,
+      `overlay_routing_protocol: ${useEvpn ? 'EVPN' : 'VRF-LITE'}`,
+      ``,
+      `bgp_peer_groups:`,
+      `  IPv4_UNDERLAY_PEERS:`,
+      `    password: "arista123"   # change in production`,
+      ...(useEvpn ? [
+        `  EVPN_OVERLAY_PEERS:`,
+        `    password: "arista123"   # change in production`,
+        `    bfd: true`,
+      ] : []),
+      ``,
+      `# ─── Spine ───────────────────────────────────────────────────────────────────`,
+      `spine:`,
+      `  defaults:`,
+      `    platform: ${platform}`,
+      `    bgp_as: ${asnSpine}`,
+      `    loopback_ipv4_pool: 10.255.1.0/27`,
+      `    uplink_interfaces: [Ethernet49/1, Ethernet50/1]`,
+      ...(useRR ? [`    evpn_role: server`] : []),
+      `  nodes:`,
+      spineNodes,
+      ``,
+      `# ─── L3 Leaf ─────────────────────────────────────────────────────────────────`,
+      `l3leaf:`,
+      `  defaults:`,
+      `    platform: ${platform}`,
+      `    loopback_ipv4_pool: 10.255.2.0/27`,
+      `    vtep_loopback_ipv4_pool: 10.255.3.0/27`,
+      `    uplink_to_spine_interfaces: [Ethernet49, Ethernet50]`,
+      `    mlag: true`,
+      `    mlag_interfaces: [Ethernet53, Ethernet54]`,
+      `    mlag_peer_l3_ipv4_pool: 10.255.252.0/29`,
+      `    mlag_peer_ipv4_pool: 10.255.253.0/29`,
+      `    spanning_tree_mode: none`,
+      `    virtual_router_mac_address: 00:1c:73:00:dc:01`,
+      `    mtu: 9214`,
+      ...(useEvpn ? [
+        `    evpn_route_servers: [${Array.from({ length: spines }, (_, i) => `${fabricName}-SP${String(i + 1).padStart(2, '0')}`).join(', ')}]`,
+      ] : []),
+      `  node_groups:`,
+      leafGroupNodes,
+      ``,
+      ...(useEvpn ? [
+        `# ─── VRFs / Tenants ──────────────────────────────────────────────────────────`,
+        `tenants:`,
+        `  - name: ${fabricName.split('-')[0]}_TENANT`,
+        `    mac_vrf_vni_base: 10000`,
+        `    vrfs:`,
+        vrfBlock.split('\n').map(l => `      ${l}`).join('\n'),
+        ``,
+      ] : [
+        `# ─── VRFs (VRF-lite) ─────────────────────────────────────────────────────────`,
+        `vrfs:`,
+        vrfBlock.split('\n').map(l => `  ${l}`).join('\n'),
+        ``,
+      ]),
+      `# ─── Management ──────────────────────────────────────────────────────────────`,
+      `mgmt_interface: Management1`,
+      `mgmt_gateway: ${mgmtSubnet}.1`,
+      `name_servers:`,
+      `  - 8.8.8.8`,
+      `  - 8.8.4.4`,
+      `ntp_server: 0.pool.ntp.org`,
     ].join('\n');
 
+    // --- EOS Config Preview (representative leaf) ---
+    const leafAsn = asnLeafBase;
     const eos = [
-      `! ${fabricName}`,
-      `hostname ${fabricName.toLowerCase()}`,
-      `! Spine/Leaf counts`,
-      `! spines: ${spines}`,
-      `! leafs: ${leafs}`,
-      `! ASN base: ${asnStart}`,
-      `! Platform: ${platform}`,
-      `!`,
+      `! ════════════════════════════════════════════════════════════════════`,
+      `! EOS Config Preview — ${fabricName}-LF01  (representative leaf)`,
+      `! Generated by InfraLens AVD Studio  |  Platform: ${platform}`,
+      `! ════════════════════════════════════════════════════════════════════`,
+      ``,
       `service routing protocols model multi-agent`,
-      `ip routing`,
-      `interface Ethernet1`,
-      `   description uplink`,
-      `   mtu 9214`,
       `!`,
-      `router bgp ${asnStart}`,
-      `   router-id 1.1.1.1`,
-      `   neighbor SPINES peer-group`,
-      `   neighbor SPINES remote-as ${asnStart + 1}`
+      `hostname ${fabricName.toLowerCase()}-lf01`,
+      `!`,
+      `! ─── Management ───────────────────────────────────────────────────`,
+      `interface Management1`,
+      `   ip address ${mgmtSubnet}.20/24`,
+      `   no shutdown`,
+      `!`,
+      `ip route vrf MGMT 0.0.0.0/0 ${mgmtSubnet}.1`,
+      `!`,
+      `! ─── Global ────────────────────────────────────────────────────────`,
+      `ip routing`,
+      `no ip routing vrf MGMT`,
+      `spanning-tree mode none`,
+      `!`,
+      ...vrfs.map(v => `ip routing vrf ${v}`),
+      `!`,
+      `! ─── Underlay Interfaces ───────────────────────────────────────────`,
+      `interface Ethernet49`,
+      `   description P2P_${fabricName}-SP01_Ethernet1`,
+      `   no switchport`,
+      `   mtu 9214`,
+      `   ip address 10.252.0.1/31`,
+      `   no shutdown`,
+      `!`,
+      `interface Ethernet50`,
+      `   description P2P_${fabricName}-SP02_Ethernet1`,
+      `   no switchport`,
+      `   mtu 9214`,
+      `   ip address 10.252.0.3/31`,
+      `   no shutdown`,
+      `!`,
+      `! ─── Loopbacks ─────────────────────────────────────────────────────`,
+      `interface Loopback0`,
+      `   description EVPN_Overlay_Peering`,
+      `   ip address 10.255.1.${10 + spines}/32`,
+      `!`,
+      ...(useEvpn ? [
+        `interface Loopback1`,
+        `   description VTEP_VXLAN_Tunnel_Source`,
+        `   ip address 10.255.3.1/32`,
+        `!`,
+      ] : []),
+      `! ─── MLAG ──────────────────────────────────────────────────────────`,
+      `interface Ethernet53`,
+      `   description MLAG_PEER_${fabricName}-LF02_Ethernet53`,
+      `   channel-group 2000 mode active`,
+      `!`,
+      `interface Ethernet54`,
+      `   description MLAG_PEER_${fabricName}-LF02_Ethernet54`,
+      `   channel-group 2000 mode active`,
+      `!`,
+      `interface Port-Channel2000`,
+      `   description MLAG_PEER_${fabricName}-LF02`,
+      `   switchport mode trunk`,
+      `   switchport trunk group MLAG`,
+      `!`,
+      `mlag configuration`,
+      `   domain-id ${fabricName}-MLAG-DOMAIN1`,
+      `   local-interface Vlan4094`,
+      `   peer-address 10.255.253.1`,
+      `   peer-link Port-Channel2000`,
+      `   reload-delay mlag 300`,
+      `   reload-delay non-mlag 330`,
+      `!`,
+      ...(useEvpn ? [
+        `! ─── VXLAN ─────────────────────────────────────────────────────────`,
+        `interface Vxlan1`,
+        `   description ${fabricName}-LF01_VTEP`,
+        `   vxlan source-interface Loopback1`,
+        `   vxlan virtual-router encapsulation mac-address mlag-system-id`,
+        `   vxlan udp-port 4789`,
+        ...vrfs.map((v, i) => `   vxlan vrf ${v} vni ${50001 + i}`),
+        `!`,
+        `! ─── Anycast Gateway ────────────────────────────────────────────────`,
+        `ip virtual-router mac-address 00:1c:73:00:dc:01`,
+        ...vrfs.map((v, i) => [
+          `!`,
+          `interface Vlan${100 + i * 10}`,
+          `   description ${v}_SVI`,
+          `   vrf ${v}`,
+          `   ip address virtual 10.${10 + i}.0.1/24`,
+          `   no autostate`,
+        ].join('\n')),
+        `!`,
+      ] : [
+        ...vrfs.map((v, i) => [
+          `!`,
+          `interface Vlan${100 + i * 10}`,
+          `   description ${v}_Gateway`,
+          `   vrf ${v}`,
+          `   ip address 10.${10 + i}.0.1/24`,
+        ].join('\n')),
+        `!`,
+      ]),
+      `! ─── BGP ────────────────────────────────────────────────────────────`,
+      `router bgp ${leafAsn}`,
+      `   router-id 10.255.1.${10 + spines}`,
+      `   maximum-paths 4 ecmp 4`,
+      `   neighbor IPv4_UNDERLAY_PEERS peer group`,
+      `   neighbor IPv4_UNDERLAY_PEERS remote-as ${asnSpine}`,
+      `   neighbor IPv4_UNDERLAY_PEERS send-community`,
+      `   neighbor IPv4_UNDERLAY_PEERS maximum-routes 12000`,
+      `   neighbor 10.252.0.0 peer group IPv4_UNDERLAY_PEERS`,
+      `   neighbor 10.252.0.2 peer group IPv4_UNDERLAY_PEERS`,
+      ...(useEvpn ? [
+        `   neighbor EVPN_OVERLAY_PEERS peer group`,
+        `   neighbor EVPN_OVERLAY_PEERS remote-as ${asnSpine}`,
+        `   neighbor EVPN_OVERLAY_PEERS update-source Loopback0`,
+        `   neighbor EVPN_OVERLAY_PEERS ebgp-multihop 3`,
+        `   neighbor EVPN_OVERLAY_PEERS send-community extended`,
+        ...Array.from({ length: spines }, (_, i) => `   neighbor 10.255.1.${i + 1} peer group EVPN_OVERLAY_PEERS`),
+        `   !`,
+        `   address-family evpn`,
+        `      neighbor EVPN_OVERLAY_PEERS activate`,
+        `   !`,
+        `   address-family ipv4`,
+        `      no neighbor EVPN_OVERLAY_PEERS activate`,
+        `      neighbor IPv4_UNDERLAY_PEERS activate`,
+        `      redistribute connected route-map RM-CONN-2-BGP`,
+        ...vrfs.map(v => [
+          `   !`,
+          `   vrf ${v}`,
+          `      rd 10.255.1.${10 + spines}:${vrfs.indexOf(v) + 1}`,
+          `      route-target import evpn ${50001 + vrfs.indexOf(v)}:${50001 + vrfs.indexOf(v)}`,
+          `      route-target export evpn ${50001 + vrfs.indexOf(v)}:${50001 + vrfs.indexOf(v)}`,
+          `      redistribute connected`,
+        ].join('\n')),
+      ] : [
+        `   address-family ipv4`,
+        `      neighbor IPv4_UNDERLAY_PEERS activate`,
+        `      redistribute connected`,
+        ...vrfs.map(v => [
+          `   !`,
+          `   vrf ${v}`,
+          `      redistribute connected`,
+        ].join('\n')),
+      ]),
+      `!`,
+      `! ─── TCAM Profile ───────────────────────────────────────────────────`,
+      ...(pmeta.tcam !== 'N/A (software)' ? [
+        `hardware tcam`,
+        `   system profile ${pmeta.tcam}`,
+        `!`,
+      ] : []),
+      `! ─── Verification Commands ──────────────────────────────────────────`,
+      `! show bgp evpn summary`,
+      `! show vxlan vtep`,
+      `! show interface vxlan1`,
+      `! show mlag`,
+      `! show bgp summary`,
     ].join('\n');
 
-    const validation = `Baseline AVD blueprint synthesized for ${spines}x spine / ${leafs}x leaf using ${platform}. Validate underlay MTU parity, ASN allocation, and platform TCAM profile before deployment.`;
+    // --- Validation ---
+    const leafCount = leafs;
+    const validation = [
+      `Fabric "${fabricName}" synthesized: ${spines} spine × ${leafCount} leaf`,
+      `Overlay: ${overlay.toUpperCase()} | Platform: ${platform}`,
+      `VRFs: ${vrfs.join(', ')}`,
+      `\nPre-flight checklist and caveats are detailed below.`,
+    ].join('\n');
 
     return { yaml, eos, validation };
   };
@@ -71,7 +349,7 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
     window.setTimeout(() => {
       setResult(blueprint);
       setLoading(false);
-    }, 250);
+    }, 300);
   };
 
   const handleDownload = (content: string, filename: string) => {
@@ -85,11 +363,15 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
     document.body.removeChild(link);
   };
 
+  const vrfs = vrfList.split(',').map(v => v.trim()).filter(Boolean);
+  const pmeta = PLATFORM_META[platform] ?? PLATFORM_META['7050X3'];
+  const ometa = OVERLAY_META[overlay] ?? OVERLAY_META['evpn-ebgp'];
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white font-sans flex flex-col md:flex-row overflow-hidden selection:bg-blue-500/30">
-      
+
       {/* LEFT: PARAMETERS */}
-      <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r border-zinc-800 bg-zinc-950 flex flex-col shrink-0 z-30 h-[40vh] md:h-screen overflow-y-auto">
+      <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r border-zinc-800 bg-zinc-950 flex flex-col shrink-0 z-30 h-[50vh] md:h-screen overflow-y-auto">
          <div className="p-6 border-b border-zinc-900">
             <button onClick={onBack} className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest mb-6">
                 <ArrowLeft size={12} /> Fabric Labs
@@ -100,63 +382,107 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                 </div>
                 <div>
                     <h1 className="text-lg font-serif font-bold tracking-tight">AVD Studio</h1>
-                    <div className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest mt-0.5">Build Pipeline v3.1</div>
+                    <div className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest mt-0.5">Build Pipeline v4.0</div>
                 </div>
             </div>
          </div>
 
-         <div className="p-6 space-y-6 flex-1">
-            <InputGroup label="Fabric Identity">
-                <input 
-                  value={fabricName} 
-                  onChange={e => setFabricName(e.target.value)}
+         <div className="p-6 space-y-5 flex-1">
+            <InputGroup label="Fabric Name">
+                <input
+                  value={fabricName}
+                  onChange={e => setFabricName(e.target.value.toUpperCase().replace(/\s/g, '-'))}
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
                 />
             </InputGroup>
 
             <div className="grid grid-cols-2 gap-4">
                 <InputGroup label="Spines">
-                    <input 
-                      type="number" 
-                      value={spines} 
-                      onChange={e => setSpines(parseInt(e.target.value))}
+                    <input
+                      type="number" min={1} max={8}
+                      value={spines}
+                      onChange={e => setSpines(Math.max(1, parseInt(e.target.value) || 1))}
                       className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
                     />
                 </InputGroup>
                 <InputGroup label="Leafs">
-                    <input 
-                      type="number" 
-                      value={leafs} 
-                      onChange={e => setLeafs(parseInt(e.target.value))}
+                    <input
+                      type="number" min={2} max={96}
+                      value={leafs}
+                      onChange={e => setLeafs(Math.max(2, parseInt(e.target.value) || 2))}
                       className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
                     />
                 </InputGroup>
             </div>
 
-            <InputGroup label="ASN Base">
-                <input 
-                  type="number" 
-                  value={asnStart} 
-                  onChange={e => setAsnStart(parseInt(e.target.value))}
+            <div className="grid grid-cols-2 gap-4">
+                <InputGroup label="Spine ASN">
+                    <input
+                      type="number"
+                      value={asnSpine}
+                      onChange={e => setAsnSpine(parseInt(e.target.value) || 65000)}
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
+                    />
+                </InputGroup>
+                <InputGroup label="Leaf ASN Base">
+                    <input
+                      type="number"
+                      value={asnLeafBase}
+                      onChange={e => setAsnLeafBase(parseInt(e.target.value) || 65001)}
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
+                    />
+                </InputGroup>
+            </div>
+
+            <InputGroup label="Platform SKU">
+                <select
+                  value={platform}
+                  onChange={e => setPlatform(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all appearance-none"
+                >
+                    <option value="7050X3">7050X3 — Leaf (25/100G)</option>
+                    <option value="7060X5">7060X5 — High-Density Leaf/Spine</option>
+                    <option value="7280R3">7280R3 — Deep Buffer Spine</option>
+                    <option value="7800R4">7800R4 — Chassis Spine</option>
+                    <option value="vEOS-lab">vEOS-lab — Lab/CI</option>
+                </select>
+                <p className="text-[9px] font-mono text-zinc-600 mt-1">{pmeta.desc}</p>
+            </InputGroup>
+
+            <InputGroup label="Overlay Protocol">
+                <select
+                  value={overlay}
+                  onChange={e => setOverlay(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all appearance-none"
+                >
+                    <option value="evpn-ebgp">EVPN/VXLAN — eBGP Overlay</option>
+                    <option value="evpn-ibgp">EVPN/VXLAN — iBGP + RR</option>
+                    <option value="vrf-lite">VRF-lite (Campus / No VXLAN)</option>
+                </select>
+                <p className="text-[9px] font-mono text-zinc-600 mt-1">{ometa.note}</p>
+            </InputGroup>
+
+            <InputGroup label="VRFs (comma-separated)">
+                <input
+                  value={vrfList}
+                  onChange={e => setVrfList(e.target.value)}
+                  placeholder="Prod, Dev, Mgmt"
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
                 />
             </InputGroup>
 
-            <InputGroup label="Platform SKU">
-                <select 
-                  value={platform} 
-                  onChange={e => setPlatform(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all appearance-none"
-                >
-                    <option value="7050X3">7050X3 (Fixed)</option>
-                    <option value="7060X4">7060X4 (High Performance)</option>
-                    <option value="7280R3">7280R3 (Deep Buffer)</option>
-                    <option value="vEOS">vEOS (Lab Mode)</option>
-                </select>
+            <InputGroup label="Mgmt Subnet Prefix">
+                <input
+                  value={mgmtSubnet}
+                  onChange={e => setMgmtSubnet(e.target.value)}
+                  placeholder="10.255.0"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
+                />
+                <p className="text-[9px] font-mono text-zinc-600 mt-1">Spines: .10+, Leafs: .20+</p>
             </InputGroup>
 
-            <div className="mt-8 pt-8 border-t border-zinc-900">
-                <button 
+            <div className="pt-4 border-t border-zinc-900">
+                <button
                   onClick={handleBuild}
                   disabled={loading}
                   className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20 group"
@@ -171,23 +497,23 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
       {/* MAIN: CODE VIEWER */}
       <main className="flex-1 flex flex-col overflow-hidden relative">
          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none"></div>
-         
+
          {/* TOP NAV BAR */}
          <div className="h-14 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between px-6 shrink-0 relative z-10">
             <div className="flex gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
-                <button 
+                <button
                   onClick={() => setActiveView('YAML')}
                   className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${activeView === 'YAML' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
                 >
                    <FileCode size={12} /> YAML Blueprint
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveView('EOS')}
                   className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${activeView === 'EOS' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
                 >
                    <Terminal size={12} /> EOS Preview
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveView('VALIDATION')}
                   className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${activeView === 'VALIDATION' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
                 >
@@ -197,8 +523,11 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
 
             <div className="flex gap-2">
                 {result && (
-                    <button 
-                       onClick={() => handleDownload(activeView === 'YAML' ? result.yaml : result.eos, `${fabricName.toLowerCase()}.${activeView === 'YAML' ? 'yml' : 'txt'}`)}
+                    <button
+                       onClick={() => handleDownload(
+                         activeView === 'YAML' ? result.yaml : activeView === 'EOS' ? result.eos : result.validation,
+                         `${fabricName.toLowerCase()}.${activeView === 'YAML' ? 'yml' : activeView === 'EOS' ? 'eos.txt' : 'validation.txt'}`
+                       )}
                        className="p-2 text-zinc-500 hover:text-white transition-colors rounded-lg border border-zinc-800 hover:bg-zinc-800"
                        title="Download Source"
                     >
@@ -212,22 +541,23 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
          <div className="flex-1 overflow-auto bg-black p-8 font-mono text-sm relative">
             {!result && !loading && (
                 <div className="h-full flex flex-col items-center justify-center text-center opacity-30">
-                    <div className="w-24 h-24 border border-dashed border-zinc-800 rounded-full flex items-center justify-center animate-spin-slow mb-8">
-                        <Box size={32} className="text-zinc-600" />
+                    <div className="w-24 h-24 border border-dashed border-zinc-800 rounded-full flex items-center justify-center mb-8">
+                        <Network size={32} className="text-zinc-600" />
                     </div>
-                    <h3 className="text-xl font-serif italic text-zinc-500">Initialize Build Pipeline to generate artifacts</h3>
+                    <h3 className="text-xl font-serif italic text-zinc-500">Configure parameters and click Build Fabric</h3>
+                    <p className="text-zinc-700 text-xs mt-3 font-mono">Generates AVD-compatible YAML + EOS config preview</p>
                 </div>
             )}
 
             {loading && (
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-6">
                     <div className="relative">
-                        <div className="w-20 h-20 bg-blue-500/10 rounded-full animate-pulse-slow border border-blue-500/20"></div>
+                        <div className="w-20 h-20 bg-blue-500/10 rounded-full animate-pulse border border-blue-500/20"></div>
                         <Loader2 size={32} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-500 animate-spin" />
                     </div>
                     <div>
                         <h4 className="font-bold text-white uppercase tracking-widest text-sm">Synthesizing Topology</h4>
-                        <p className="text-zinc-500 text-xs mt-2 font-mono">[Reasoning-Kernel: Calibrating L3LS...]</p>
+                        <p className="text-zinc-500 text-xs mt-2 font-mono">[AVD-Kernel: Building {overlay.toUpperCase()} fabric...]</p>
                     </div>
                 </div>
             )}
@@ -235,51 +565,78 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
             {result && !loading && (
                 <div className="animate-fade-in h-full flex flex-col">
                     {activeView === 'YAML' && (
-                        <pre className="text-blue-200 leading-relaxed bg-zinc-950 p-6 rounded-xl border border-zinc-800 shadow-inner overflow-auto h-full selection:bg-blue-900/50">
+                        <pre className="text-blue-200 leading-relaxed bg-zinc-950 p-6 rounded-xl border border-zinc-800 shadow-inner overflow-auto h-full selection:bg-blue-900/50 text-xs">
                             {result.yaml}
                         </pre>
                     )}
                     {activeView === 'EOS' && (
-                        <pre className="text-emerald-200 leading-relaxed bg-zinc-950 p-6 rounded-xl border border-zinc-800 shadow-inner overflow-auto h-full selection:bg-emerald-900/50">
+                        <pre className="text-emerald-200 leading-relaxed bg-zinc-950 p-6 rounded-xl border border-zinc-800 shadow-inner overflow-auto h-full selection:bg-emerald-900/50 text-xs">
                             {result.eos}
                         </pre>
                     )}
                     {activeView === 'VALIDATION' && (
-                        <div className="max-w-3xl space-y-8 py-8">
+                        <div className="max-w-3xl space-y-6 py-4">
                             <div className="flex items-start gap-6 p-8 bg-zinc-900 border border-zinc-800 rounded-[2rem] shadow-xl">
                                 <div className="p-3 bg-blue-500/10 rounded-2xl border border-blue-500/20 text-blue-400">
                                     <Sparkles size={24} />
                                 </div>
-                                <div className="space-y-4">
+                                <div className="space-y-3">
                                     <h3 className="text-2xl font-serif font-bold text-white">Architectural Summary</h3>
-                                    <p className="text-zinc-400 leading-relaxed text-lg">
-                                        {result.validation}
-                                    </p>
+                                    <div className="space-y-1 text-zinc-400 text-sm leading-relaxed font-mono">
+                                        <p><span className="text-zinc-500">Fabric:</span> <span className="text-white">{fabricName}</span></p>
+                                        <p><span className="text-zinc-500">Topology:</span> {spines}x Spine × {leafs}x Leaf ({Math.ceil(leafs / 2)} MLAG pairs)</p>
+                                        <p><span className="text-zinc-500">Overlay:</span> {overlay === 'evpn-ebgp' ? 'EVPN/VXLAN (eBGP overlay)' : overlay === 'evpn-ibgp' ? 'EVPN/VXLAN (iBGP + RR)' : 'VRF-lite (no VXLAN)'}</p>
+                                        <p><span className="text-zinc-500">Platform:</span> {platform} — {pmeta.desc}</p>
+                                        <p><span className="text-zinc-500">VRFs:</span> {vrfs.join(', ')}</p>
+                                        <p><span className="text-zinc-500">RT Schema:</span> L2: {ometa.rtL2} · L3: {ometa.rtL3}</p>
+                                    </div>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl">
                                     <h4 className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                        <ShieldCheck size={14} /> Best Practices
+                                        <ShieldCheck size={14} /> Pre-flight Checklist
                                     </h4>
                                     <ul className="space-y-2 text-xs text-zinc-400 font-mono">
-                                        <li>• Layer 3 Leaf-Spine (L3LS) pattern</li>
-                                        <li>• Point-to-point /31 Addressing</li>
-                                        <li>• EBGP-based Control Plane</li>
-                                        <li>• MTU 9214 Jumboframes ready</li>
+                                        <li>• MTU 9214 verified underlay → leaf → spine</li>
+                                        <li>• Loopback0 reachable from all VTEPs</li>
+                                        {overlay !== 'vrf-lite' && <li>• TCAM profile: <span className="text-blue-400">{pmeta.tcam}</span> applied</li>}
+                                        {overlay !== 'vrf-lite' && <li>• RT schema documented (L2: 10:VNI, L3: 50:VRF)</li>}
+                                        <li>• MLAG consistency-check passing on all pairs</li>
+                                        <li>• BGP sessions UP: show bgp summary</li>
+                                        {overlay !== 'vrf-lite' && <li>• EVPN IMET routes visible: show bgp evpn</li>}
+                                        <li>• Snapshot taken before first change window</li>
                                     </ul>
                                 </div>
                                 <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl">
                                     <h4 className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                        <AlertCircle size={14} /> Caveats
+                                        <AlertCircle size={14} /> Platform Caveats
                                     </h4>
                                     <ul className="space-y-2 text-xs text-zinc-400 font-mono">
-                                        <li>• Platform-specific TCAM profiles required</li>
-                                        <li>• Check Transceiver power class compatibility</li>
-                                        <li>• LLDP Neighbor validation mandatory</li>
+                                        <li>• Buffer profile: <span className="text-amber-400">{pmeta.bufferNote}</span></li>
+                                        <li>• Max uplinks per leaf: {pmeta.maxUplinks}</li>
+                                        <li>• MACsec capable: <span className={pmeta.macsec ? 'text-emerald-400' : 'text-zinc-600'}>{pmeta.macsec ? 'Yes' : 'No'}</span></li>
+                                        {overlay === 'evpn-ibgp' && <li>• RR required on spines — enable with evpn_role: server</li>}
+                                        {overlay !== 'vrf-lite' && <li>• VRF VNI allocation: 50001–{50000 + vrfs.length} (document before deploy)</li>}
+                                        <li>• MLAG keepalive must survive peer-link failure</li>
+                                        <li>• Validate optic compatibility per platform matrix</li>
                                     </ul>
                                 </div>
+                            </div>
+
+                            <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl">
+                                <h4 className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <GitBranch size={14} /> AVD Pipeline Steps
+                                </h4>
+                                <ol className="space-y-2 text-xs text-zinc-400 font-mono">
+                                    <li><span className="text-blue-500">1.</span> Copy YAML blueprint to <span className="text-zinc-300">group_vars/{fabricName.toLowerCase()}.yml</span></li>
+                                    <li><span className="text-blue-500">2.</span> Run <span className="text-zinc-300">ansible-playbook playbooks/build.yml --tags build</span></li>
+                                    <li><span className="text-blue-500">3.</span> Review generated EOS configs in <span className="text-zinc-300">intended/configs/</span></li>
+                                    <li><span className="text-blue-500">4.</span> Run <span className="text-zinc-300">--tags validate</span> for pre-flight checks</li>
+                                    <li><span className="text-blue-500">5.</span> Deploy via <span className="text-zinc-300">--tags deploy</span> with CloudVision Change Control</li>
+                                    <li><span className="text-blue-500">6.</span> Post-deploy: capture snapshot + run BGP/EVPN validation checks</li>
+                                </ol>
                             </div>
                         </div>
                     )}
@@ -290,12 +647,12 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
          {/* FOOTER BAR */}
          <div className="h-10 bg-zinc-950 border-t border-zinc-900 px-6 flex items-center justify-between text-[8px] font-mono text-zinc-600 uppercase tracking-[0.4em] relative z-10 shrink-0">
              <div className="flex items-center gap-4">
-                <span>Kernel v3.1.0-field</span>
+                <span>AVD Studio v4.0</span>
                 <span className="w-1 h-1 bg-zinc-800 rounded-full"></span>
-                <span className="text-blue-900">Arista Validated Blueprint</span>
+                <span className="text-blue-900">Arista Validated Designs</span>
              </div>
              <div>
-                Operational Readiness Level: {result ? 'High' : 'Awaiting Synthesis'}
+                {result ? `${fabricName} · ${spines}S × ${leafs}L · ${overlay.toUpperCase()}` : 'Awaiting Synthesis'}
              </div>
          </div>
       </main>
