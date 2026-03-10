@@ -591,7 +591,7 @@ show bgp neighbors 2.2.2.2 | include community
       'Simple operational model compared to stacking.'
     ],
     bestPractices: [
-      'Understand EOS MLAG split-brain behavior before adding dual-primary detection. When the peer-link goes down but the peer is still reachable through MLAG control-plane communication (synchronized over the peer-link prior to failure), EOS automatically places the secondary switch into an inactive state for MLAG by disabling its MLAG port-channels. This behavior is built in and requires no configuration. The true split-brain condition occurs when the peer-link fails and both switches lose visibility into each other\'s state, causing each to assume the primary role. The `dual-primary detection delay <n> action errdisable all-interfaces` command under `mlag configuration` adds an additional safeguard by sending MLAG heartbeat messages over non-MLAG interfaces (typically uplinks) to detect when both peers believe they are primary. The delay should be set long enough for MLAG to naturally reconverge before the protective action triggers. Arista commonly recommends 10 seconds or greater. Verify operation with `show mlag detail` or `show mlag dual-primary`.',
+      'Understand EOS MLAG split-brain behavior before adding dual-primary detection. When the peer-link goes down, EOS automatically places the secondary switch into MLAG-inactive (disabling its MLAG port-channels) using the last synchronized state — this behavior is built in and requires no configuration. The true split-brain condition occurs when the peer-link fails AND both peers lose visibility into each other\'s state, causing each to assume the primary role. To guard against this, configure an optional out-of-band heartbeat: `peer-address heartbeat <mgmt-ip> vrf MGMT` under `mlag configuration`. This UDP heartbeat travels over the management interface (not the peer-link) so it survives peer-link failure. Pair it with `dual-primary detection delay <n> action errdisable all-interfaces` — when a peer detects it is still reachable via heartbeat after peer-link loss, it recognizes dual-active and errdisables all its interfaces after the delay. Arista recommends a delay ≥ 10 seconds. Verify with `show mlag detail` and `show mlag dual-primary`.',
       'Set `reload-delay mlag 300` and `reload-delay non-mlag 330` on standard fixed-config platforms (7050X3, 720XP, etc.). High-end platforms (7280R, 7500R, 7800R) default to 900s — always verify with `show mlag detail` before overriding, as a value too short causes post-boot black holes.',
       'Resolve every `show mlag config-sanity` warning before go-live. Arista explicitly states these must be rectified in production — mismatched VLANs, STP config, or port-channel modes cause one-way forwarding failures that are difficult to diagnose under load.',
       'Apply `lacp timer fast` on each Ethernet member interface (not on the Port-Channel) — the default slow timer means a link failure goes undetected for up to 90 seconds. Fast timers reduce detection to ~3 seconds (1s PDU interval × 3 missed PDUs). Note: `lacp rate fast` is Cisco IOS syntax and is not valid in EOS.',
@@ -600,7 +600,8 @@ show bgp neighbors 2.2.2.2 | include community
     ],
     cliTranslation: [
       { legacy: 'vpc domain 10', arista: 'mlag configuration\n   domain-id FABRIC' },
-      { legacy: 'peer-keepalive destination 10.0.0.2', arista: 'peer-address 10.255.0.2\n   ! peer-address is the peer\'s local-interface IP (peer-link SVI, not a keepalive)\n   ! Optional OOB path: peer-address 10.0.0.2 vrf MGMT' },
+      { legacy: 'peer-keepalive destination 10.0.0.2', arista: 'peer-address 10.255.0.2\n   ! peer-address = peer\'s local-interface (Vlan4094) IP — in-band, default VRF only\n   ! No vrf qualifier exists on plain peer-address' },
+      { legacy: 'peer-keepalive destination 10.0.0.2 (OOB / dual-primary detection)', arista: 'peer-address heartbeat 10.0.0.2 vrf MGMT\n   dual-primary detection delay 10 action errdisable all-interfaces\n   ! peer-address heartbeat = optional OOB UDP heartbeat for dual-primary detection\n   ! travels over mgmt interface, survives peer-link failure' },
       { legacy: 'vpc peer-link port-channel1', arista: 'peer-link Port-Channel1\n   reload-delay mlag 300\n   reload-delay non-mlag 330' },
       { legacy: 'interface port-channel10\n  vpc 10', arista: 'interface Port-Channel10\n   mlag 10\ninterface Ethernet1\n   channel-group 10 mode active\n   lacp timer fast' },
       { legacy: 'show vpc', arista: 'show mlag\nshow mlag detail' },
@@ -641,7 +642,7 @@ show bgp neighbors 2.2.2.2 | include community
     ],
     overview: {
       title: 'MLAG Topology',
-      intro: 'MLAG pairs two independent switches (PEER_A and PEER_B) to appear as a single logical switch to downstream LAG members. The peer-link carries both control-plane synchronization and data-plane failover traffic. Unlike Cisco vPC, Arista MLAG has no separate keepalive channel — the `peer-address` under `mlag configuration` references the peer\'s local-interface IP, which is typically on the peer-link SVI itself.',
+      intro: 'MLAG pairs two independent switches (PEER_A and PEER_B) to appear as a single logical switch to downstream LAG members. The peer-link carries both control-plane synchronization and data-plane failover traffic. Unlike Cisco vPC — where a separate peer-keepalive link is mandatory to form the vPC domain — Arista MLAG forms using only the peer-link SVI (`peer-address` references the peer\'s `local-interface` Vlan4094 IP). An optional out-of-band heartbeat (`peer-address heartbeat <IP> vrf MGMT`) exists solely for dual-primary detection and is not required for MLAG to operate.',
       sections: [
         {
           title: 'Peer-Link Role',
@@ -649,16 +650,16 @@ show bgp neighbors 2.2.2.2 | include community
           bestFor: '100G or 2×100G LAG peer-link. Never use a single physical link.'
         },
         {
-          title: 'Peer-Address & Split-Brain Prevention',
-          body: 'The `peer-address` (configured under `mlag configuration`) is the IP of the peer\'s `local-interface` SVI — it is used for MLAG control-plane communication and is not a separate keepalive channel. When the peer-link fails, EOS uses the last synchronized state to place the secondary into MLAG-inactive (disabling its MLAG port-channels). Optionally, `peer-address <IP> vrf MGMT` routes control traffic over the management interface for an OOB path, but this is not equivalent to Cisco vPC\'s mandatory keepalive.',
-          bestFor: 'Peer-link SVI (in-band default). Optional: management VRF for OOB control path.'
+          title: 'Peer-Address & Dual-Primary Detection',
+          body: 'The `peer-address` (configured under `mlag configuration`) is the IP of the peer\'s `local-interface` SVI — in-band, default VRF only, no `vrf` qualifier is valid here. When the peer-link fails, EOS uses last-synchronized state to place the secondary into MLAG-inactive. For optional dual-primary detection, configure a separate OOB heartbeat: `peer-address heartbeat <mgmt-ip> vrf MGMT` paired with `dual-primary detection delay 10 action errdisable all-interfaces`. The heartbeat travels over the management interface, independent of the peer-link. Unlike Cisco vPC\'s mandatory peer-keepalive, this is entirely optional — MLAG forms and operates without it.',
+          bestFor: 'peer-address = peer-link SVI IP (in-band, required). peer-address heartbeat = mgmt IP vrf MGMT (OOB, optional — dual-primary detection only).'
         }
       ],
-      conclusion: 'MLAG summary: peer-link = data + state sync. peer-address = control-plane IP (on peer-link SVI by default, optional OOB via mgmt VRF). Size the peer-link for full failover capacity and test peer-link failure before production.'
+      conclusion: 'MLAG summary: peer-link = data + state sync. peer-address = peer-link SVI IP (in-band, default VRF, required). peer-address heartbeat = mgmt IP vrf MGMT (OOB, optional — dual-primary detection only). Size the peer-link for full failover capacity and test peer-link failure before production.'
     },
     primer: {
       title: 'Why the Peer-Link is the Single Most Critical MLAG Component',
-      body: 'Unlike Cisco vPC, Arista MLAG has no separate keepalive channel. The peer-link is the sole path for both MLAG control-plane synchronization (MAC/ARP tables, MLAG state) and data-plane failover traffic. When a MLAG member link fails, EOS hardware immediately redirects affected flows across the peer-link at line rate — no software reconvergence. This means the peer-link must be sized to absorb 100% of one peer\'s active MLAG traffic. A peer-link failure is the highest-impact event: EOS uses the last synchronized state to elect one peer as secondary and disable its MLAG port-channels. Optionally, configuring `peer-address <IP> vrf MGMT` routes MLAG control traffic over the management interface, providing an out-of-band path for MLAG state exchange if the peer-link fails — this is not a keepalive, but it does allow the secondary to continue receiving peer state updates after peer-link loss, which can improve reconvergence. Size the peer-link as a LAG (≥2 links), monitor it continuously, and test peer-link failure in lab before production.'
+      body: 'Unlike Cisco vPC — where a peer-keepalive link is mandatory before the vPC domain forms — Arista MLAG requires no separate channel to operate. The peer-link carries both MLAG control-plane sync (MAC/ARP tables, MLAG state) and data-plane failover traffic. When a MLAG member link fails, EOS hardware immediately redirects affected flows across the peer-link at line rate with no software reconvergence. The peer-link must be sized to absorb 100% of one peer\'s active MLAG traffic. A peer-link failure is the highest-impact event: EOS uses last-synchronized state to place the secondary into MLAG-inactive and disable its port-channels. For optional dual-primary detection — to guard against true split-brain when both peers lose visibility into each other — configure `peer-address heartbeat <mgmt-ip> vrf MGMT` paired with `dual-primary detection delay 10 action errdisable all-interfaces`. This heartbeat travels over the management interface and is completely separate from `peer-address` (which is always the peer-link SVI IP, in-band, default VRF). Size the peer-link as a LAG (≥2 links), monitor it continuously, and test peer-link failure in lab before production.'
     },
     roleConfigs: [
       {
@@ -668,11 +669,13 @@ show bgp neighbors 2.2.2.2 | include community
 mlag configuration
    domain-id FABRIC
    local-interface Vlan4094
-   peer-address 10.255.0.2        ! peer's Vlan4094 IP (in-band, on peer-link SVI)
-   ! Optional OOB: peer-address 10.0.0.2 vrf MGMT
+   peer-address 10.255.0.2        ! peer's Vlan4094 IP — in-band, default VRF only
    peer-link Port-Channel1
    reload-delay mlag 300
    reload-delay non-mlag 330
+   ! ── OPTIONAL: dual-primary detection via OOB mgmt heartbeat ──
+   ! peer-address heartbeat 192.0.2.2 vrf MGMT
+   ! dual-primary detection delay 10 action errdisable all-interfaces
 !
 ! ── MLAG PORT-CHANNEL (same ID on both peers) ─────────────────
 interface Port-Channel10
@@ -689,7 +692,7 @@ interface Ethernet4
       },
       {
         role: 'Peer-Link Config',
-        description: 'Peer-link with trunk group isolation (MLAG VLAN only crosses peer-link). peer-address uses the peer-link SVI IP by default; optional OOB path via management VRF.',
+        description: 'Peer-link with trunk group isolation (MLAG VLAN only crosses peer-link). peer-address uses the peer-link SVI IP (in-band, default VRF — no vrf qualifier). Optional dual-primary detection: peer-address heartbeat <mgmt-ip> vrf MGMT.',
         config: `! ── TRUNK GROUP: isolate MLAG VLAN to peer-link only ──────────
 ! VLAN 4094 only traverses Port-Channel1 (peer-link)
 vlan 4094
@@ -717,8 +720,7 @@ interface Vlan4094
 mlag configuration
    domain-id FABRIC
    local-interface Vlan4094
-   peer-address 10.255.0.2        ! peer's Vlan4094 IP (in-band on peer-link)
-   ! Optional OOB: peer-address 10.0.0.2 vrf MGMT
+   peer-address 10.255.0.2        ! peer's Vlan4094 IP — in-band, default VRF only
    peer-link Port-Channel1
    reload-delay mlag 300
    reload-delay non-mlag 330`
@@ -763,10 +765,11 @@ show port-channel summary
 ! Confirm: (P) flag on all member ports = bundled and active
 ! (I) = individual/not bundled — indicates LACP issue
 !
-! ── PEER-ADDRESS REACHABILITY (if OOB mgmt path configured) ─
-ping 10.255.0.2 vrf MGMT repeat 10
-! Only relevant if peer-address is configured in vrf MGMT
-! Default in-band peer-address reachability = peer-link health
+! ── HEARTBEAT REACHABILITY (only if peer-address heartbeat configured) ─
+! ping <peer-mgmt-ip> vrf MGMT repeat 10
+! Only relevant if 'peer-address heartbeat <IP> vrf MGMT' is configured
+! The heartbeat mgmt IP is separate from 10.255.0.x (Vlan4094/peer-link SVI)
+! Default: peer-link SVI health = MLAG control-plane health (no heartbeat needed)
 !
 ! ── LACP STATE ───────────────────────────────────────────────
 show lacp neighbor
@@ -780,7 +783,7 @@ show mlag                          ! state: active, peer: connected
 show mlag detail                   ! note reload-delay values and primary/secondary
 show mlag interfaces               ! all interfaces: active (local + peer)
 show mlag config-sanity            ! must be clean — resolve any mismatch first
-ping 10.255.0.2 vrf MGMT repeat 10 ! verify OOB peer-address path if mgmt VRF configured
+! ping <peer-mgmt-ip> vrf MGMT repeat 10  ! only if 'peer-address heartbeat <IP> vrf MGMT' is configured
 show version                       ! confirm current EOS version on both peers
 !
 ! ── STEP 1: IDENTIFY SECONDARY PEER ─────────────────────────
@@ -830,10 +833,11 @@ show mlag
 !   Peer link status      : Up
 ! (Reload delay values are shown in: show mlag detail)
 !
-! ── 2. PEER-LINK SVI / OOB PEER-ADDRESS ─────────────────────
-ping 10.255.0.2 vrf MGMT repeat 20 timeout 1
-! If peer-address is configured in mgmt VRF; skip if in-band (peer-link SVI)
-! Also try: ping 10.255.0.2 vrf MGMT size 1500 df-bit  (MTU check on OOB path)
+! ── 2. PEER-LINK SVI REACHABILITY ───────────────────────────
+ping 10.255.0.2 source Vlan4094 repeat 20 timeout 1  ! in-band peer-link SVI (default VRF)
+! If OOB heartbeat configured (peer-address heartbeat <mgmt-ip> vrf MGMT), also test:
+! ping <peer-mgmt-ip> vrf MGMT size 1500 df-bit  (MTU check on OOB heartbeat path)
+! Note: 10.255.0.x (Vlan4094) is in the default VRF — it cannot be reached via vrf MGMT
 !
 ! ── 3. CONFIG CONSISTENCY ────────────────────────────────────
 show mlag config-sanity
@@ -952,7 +956,7 @@ show mlag
 !
 ! ── STEP 1: ESTABLISH OOB CONNECTIVITY FIRST ─────────────────
 ! Establish out-of-band access (console, mgmt cable) to both peers
-! If peer-address vrf MGMT is configured, verify reachability:
+! If 'peer-address heartbeat <IP> vrf MGMT' is configured, verify reachability:
 ping <peer-mgmt-ip> vrf MGMT
 !
 ! ── STEP 2: BRING ONE PEER DOWN GRACEFULLY ───────────────────

@@ -336,17 +336,17 @@ ip prefix-list ALLOWED-CONNECTED permit 10.0.0.0/24 le 32`,
   // ── MLAG ──────────────────────────────────────────────────────────────────
   {
     id: 'mlag-peer-inactive',
-    title: 'MLAG Peer Heartbeat Down; Server Traffic Asymmetric',
+    title: 'MLAG Peer-Link Down; Server Traffic Asymmetric',
     protocol: 'MLAG',
     severity: 'Critical',
     symptom: 'One MLAG peer shows "peer link down" or "inactive" state. Server traffic routes only through one peer. MLAG is not providing redundancy.',
-    context: 'Standard MLAG pair with dedicated peer-link (Port-Channel). Heartbeat over out-of-band management or dedicated VLAN.',
+    context: 'Standard MLAG pair with dedicated peer-link (Port-Channel). Unlike Cisco vPC where a peer-keepalive link is mandatory to form the domain, Arista MLAG requires only the peer-link SVI (Vlan4094) for control-plane sync. An optional OOB heartbeat (`peer-address heartbeat <IP> vrf MGMT`) exists for dual-primary detection but is not required for MLAG to form or operate.',
     steps: [
       {
         check: 'Check overall MLAG health.',
         command: 'show mlag',
         expected: 'State: "active". Peer link: "Up". Peer: "Connected". Role: "primary" or "secondary".',
-        divergence: 'If "Peer: Inactive", the heartbeat is not reaching the peer. If "Peer link: Down", physical port-channel has failed.'
+        divergence: 'If "Peer: Inactive", the peer-link is down or MLAG has lost control-plane visibility into the peer — EOS will place the secondary into inactive and disable its MLAG port-channels. If "Peer link: Down", the physical port-channel has failed.'
       },
       {
         check: 'Verify peer-link port-channel is up.',
@@ -355,10 +355,10 @@ ip prefix-list ALLOWED-CONNECTED permit 10.0.0.0/24 le 32`,
         divergence: 'Down = all member links failed. Check `show interfaces Port-Channel<n> detail` for member link states and error counters.'
       },
       {
-        check: 'Verify MLAG heartbeat reachability.',
-        command: 'ping <mlag-peer-address> source <mlag-local-address>',
-        expected: 'Ping succeeds with < 5ms latency.',
-        divergence: 'Heartbeat ping fails = VLAN or IP misconfiguration on the peer-link SVI. Check `interface Vlan4094 → ip address` on both peers.'
+        check: 'Verify peer-link SVI (Vlan4094) reachability — this is the in-band MLAG control-plane path.',
+        command: 'ping 10.255.255.2 source Vlan4094 repeat 10',
+        expected: 'Ping succeeds with < 5ms latency. Loss = 0%.',
+        divergence: 'Ping fails = peer-link is physically down, or VLAN 4094 is not in the trunk group on the peer-link port-channel, or IP misconfiguration on Vlan4094 SVI. Check `show interfaces Vlan4094` and `show vlan 4094` on both peers.'
       },
       {
         check: 'Check MLAG domain and port-channel consistency.',
@@ -367,19 +367,20 @@ ip prefix-list ALLOWED-CONNECTED permit 10.0.0.0/24 le 32`,
         divergence: 'Domain ID mismatch = peers refuse to form MLAG. Domain ID must be identical on both switches. Not the same as the port-channel number itself.'
       }
     ],
-    rootCause: 'Most common: (1) Peer-link SVI (Vlan4094) missing or in wrong VRF, (2) Peer-link port-channel member links all down, (3) MLAG domain ID mismatch between peers.',
+    rootCause: 'Most common: (1) Peer-link port-channel member links all down, (2) Peer-link SVI (Vlan4094) missing, wrong VLAN, or wrong VRF, (3) MLAG domain ID mismatch between peers.',
     fix: `! Ensure these match exactly on both peers:
-mlag
-  domain-id PROD-MLAG
-  local-interface Vlan4094
-  peer-address 10.255.255.2
-  peer-link Port-Channel100
-  reload-delay 300
-
+mlag configuration
+   domain-id PROD-MLAG
+   local-interface Vlan4094
+   peer-address 10.255.255.2
+   peer-link Port-Channel100
+   reload-delay mlag 300
+   reload-delay non-mlag 330
+!
 interface Vlan4094
-  ip address 10.255.255.1/30
-  no autostate`,
-    prevention: 'Add `show mlag` and `show interfaces Port-Channel<peer-link>` to your pre-cutover checklist. Validate heartbeat reachability from both peers before bringing up server-facing port-channels.'
+   ip address 10.255.255.1/30
+   no autostate`,
+    prevention: 'Add `show mlag`, `show mlag detail`, and `show interfaces Port-Channel<peer-link>` to your pre-cutover checklist. Verify peer-link SVI reachability (`ping <peer-vlan4094-ip> source Vlan4094`) from both peers before bringing up server-facing port-channels.'
   },
 
   // ── Linux ─────────────────────────────────────────────────────────────────
