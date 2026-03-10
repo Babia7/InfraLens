@@ -340,7 +340,7 @@ ip prefix-list ALLOWED-CONNECTED permit 10.0.0.0/24 le 32`,
     protocol: 'MLAG',
     severity: 'Critical',
     symptom: 'One MLAG peer shows "peer link down" or "inactive" state. Server traffic routes only through one peer. MLAG is not providing redundancy.',
-    context: 'Standard MLAG pair with dedicated peer-link (Port-Channel). Unlike Cisco vPC, Arista MLAG has no separate keepalive channel — the peer-link SVI (Vlan4094) is the MLAG control-plane path by default.',
+    context: 'Standard MLAG pair with dedicated peer-link (Port-Channel). Unlike Cisco vPC where a peer-keepalive link is mandatory to form the domain, Arista MLAG requires only the peer-link SVI (Vlan4094) for control-plane sync. An optional OOB heartbeat (`peer-address heartbeat <IP> vrf MGMT`) exists for dual-primary detection but is not required for MLAG to form or operate.',
     steps: [
       {
         check: 'Check overall MLAG health.',
