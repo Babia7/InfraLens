@@ -764,9 +764,10 @@ show port-channel summary
 ! (I) = individual/not bundled — indicates LACP issue
 !
 ! ── PEER-ADDRESS REACHABILITY (if OOB mgmt path configured) ─
-ping 10.255.0.2 vrf MGMT repeat 10
-! Only relevant if peer-address is configured in vrf MGMT
-! Default in-band peer-address reachability = peer-link health
+ping <peer-mgmt-ip> vrf MGMT repeat 10
+! Only relevant if peer-address <IP> vrf MGMT is configured
+! The mgmt IP is different from 10.255.0.x (Vlan4094/peer-link SVI)
+! Default in-band: peer-link SVI health = MLAG control-plane health
 !
 ! ── LACP STATE ───────────────────────────────────────────────
 show lacp neighbor
@@ -780,7 +781,7 @@ show mlag                          ! state: active, peer: connected
 show mlag detail                   ! note reload-delay values and primary/secondary
 show mlag interfaces               ! all interfaces: active (local + peer)
 show mlag config-sanity            ! must be clean — resolve any mismatch first
-ping 10.255.0.2 vrf MGMT repeat 10 ! verify OOB peer-address path if mgmt VRF configured
+ping <peer-mgmt-ip> vrf MGMT repeat 10  ! verify OOB path only if 'peer-address <IP> vrf MGMT' is configured
 show version                       ! confirm current EOS version on both peers
 !
 ! ── STEP 1: IDENTIFY SECONDARY PEER ─────────────────────────
@@ -831,9 +832,10 @@ show mlag
 ! (Reload delay values are shown in: show mlag detail)
 !
 ! ── 2. PEER-LINK SVI / OOB PEER-ADDRESS ─────────────────────
-ping 10.255.0.2 vrf MGMT repeat 20 timeout 1
-! If peer-address is configured in mgmt VRF; skip if in-band (peer-link SVI)
-! Also try: ping 10.255.0.2 vrf MGMT size 1500 df-bit  (MTU check on OOB path)
+ping 10.255.0.2 source Vlan4094 repeat 20 timeout 1  ! in-band: peer-link SVI reachability
+! If OOB path configured (peer-address <mgmt-ip> vrf MGMT), also test:
+! ping <peer-mgmt-ip> vrf MGMT size 1500 df-bit  (MTU check on mgmt path)
+! Note: 10.255.0.x (Vlan4094) is in the default VRF — never ping it via vrf MGMT
 !
 ! ── 3. CONFIG CONSISTENCY ────────────────────────────────────
 show mlag config-sanity
