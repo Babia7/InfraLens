@@ -66,7 +66,7 @@ export const PROTOCOL_CONTENT: Record<string, ProtocolDetail> = {
       'Telemetry-ready: snapshot/rollback + ERSPAN/sFlow/pcaps to prove encapsulation and symmetry.'
     ],
     bestPractices: [
-      'Validate underlay MTU end-to-end (≥1600 bytes) before enabling any VXLAN overlay — MTU mismatches cause silent black holes that are hard to diagnose.',
+      'Validate underlay MTU end-to-end (≥9214 bytes on all fabric links) before enabling any VXLAN overlay — VXLAN adds 50 bytes of encapsulation overhead and Arista requires jumbo MTU on all fabric interfaces; mismatches cause silent black holes that are hard to diagnose.',
       'Use a dedicated source loopback (Loopback1) for VXLAN, separate from the BGP router-ID loopback (Loopback0), to decouple data-plane identity from control-plane peering.',
       'Always pair VXLAN with an EVPN control plane in production; static flood-lists do not scale, have no MAC mobility, and require manual maintenance.',
       'Run `service routing protocols model multi-agent` before enabling EVPN — without it, EVPN address-family commands will be rejected silently on many EOS versions.',
@@ -77,7 +77,7 @@ export const PROTOCOL_CONTENT: Record<string, ProtocolDetail> = {
     ],
     cliTranslation: [
       { legacy: 'feature otv', arista: 'interface vxlan1' },
-      { legacy: 'otv control-group 239.1.1.1', arista: 'vxlan source-interface Loopback0' },
+      { legacy: 'otv control-group 239.1.1.1', arista: 'vxlan source-interface Loopback1  ! Loopback1 = VTEP identity (separate from Loopback0 used as BGP router-ID)' },
       { legacy: 'otv extend-vlan 10', arista: 'vxlan vlan 10 vni 10010' },
       { legacy: 'otv site-bridge-interface...', arista: 'vxlan flood vtep 1.1.1.1 2.2.2.2' },
       { legacy: 'mpls l2vpn bridge-domain / xconnect', arista: 'vxlan udp-port 4789\nno mac address-table learning vlan 10  ! disable data-plane learn; use EVPN' },
@@ -186,7 +186,8 @@ show ip route 10.255.0.1
 !
 ! Control plane guardrails
 show interfaces vxlan1 | inc 4789
-show hardware counter drop asic | inc decap
+show interfaces vxlan1 counters
+show platform fap dropped packets | inc decap  ! Jericho/Jericho2 platforms (7050X3, 7060X5)
 !
 ! RT schema hygiene (EVPN deployments)
 show bgp evpn route-type imet
@@ -236,13 +237,14 @@ show vxlan vtep
    vxlan udp-port 4789
    vxlan source-interface Loopback1
 !
+! IMPORTANT: TCAM profile change requires system reload to take effect
 hardware tcam
    system profile vxlan-routing
 !
 ! CoPP for BGP/EVPN
 router bgp 65001
    neighbor SPINES peer-group
-   neighbor SPINES ebgp-multihop 2
+   neighbor SPINES ebgp-multihop 2  ! Only for eBGP overlay peering over loopbacks; remove for iBGP+RR design
    neighbor SPINES send-community extended
 !
 service routing protocols model multi-agent
@@ -298,16 +300,16 @@ router bgp 65000
       },
       {
         role: 'ARP Suppression + Validation',
-        description: 'Enable ARP suppression per VNI and verify proxy ARP is active.',
+        description: 'Enable EVPN ARP suppression on the VXLAN interface and verify the RT-2 MAC/IP cache is being used.',
         config: `! Enable ARP suppression on VXLAN interface (EOS 4.25+)
 interface vxlan1
    vxlan arp-suppression
 !
-! Per-VNI arp-proxy (if using EVPN centralized gateway)
-interface Vlan10
-   ip proxy-arp
+! ip proxy-arp is NOT needed for distributed Anycast GW (ip address virtual)
+! EVPN ARP suppression intercepts ARP requests and answers from the RT-2 MAC/IP cache
+! ip proxy-arp is only for legacy centralized gateway configurations
 !
-! Verify ARP cache is populated at VTEP
+! Verify ARP cache is populated at VTEP from EVPN RT-2 routes
 show vxlan address-table vni 10010
 show arp vrf Prod
 show interfaces vxlan1 counters | include arp-suppress`
@@ -343,14 +345,14 @@ show interfaces vxlan1 counters | include arp-suppress`
       'EVPN replaces flood-and-learn with a publish/subscribe MP-BGP control plane for MAC/IP reachability, enabling deterministic overlays with Anycast Gateways and all-active multi-homing.',
     keyBenefits: [
       'Anycast Gateway (VARP) for seamless mobility.',
-      'ARP suppression cuts broadcast by up to 70%.',
+      'ARP suppression eliminates most ARP flooding across the fabric — VTEP serves ARP replies from the RT-2 MAC/IP cache instead of flooding.',
       'All-active multi-homing (ESI) maximizes links.',
       'Policy-based logical segmentation via VRF-Lite/EVPN.'
     ],
     bestPractices: [
       'Always configure `send-community extended` on every EVPN BGP neighbor — omitting it silently drops all route-target extended communities and breaks the entire EVPN control plane with no error message.',
       'Peer EVPN sessions from a stable loopback (`update-source Loopback0`), not physical interfaces — physical interface flaps will reset EVPN sessions and cause traffic loss.',
-      'Use iBGP with route-reflector-client for EVPN overlay peering on spines; never mix eBGP ASNs with route-reflector-client in the same session — route reflection is an iBGP-only concept.',
+      'For iBGP EVPN overlay, configure route-reflector-client on spines and use the same AS across all leaves — route reflection is an iBGP-only concept and cannot be mixed with eBGP ASNs in the same session. Alternatively, eBGP EVPN overlay (unique ASN per leaf, spines as eBGP next-hop) is equally valid and is the Arista AVD default for greenfield fabrics; in this design no route-reflector is needed.',
       'Standardize and document route-target conventions (e.g. L2 VNI RT = VNI:VNI, VRF RT = 50000+index:1) before deployment — ad-hoc RTs cause silent import/export mismatches during DCI or brownfield migrations.',
       'Enable `bgp log-neighbor-changes` on all EVPN speakers — session flaps are the most common source of MAC/IP withdrawal events and are otherwise invisible without logging.',
       'Prefer EVPN ESI all-active multi-homing over MLAG for leaf-to-spine uplinks where EVPN is already deployed — ESI eliminates the peer-link as a failure domain.',
@@ -454,8 +456,8 @@ router bgp 65101
       neighbor 2.2.2.2 activate
    vlan 10
       rd 1.1.1.1:10010
-      route-target import evpn 10:10
-      route-target export evpn 10:10
+      route-target import evpn 10:10010
+      route-target export evpn 10:10010
       redistribute learned`
       },
       {
@@ -509,8 +511,8 @@ interface Vlan10
 router bgp 65101
    vlan 10
       rd 1.1.1.1:10010
-      route-target import evpn 10:10
-      route-target export evpn 10:10
+      route-target import evpn 10:10010
+      route-target export evpn 10:10010
       redistribute learned
    vrf Prod
       rd 1.1.1.1:50001
