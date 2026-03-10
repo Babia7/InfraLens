@@ -218,15 +218,46 @@ const DESIGNS: ValidatedDesign[] = [
     underlay: 'ISIS/OSPF with consistent hashing; ECN capable',
     overlay: 'EVPN RT-2/3/5 with Anycast GW; optional PFC/ECN',
     avdSeed: { spines: 2, leaves: 8, linksPerLeaf: 4, uplinkSpeed: '100/400G', vrfs: ['AI'], notes: 'Rail-paired leaves for pod' },
-    bomNotes: [
-      'Deep-buffer leaves preferred; verify ECN defaults',
-      '400G optics validated; check breakout rules per platform',
-      'PTP optional; enable only if required by workload'
+    bom: [
+      { item: '7280R3 or 7060X5 leaf (deep buffer, 400G)', count: '8', notes: 'Rail-aligned pairs; verify ECN + buffer profile' },
+      { item: '7280R3 spine (400G QSFP-DD)', count: '2', notes: 'Deep buffer spine; 800G+ aggregate capacity' },
+      { item: 'QSFP-DD 400G SR8 / DR4 optics', notes: 'Validate breakout matrix per platform; avoid mixed optic classes' },
+      { item: 'GPU host NICs (100/400G)', notes: 'Ensure RoCEv2 or RDMA capable; align with ECN thresholds' }
     ],
-    mandatory: ['Enable ECN + buffer profile per best-practice', 'MTU parity host→leaf→spine', 'Consistent hashing for symmetry'],
-    optional: ['PFC where strictly required (minimal scope)', 'PTP only if workload requires timing', 'ERSPAN/sFlow telemetry for per-job observability'],
-    preflight: ['Verify ECN + buffer profile applied', 'Check RT schema and Anycast GW consistency', 'Validate lossless/lossy QoS separation if PFC used'],
-    runbook: ['Turn up underlay with ECN verified', 'Enable EVPN AF + RT schema', 'Validate IMET/RT-2 and Anycast GW reachability', 'Run lossless/lossy traffic test; capture telemetry for proof'],
+    bomNotes: [
+      'Deep-buffer leaves preferred; verify ECN defaults match buffer profile',
+      '400G optics validated; check breakout rules per platform support matrix',
+      'PTP optional; enable only if GPU workload requires sub-μs timing'
+    ],
+    mandatory: [
+      'Enable ECN + buffer profile per Arista AI Validated Design (queue-monitor + dscp-map)',
+      'MTU parity 9216 host→leaf→spine end-to-end — silent drops if mismatched',
+      'Consistent ECMP hashing: flow hash tuned for RDMA traffic symmetry',
+      'Rail alignment: GPU rail A/B on separate leaf pairs to prevent congestion spreading'
+    ],
+    optional: [
+      'PFC where strictly required — limit scope to GPU rail VLAN only',
+      'PTP only if workload requires timing (avoid if possible — adds state)',
+      'ERSPAN/sFlow telemetry per job/pod for per-GPU visibility',
+      'CloudVision LANZ for micro-burst and buffer utilization trending'
+    ],
+    preflight: [
+      'Verify ECN thresholds match buffer profile: show hardware counter drop asic on each leaf',
+      'Confirm MTU 9216 end-to-end: ping sweep with df-bit from GPU host to peer GPU',
+      'Check RT schema per rail/pod: no VNI overlap between AI pods and tenant fabric',
+      'Validate consistent hashing algorithm: show platform environment all | inc hash',
+      'Run show queue-monitor length on all leaves — baseline buffer usage before traffic',
+      'Confirm Anycast GW (ip address virtual) consistent on all leafs in rail'
+    ],
+    runbook: [
+      'Stage underlay: ISIS/OSPF with BFD; validate loopback reachability across all leaves',
+      'Apply buffer profile + ECN policy per Arista AI PoD validated config; verify with show queue-monitor',
+      'Enable EVPN AF + RT schema (RT L2: 10:VNI, RT L3: 50:VRF); verify IMET routes',
+      'Configure Anycast GW SVIs per pod VRF; validate IP reachability from GPU hosts',
+      'Run lossless/lossy traffic test: inject RDMA traffic + background TCP; confirm no ECN-induced drops on lossless queue',
+      'Capture sFlow/ERSPAN baseline for per-job telemetry; verify CloudVision LANZ is recording buffer events',
+      'Take CV snapshot; document buffer thresholds + ECN config as deployment baseline'
+    ],
     evidence: {
       source: 'AI Pod Regression',
       lastValidated: 'Q1 FY25',

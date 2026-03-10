@@ -66,7 +66,7 @@ export const PROTOCOL_CONTENT: Record<string, ProtocolDetail> = {
       'Telemetry-ready: snapshot/rollback + ERSPAN/sFlow/pcaps to prove encapsulation and symmetry.'
     ],
     bestPractices: [
-      'Validate underlay MTU end-to-end (≥1600 bytes) before enabling any VXLAN overlay — MTU mismatches cause silent black holes that are hard to diagnose.',
+      'Validate underlay MTU end-to-end (≥9214 bytes on all fabric links) before enabling any VXLAN overlay — VXLAN adds 50 bytes of encapsulation overhead and Arista requires jumbo MTU on all fabric interfaces; mismatches cause silent black holes that are hard to diagnose.',
       'Use a dedicated source loopback (Loopback1) for VXLAN, separate from the BGP router-ID loopback (Loopback0), to decouple data-plane identity from control-plane peering.',
       'Always pair VXLAN with an EVPN control plane in production; static flood-lists do not scale, have no MAC mobility, and require manual maintenance.',
       'Run `service routing protocols model multi-agent` before enabling EVPN — without it, EVPN address-family commands will be rejected silently on many EOS versions.',
@@ -77,7 +77,7 @@ export const PROTOCOL_CONTENT: Record<string, ProtocolDetail> = {
     ],
     cliTranslation: [
       { legacy: 'feature otv', arista: 'interface vxlan1' },
-      { legacy: 'otv control-group 239.1.1.1', arista: 'vxlan source-interface Loopback0' },
+      { legacy: 'otv control-group 239.1.1.1', arista: 'vxlan source-interface Loopback1  ! Loopback1 = VTEP identity (separate from Loopback0 used as BGP router-ID)' },
       { legacy: 'otv extend-vlan 10', arista: 'vxlan vlan 10 vni 10010' },
       { legacy: 'otv site-bridge-interface...', arista: 'vxlan flood vtep 1.1.1.1 2.2.2.2' },
       { legacy: 'mpls l2vpn bridge-domain / xconnect', arista: 'vxlan udp-port 4789\nno mac address-table learning vlan 10  ! disable data-plane learn; use EVPN' },
@@ -186,7 +186,8 @@ show ip route 10.255.0.1
 !
 ! Control plane guardrails
 show interfaces vxlan1 | inc 4789
-show hardware counter drop asic | inc decap
+show interfaces vxlan1 counters
+show platform fap dropped packets | inc decap  ! Jericho/Jericho2 platforms (7050X3, 7060X5)
 !
 ! RT schema hygiene (EVPN deployments)
 show bgp evpn route-type imet
@@ -236,13 +237,14 @@ show vxlan vtep
    vxlan udp-port 4789
    vxlan source-interface Loopback1
 !
+! IMPORTANT: TCAM profile change requires system reload to take effect
 hardware tcam
    system profile vxlan-routing
 !
 ! CoPP for BGP/EVPN
 router bgp 65001
    neighbor SPINES peer-group
-   neighbor SPINES ebgp-multihop 2
+   neighbor SPINES ebgp-multihop 2  ! Only for eBGP overlay peering over loopbacks; remove for iBGP+RR design
    neighbor SPINES send-community extended
 !
 service routing protocols model multi-agent
@@ -298,16 +300,16 @@ router bgp 65000
       },
       {
         role: 'ARP Suppression + Validation',
-        description: 'Enable ARP suppression per VNI and verify proxy ARP is active.',
+        description: 'Enable EVPN ARP suppression on the VXLAN interface and verify the RT-2 MAC/IP cache is being used.',
         config: `! Enable ARP suppression on VXLAN interface (EOS 4.25+)
 interface vxlan1
    vxlan arp-suppression
 !
-! Per-VNI arp-proxy (if using EVPN centralized gateway)
-interface Vlan10
-   ip proxy-arp
+! ip proxy-arp is NOT needed for distributed Anycast GW (ip address virtual)
+! EVPN ARP suppression intercepts ARP requests and answers from the RT-2 MAC/IP cache
+! ip proxy-arp is only for legacy centralized gateway configurations
 !
-! Verify ARP cache is populated at VTEP
+! Verify ARP cache is populated at VTEP from EVPN RT-2 routes
 show vxlan address-table vni 10010
 show arp vrf Prod
 show interfaces vxlan1 counters | include arp-suppress`
@@ -343,14 +345,14 @@ show interfaces vxlan1 counters | include arp-suppress`
       'EVPN replaces flood-and-learn with a publish/subscribe MP-BGP control plane for MAC/IP reachability, enabling deterministic overlays with Anycast Gateways and all-active multi-homing.',
     keyBenefits: [
       'Anycast Gateway (VARP) for seamless mobility.',
-      'ARP suppression cuts broadcast by up to 70%.',
+      'ARP suppression eliminates most ARP flooding across the fabric — VTEP serves ARP replies from the RT-2 MAC/IP cache instead of flooding.',
       'All-active multi-homing (ESI) maximizes links.',
       'Policy-based logical segmentation via VRF-Lite/EVPN.'
     ],
     bestPractices: [
       'Always configure `send-community extended` on every EVPN BGP neighbor — omitting it silently drops all route-target extended communities and breaks the entire EVPN control plane with no error message.',
       'Peer EVPN sessions from a stable loopback (`update-source Loopback0`), not physical interfaces — physical interface flaps will reset EVPN sessions and cause traffic loss.',
-      'Use iBGP with route-reflector-client for EVPN overlay peering on spines; never mix eBGP ASNs with route-reflector-client in the same session — route reflection is an iBGP-only concept.',
+      'For iBGP EVPN overlay, configure route-reflector-client on spines and use the same AS across all leaves — route reflection is an iBGP-only concept and cannot be mixed with eBGP ASNs in the same session. Alternatively, eBGP EVPN overlay (unique ASN per leaf, spines as eBGP next-hop) is equally valid and is the Arista AVD default for greenfield fabrics; in this design no route-reflector is needed.',
       'Standardize and document route-target conventions (e.g. L2 VNI RT = VNI:VNI, VRF RT = 50000+index:1) before deployment — ad-hoc RTs cause silent import/export mismatches during DCI or brownfield migrations.',
       'Enable `bgp log-neighbor-changes` on all EVPN speakers — session flaps are the most common source of MAC/IP withdrawal events and are otherwise invisible without logging.',
       'Prefer EVPN ESI all-active multi-homing over MLAG for leaf-to-spine uplinks where EVPN is already deployed — ESI eliminates the peer-link as a failure domain.',
@@ -454,8 +456,8 @@ router bgp 65101
       neighbor 2.2.2.2 activate
    vlan 10
       rd 1.1.1.1:10010
-      route-target import evpn 10:10
-      route-target export evpn 10:10
+      route-target import evpn 10:10010
+      route-target export evpn 10:10010
       redistribute learned`
       },
       {
@@ -509,8 +511,8 @@ interface Vlan10
 router bgp 65101
    vlan 10
       rd 1.1.1.1:10010
-      route-target import evpn 10:10
-      route-target export evpn 10:10
+      route-target import evpn 10:10010
+      route-target export evpn 10:10010
       redistribute learned
    vrf Prod
       rd 1.1.1.1:50001
@@ -585,11 +587,11 @@ show bgp neighbors 2.2.2.2 | include community
     keyBenefits: [
       'Active-active L2 without spanning tree blocking.',
       'Independent control planes—no chassis master/slave.',
-      'Fast convergence on peer-link/keepalive failure.',
+      'Fast convergence on peer-link or member-link failure.',
       'Simple operational model compared to stacking.'
     ],
     bestPractices: [
-      'Understand EOS MLAG split-brain behavior before adding `dual-primary detection`: when the peer-link goes down and the keepalive is reachable, EOS automatically disables the secondary\'s MLAG port-channels — this is built-in, no configuration required. `dual-primary detection delay <n> action errdisable all-interfaces` under `mlag configuration` adds a secondary safeguard using BFD-based heartbeats over uplinks to detect when both peers simultaneously believe they are primary (the true split-brain scenario, where both peer-link and keepalive are lost). Set the delay long enough for MLAG to naturally reconverge before the action fires (Arista recommends ≥10s; verify with `show mlag detail` to confirm the feature is active).',
+      'Understand EOS MLAG split-brain behavior before adding dual-primary detection. When the peer-link goes down but the peer is still reachable through MLAG control-plane communication (synchronized over the peer-link prior to failure), EOS automatically places the secondary switch into an inactive state for MLAG by disabling its MLAG port-channels. This behavior is built in and requires no configuration. The true split-brain condition occurs when the peer-link fails and both switches lose visibility into each other\'s state, causing each to assume the primary role. The `dual-primary detection delay <n> action errdisable all-interfaces` command under `mlag configuration` adds an additional safeguard by sending MLAG heartbeat messages over non-MLAG interfaces (typically uplinks) to detect when both peers believe they are primary. The delay should be set long enough for MLAG to naturally reconverge before the protective action triggers. Arista commonly recommends 10 seconds or greater. Verify operation with `show mlag detail` or `show mlag dual-primary`.',
       'Set `reload-delay mlag 300` and `reload-delay non-mlag 330` on standard fixed-config platforms (7050X3, 720XP, etc.). High-end platforms (7280R, 7500R, 7800R) default to 900s — always verify with `show mlag detail` before overriding, as a value too short causes post-boot black holes.',
       'Resolve every `show mlag config-sanity` warning before go-live. Arista explicitly states these must be rectified in production — mismatched VLANs, STP config, or port-channel modes cause one-way forwarding failures that are difficult to diagnose under load.',
       'Apply `lacp timer fast` on each Ethernet member interface (not on the Port-Channel) — the default slow timer means a link failure goes undetected for up to 90 seconds. Fast timers reduce detection to ~3 seconds (1s PDU interval × 3 missed PDUs). Note: `lacp rate fast` is Cisco IOS syntax and is not valid in EOS.',
@@ -598,7 +600,7 @@ show bgp neighbors 2.2.2.2 | include community
     ],
     cliTranslation: [
       { legacy: 'vpc domain 10', arista: 'mlag configuration\n   domain-id FABRIC' },
-      { legacy: 'peer-keepalive destination 10.0.0.2', arista: 'peer-address 10.0.0.2 vrf MGMT\n   ! OR: peer-address 10.255.0.2  (in-band via peer-link SVI)' },
+      { legacy: 'peer-keepalive destination 10.0.0.2', arista: 'peer-address 10.255.0.2\n   ! peer-address is the peer\'s local-interface IP (peer-link SVI, not a keepalive)\n   ! Optional OOB path: peer-address 10.0.0.2 vrf MGMT' },
       { legacy: 'vpc peer-link port-channel1', arista: 'peer-link Port-Channel1\n   reload-delay mlag 300\n   reload-delay non-mlag 330' },
       { legacy: 'interface port-channel10\n  vpc 10', arista: 'interface Port-Channel10\n   mlag 10\ninterface Ethernet1\n   channel-group 10 mode active\n   lacp timer fast' },
       { legacy: 'show vpc', arista: 'show mlag\nshow mlag detail' },
@@ -606,7 +608,7 @@ show bgp neighbors 2.2.2.2 | include community
       { legacy: 'show port-channel summary (NX-OS)', arista: 'show port-channel summary\nshow mlag interfaces' }
     ],
     referenceLinks: [
-      { title: 'Arista MLAG Tech Brief', summary: 'Peer-link, keepalive, and consistency-check guidance.' },
+      { title: 'Arista MLAG Tech Brief', summary: 'Peer-link, peer-address, split-brain prevention, and consistency-check guidance.' },
       { title: 'EOS MLAG Operations Guide', summary: 'Upgrade/ISSU considerations and failover behaviors.' },
       { title: 'Design Note: MLAG vs EVPN ESI', summary: 'When to prefer MLAG for access vs ESI upstream.' },
       { title: 'MLAG Day-2 Runbook', summary: 'Peer-link failure drills, split-brain prevention, and reload ordering.' }
@@ -639,24 +641,24 @@ show bgp neighbors 2.2.2.2 | include community
     ],
     overview: {
       title: 'MLAG Topology',
-      intro: 'MLAG pairs two independent switches (PEER_A and PEER_B) to appear as a single logical switch to downstream LAG members. The peer-link carries synchronization and failover traffic. The keepalive is a heartbeat on a separate path. Both must be healthy for full MLAG operation.',
+      intro: 'MLAG pairs two independent switches (PEER_A and PEER_B) to appear as a single logical switch to downstream LAG members. The peer-link carries both control-plane synchronization and data-plane failover traffic. Unlike Cisco vPC, Arista MLAG has no separate keepalive channel — the `peer-address` under `mlag configuration` references the peer\'s local-interface IP, which is typically on the peer-link SVI itself.',
       sections: [
         {
           title: 'Peer-Link Role',
-          body: 'The peer-link (typically Port-Channel1) carries: (1) control-plane synchronization (MAC/ARP tables, MLAG config), (2) data-plane traffic when one peer loses a MLAG member link. It must be over-provisioned — during failover it absorbs 100% of the failed peer\'s traffic.',
-          bestFor: '100G or 2×10G LAG peer-link. Never use a single physical link.'
+          body: 'The peer-link (typically Port-Channel1) carries: (1) control-plane synchronization (MAC/ARP tables, MLAG state), (2) data-plane traffic redirected in hardware when one peer loses a MLAG member link. It must be over-provisioned — during failover it absorbs 100% of the failed peer\'s traffic at line rate with no software reconvergence delay.',
+          bestFor: '100G or 2×100G LAG peer-link. Never use a single physical link.'
         },
         {
-          title: 'Keepalive Role',
-          body: 'The keepalive is a separate IP heartbeat between PEER_A and PEER_B management interfaces. It detects peer failure when the peer-link goes down. Without a healthy keepalive, a peer-link failure triggers split-brain prevention: one peer disables its MLAG port-channels to avoid forwarding duplicates.',
-          bestFor: 'Dedicated management interface in MGMT VRF, not the peer-link VLAN.'
+          title: 'Peer-Address & Split-Brain Prevention',
+          body: 'The `peer-address` (configured under `mlag configuration`) is the IP of the peer\'s `local-interface` SVI — it is used for MLAG control-plane communication and is not a separate keepalive channel. When the peer-link fails, EOS uses the last synchronized state to place the secondary into MLAG-inactive (disabling its MLAG port-channels). Optionally, `peer-address <IP> vrf MGMT` routes control traffic over the management interface for an OOB path, but this is not equivalent to Cisco vPC\'s mandatory keepalive.',
+          bestFor: 'Peer-link SVI (in-band default). Optional: management VRF for OOB control path.'
         }
       ],
-      conclusion: 'MLAG summary: peer-link = data + state. keepalive = health only. Both must be sized and path-diverse. Test peer-link failure before production.'
+      conclusion: 'MLAG summary: peer-link = data + state sync. peer-address = control-plane IP (on peer-link SVI by default, optional OOB via mgmt VRF). Size the peer-link for full failover capacity and test peer-link failure before production.'
     },
     primer: {
-      title: 'Why MLAG Keepalive Matters More Than the Peer-Link',
-      body: 'When the peer-link fails, both switches still have independent connectivity to the network. The keepalive determines which switch "wins" and stays active. Without keepalive, EOS cannot tell whether the peer is dead or the peer-link cable is just unplugged — so it fails safe and disables one peer\'s MLAG port-channels. If keepalive is running over the data network (not a dedicated mgmt path), a congestion event can suppress it, triggering a false split-brain and unnecessary traffic loss. The keepalive is a $0 insurance policy: a single management cable or out-of-band path prevents the most common MLAG operational failure mode.'
+      title: 'Why the Peer-Link is the Single Most Critical MLAG Component',
+      body: 'Unlike Cisco vPC, Arista MLAG has no separate keepalive channel. The peer-link is the sole path for both MLAG control-plane synchronization (MAC/ARP tables, MLAG state) and data-plane failover traffic. When a MLAG member link fails, EOS hardware immediately redirects affected flows across the peer-link at line rate — no software reconvergence. This means the peer-link must be sized to absorb 100% of one peer\'s active MLAG traffic. A peer-link failure is the highest-impact event: EOS uses the last synchronized state to elect one peer as secondary and disable its MLAG port-channels. Optionally, configuring `peer-address <IP> vrf MGMT` routes MLAG control traffic over the management interface, providing an out-of-band path for MLAG state exchange if the peer-link fails — this is not a keepalive, but it does allow the secondary to continue receiving peer state updates after peer-link loss, which can improve reconvergence. Size the peer-link as a LAG (≥2 links), monitor it continuously, and test peer-link failure in lab before production.'
     },
     roleConfigs: [
       {
@@ -666,7 +668,8 @@ show bgp neighbors 2.2.2.2 | include community
 mlag configuration
    domain-id FABRIC
    local-interface Vlan4094
-   peer-address 10.0.0.2 vrf MGMT
+   peer-address 10.255.0.2        ! peer's Vlan4094 IP (in-band, on peer-link SVI)
+   ! Optional OOB: peer-address 10.0.0.2 vrf MGMT
    peer-link Port-Channel1
    reload-delay mlag 300
    reload-delay non-mlag 330
@@ -686,7 +689,7 @@ interface Ethernet4
       },
       {
         role: 'Peer-Link Config',
-        description: 'Peer-link with trunk group isolation (MLAG VLAN only crosses peer-link) and MGMT VRF keepalive.',
+        description: 'Peer-link with trunk group isolation (MLAG VLAN only crosses peer-link). peer-address uses the peer-link SVI IP by default; optional OOB path via management VRF.',
         config: `! ── TRUNK GROUP: isolate MLAG VLAN to peer-link only ──────────
 ! VLAN 4094 only traverses Port-Channel1 (peer-link)
 vlan 4094
@@ -704,7 +707,7 @@ interface Ethernet1
 interface Ethernet2
    channel-group 1 mode active
 !
-! ── MLAG keepalive SVI (in-band fallback; prefer MGMT VRF) ───
+! ── MLAG peer-link SVI (local-interface for MLAG control) ────
 interface Vlan4094
    ip address 10.255.0.1/30
    no autostate
@@ -714,8 +717,8 @@ interface Vlan4094
 mlag configuration
    domain-id FABRIC
    local-interface Vlan4094
-   peer-address 10.255.0.2
-   ! Prefer MGMT VRF: peer-address 10.0.0.2 vrf MGMT
+   peer-address 10.255.0.2        ! peer's Vlan4094 IP (in-band on peer-link)
+   ! Optional OOB: peer-address 10.0.0.2 vrf MGMT
    peer-link Port-Channel1
    reload-delay mlag 300
    reload-delay non-mlag 330`
@@ -760,9 +763,10 @@ show port-channel summary
 ! Confirm: (P) flag on all member ports = bundled and active
 ! (I) = individual/not bundled — indicates LACP issue
 !
-! ── KEEPALIVE PATH ───────────────────────────────────────────
+! ── PEER-ADDRESS REACHABILITY (if OOB mgmt path configured) ─
 ping 10.255.0.2 vrf MGMT repeat 10
-! Must be 100% — any loss is a pre-failure warning
+! Only relevant if peer-address is configured in vrf MGMT
+! Default in-band peer-address reachability = peer-link health
 !
 ! ── LACP STATE ───────────────────────────────────────────────
 show lacp neighbor
@@ -776,7 +780,7 @@ show mlag                          ! state: active, peer: connected
 show mlag detail                   ! note reload-delay values and primary/secondary
 show mlag interfaces               ! all interfaces: active (local + peer)
 show mlag config-sanity            ! must be clean — resolve any mismatch first
-ping 10.255.0.2 vrf MGMT repeat 10 ! keepalive must be 100% success
+ping 10.255.0.2 vrf MGMT repeat 10 ! verify OOB peer-address path if mgmt VRF configured
 show version                       ! confirm current EOS version on both peers
 !
 ! ── STEP 1: IDENTIFY SECONDARY PEER ─────────────────────────
@@ -826,10 +830,10 @@ show mlag
 !   Peer link status      : Up
 ! (Reload delay values are shown in: show mlag detail)
 !
-! ── 2. KEEPALIVE PATH ────────────────────────────────────────
+! ── 2. PEER-LINK SVI / OOB PEER-ADDRESS ─────────────────────
 ping 10.255.0.2 vrf MGMT repeat 20 timeout 1
-! Must be 100% success — any loss = keepalive risk under load
-! Also try: ping 10.255.0.2 vrf MGMT size 1500 df-bit  (MTU check)
+! If peer-address is configured in mgmt VRF; skip if in-band (peer-link SVI)
+! Also try: ping 10.255.0.2 vrf MGMT size 1500 df-bit  (MTU check on OOB path)
 !
 ! ── 3. CONFIG CONSISTENCY ────────────────────────────────────
 show mlag config-sanity
@@ -865,7 +869,7 @@ show mlag interfaces         ! baseline: all MLAG IDs active
 !
 ! ── SIMULATE PEER-LINK FAILURE ───────────────────────────────
 ! Shut peer-link on SECONDARY peer only
-! (keepalive path must remain up on both peers throughout this drill)
+! (if OOB peer-address via mgmt VRF is configured, it remains reachable during this drill)
 interface Port-Channel1
    shutdown
 !
@@ -880,8 +884,8 @@ show mlag
 ! Expected: State: active, but MLAG interfaces errdisabled
 show mlag interfaces
 ! Expected: all MLAG IDs show errdisabled (peer-link down, no peer)
-! Note: if keepalive is reachable, secondary disables ports (correct)
-!       if keepalive is ALSO down, both peers stay active = split-brain
+! EOS uses last synchronized state to place secondary into inactive
+! True split-brain: peer-link down AND both peers lose state visibility
 !
 ! ── RESTORE PEER-LINK ────────────────────────────────────────
 interface Port-Channel1
@@ -904,8 +908,8 @@ show mlag
 ! Check: Peer State (connected vs disconnected), Peer link (Up/Down)
 show mlag config-sanity
 ! Non-empty output = config mismatch causing MLAG to hold interface
-ping <peer-keepalive-ip> vrf MGMT repeat 10
-! Loss here = keepalive failure → secondary disables MLAG ports
+ping <peer-vlan4094-ip> repeat 10  ! via peer-link SVI (in-band)
+! Peer-link down = MLAG control-plane loss → secondary disables its MLAG port-channels
 !
 ! ── SYMPTOM: One-way traffic through MLAG port-channel ───────
 show mlag interfaces
@@ -942,14 +946,14 @@ show mlag config-sanity
         description: 'Recover from an MLAG split-brain condition where both peers are independently active.',
         config: `! ── DETECT SPLIT-BRAIN ───────────────────────────────────────
 ! Both peers show "state: active" but peer link is down AND
-! keepalive is also down — both peers are forwarding independently
+! both switches have lost visibility into each other's state
 show mlag
-! Watch for: State: active, Peer: inactive, keepalive: down on BOTH
+! Watch for: State: active, Peer: inactive on BOTH peers simultaneously
 !
-! ── STEP 1: RESTORE KEEPALIVE PATH FIRST ─────────────────────
-! Restore OOB connectivity (mgmt cable, console) before peer-link
-! Confirm keepalive reachable:
-ping <peer-keepalive-ip> vrf MGMT
+! ── STEP 1: ESTABLISH OOB CONNECTIVITY FIRST ─────────────────
+! Establish out-of-band access (console, mgmt cable) to both peers
+! If peer-address vrf MGMT is configured, verify reachability:
+ping <peer-mgmt-ip> vrf MGMT
 !
 ! ── STEP 2: BRING ONE PEER DOWN GRACEFULLY ───────────────────
 ! Disable MLAG on the secondary (lower priority) peer:
