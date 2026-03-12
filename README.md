@@ -12,3 +12,8 @@
 ## Testing
 - Unit/UI smoke: `npm test`
 - Dev server: `npm run dev` (visit the hashed routes above)
+
+
+## Documentation
+- Project docs index: `docs/README.md`
+- Refactor roadmap: `docs/REFACTOR_RECOMMENDATIONS.md`
