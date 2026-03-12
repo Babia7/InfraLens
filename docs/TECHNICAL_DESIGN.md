@@ -1,4 +1,4 @@
-# InfraLens Technical Design
+# InfraLens Technical Design Doc
 
 ## Purpose & Scope
 - **Goal:** Deliver a cognition layer for Arista Systems Engineers and Sales teams (Account Managers, pre-sales SEs) that unifies calculators, design blueprints, and narrative tooling in a single client experience.
