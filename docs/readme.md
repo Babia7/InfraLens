@@ -1,148 +1,489 @@
-# InfraLens
+InfraLens
 
-InfraLens is a React + TypeScript web application for Arista-facing systems engineering and technical sales workflows. It combines calculators, reference datasets, architecture design tools, learning labs, and narrative tooling into one UI.
+InfraLens is a React + TypeScript web platform for Arista-facing systems engineering and technical architecture workflows.
 
-## Deployment Context
+It combines:
+	•	architecture design tools
+	•	infrastructure datasets
+	•	financial and operational calculators
+	•	learning labs
+	•	narrative delivery tooling
 
-- **Platform:** Google Cloud Run (containerized deployment)
-- **Public domain:** `polymathsystem.com`
-- **Container runtime:** NGINX serves the built Vite app on port `8080`
+into a single interface.
 
-> This repo is the application source and container build definition for that Cloud Run deployment.
+The goal is to externalize infrastructure reasoning so account teams can move from intuition to defensible architectural decisions.
 
-## Tech Stack
+⸻
 
-- **Frontend:** React 19, TypeScript, React Router
-- **Build tool:** Vite
-- **Testing:** Vitest + Testing Library + jsdom
-- **UI assets:** custom CSS theme tokens, shared layout components, lucide-react icons, Sonner toasts
+Deployment
 
-## Repository Structure
+InfraLens is deployed as a containerized static web application.
+	•	Platform: Google Cloud Run
+	•	Domain: polymathsystem.com
+	•	Runtime: NGINX serving the built Vite application
+	•	Port: 8080
 
-```text
+This repository contains the application source and container build definition used for that deployment.
+
+⸻
+
+Tech Stack
+
+Frontend
+	•	React 19
+	•	TypeScript
+	•	React Router
+
+Build / Tooling
+	•	Vite
+	•	Vitest
+	•	Testing Library
+	•	jsdom
+
+UI
+	•	custom CSS theme tokens
+	•	shared layout primitives
+	•	lucide-react icons
+	•	Sonner toast notifications
+
+⸻
+
+Repository Structure
+
 .
-├── App.tsx                     # App shell, HashRouter, top nav/theme toggle
+├── App.tsx                     # Application shell and routing
 ├── index.tsx                   # React entrypoint
 ├── components/
-│   ├── apps/                   # Routed feature apps and calculators
+│   ├── apps/                   # Feature applications and calculators
 │   └── layout/                 # Shared layout primitives
 ├── config/
-│   └── toolsRegistry.ts        # Canonical route/app registry
+│   └── toolsRegistry.ts        # Canonical route registry
 ├── context/
-│   └── InfraLensContext.tsx    # Shared state, hydration, persistence
-├── data/                       # Seed content, datasets, data contracts
-│   ├── switches/               # Switch model datasets
-│   └── chassis/                # Chassis datasets
-├── services/                   # Service utilities (notifications, parsing, etc.)
+│   └── InfraLensContext.tsx    # Global state, persistence, hydration
+├── data/                       # Structured datasets and seed content
+│   ├── switches/
+│   └── chassis/
+├── services/                   # Utilities (notifications, parsing, etc.)
 ├── styles/
-│   └── theme.css               # Light/dark design tokens + utility classes
-├── tests/                      # Vitest test suites (including dataset contract tests)
-├── Dockerfile                  # Multi-stage container build
-├── nginx.conf                  # Static hosting config for SPA + headers
-└── package.json                # Scripts and dependencies
-```
+│   └── theme.css               # Design tokens and utility classes
+├── tests/                      # Vitest suites including dataset contracts
+├── Dockerfile                  # Container build definition
+├── nginx.conf                  # Static SPA hosting configuration
+└── package.json
 
-## Application Architecture
 
-### Routing and App Composition
+⸻
 
-- `App.tsx` wraps the app with `InfraLensProvider`, mounts global toasts, and renders all routes from `toolsRegistry`.
-- Routing uses `HashRouter`, which keeps navigation resilient for static hosting and SPA deep links.
-- `config/toolsRegistry.ts` maps each `SectionType` to:
-  - URL path
-  - lazy-loaded component
-  - optional parent relationship
-  - optional audience metadata
+System Architecture
 
-### Shared State and Persistence
+InfraLens is structured as a client-side micro-application platform.
 
-- `context/InfraLensContext.tsx` centralizes app data/state.
-- Initial values come from `data/initialData.ts`.
-- State is persisted in browser `localStorage` with version-aware hydration.
-- Use context setters instead of writing directly to localStorage from feature apps.
+Each tool runs as a routed React application within a shared shell.
 
-### Data-Driven Features
+Browser
+   │
+React App Shell
+   │
+toolsRegistry (route definitions)
+   │
+Feature Apps
+   │
+Shared Context + Data
 
-- Structured datasets live in `data/` (switches, chassis, Linux modules, protocols, playbooks, etc.).
-- UI tools should read from these datasets rather than hardcoding specs.
-- Contract expectations are enforced by tests (`tests/dataContracts.test.ts`).
+Core principles
+	•	Route-driven app composition
+	•	Shared global state
+	•	Data-driven UI tools
+	•	Lazy-loaded feature modules
 
-## Key Feature Areas
+⸻
 
-- **Reference/Catalogs:** app index, codex/bookshelf, visual essays, roadmap
-- **Financial/Business tools:** TCO, velocity, MTTR, talent ROI, why-now framing
-- **Architecture/Design tools:** AI fabric designer, storage planner, switch selectors, protocol tooling
-- **Enablement/Labs:** Linux/EOS practice, CloudVision enablement, troubleshooting scenarios
-- **Narrative/Delivery:** briefing theater, demo command, playbook coaching
+Application Architecture
 
-## Local Development
+Routing
 
-### Prerequisites
+Routes are defined in:
 
-- Node.js 20+
-- npm
+config/toolsRegistry.ts
 
-### Install
+Each SectionType maps to
+	•	URL path
+	•	lazy-loaded component
+	•	optional parent relationship
+	•	optional audience metadata
 
-```bash
+Routing uses HashRouter to keep navigation resilient for static hosting and deep links.
+
+App.tsx mounts the router and renders all registered tools.
+
+⸻
+
+App Composition
+
+App.tsx provides the main application shell.
+
+Responsibilities include
+	•	mounting InfraLensProvider
+	•	rendering the global header and theme toggle
+	•	registering the router
+	•	mounting global toast notifications
+	•	rendering feature apps
+
+The home surface (BentoGrid) acts as the primary navigation entrypoint.
+
+⸻
+
+State and Persistence
+
+Global state is centralized in:
+
+context/InfraLensContext.tsx
+
+Features
+	•	initializes data from data/initialData.ts
+	•	persists state to localStorage
+	•	supports version-aware hydration via DATA_VERSION
+	•	debounces persistence writes
+
+Feature apps should always use context setters rather than writing directly to localStorage.
+
+⸻
+
+Data Architecture
+
+InfraLens tools are data-driven.
+
+Structured datasets live under /data.
+
+Examples include
+
+data/
+  initialData.ts
+  linuxModules.ts
+  protocolsContent.ts
+  playbookData.ts
+  switches/
+  chassis/
+
+Switch and Chassis Data
+
+Switch and chassis specifications are defined as structured TypeScript objects.
+
+switches/*.ts
+switches.index.ts
+chassis/*.ts
+chassis.index.ts
+
+UI tools such as switch selectors import these datasets rather than hardcoding specifications.
+
+⸻
+
+Dataset Contracts
+
+Dataset integrity is enforced by contract tests.
+
+tests/dataContracts.test.ts
+
+Contracts validate required fields such as:
+
+SwitchSpec
+	•	id
+	•	model
+	•	series
+	•	description
+	•	interface definitions
+	•	datasheetUrl
+
+ChassisSpec
+	•	id
+	•	model
+	•	series
+	•	slotsTotal
+	•	datasheetUrl
+
+Expected model coverage is defined in:
+
+data/datasetContract.ts
+
+These tests prevent accidental dataset regressions.
+
+⸻
+
+Design System
+
+Theme tokens live in:
+
+styles/theme.css
+design/theme.ts
+
+Themes are applied via:
+
+.theme-dark
+.theme-light
+
+on document.documentElement.
+
+Key tokens include
+	•	--page-bg
+	•	--card-bg
+	•	--border-color
+	•	--text-primary
+	•	--text-secondary
+
+Components should use semantic utility classes such as
+
+bg-page-bg
+bg-card-bg
+border-border
+text-primary
+
+instead of hardcoded colors.
+
+Shared layout primitives are located in:
+
+components/layout/
+
+Examples
+	•	HeroTile
+	•	ContentTiles
+	•	TileSystem
+
+⸻
+
+Feature Domains
+
+InfraLens tools fall into several domains.
+
+Reference
+	•	App catalog
+	•	Codex / bookshelf
+	•	visual essays
+	•	roadmap surfaces
+
+Financial / Business Modeling
+	•	TCO calculator
+	•	operational velocity model
+	•	MTTR insurance model
+	•	talent ROI analysis
+	•	why-now framing
+
+Architecture Design
+	•	AI fabric designer
+	•	storage architecture planner
+	•	switch selectors
+	•	protocol modeling tools
+
+Enablement and Practice
+	•	Linux / EOS labs
+	•	CloudVision enablement
+	•	troubleshooting scenarios
+
+Narrative Delivery
+	•	Briefing Theater
+	•	Demo Command
+	•	playbook coaching
+
+⸻
+
+Development
+
+Prerequisites
+
+Node.js 20+
+npm
+
+Install
+
 npm ci
-```
 
-### Run locally
+Run Development Server
 
-```bash
 npm run dev
-```
 
-Default Vite behavior serves locally for development.
+Build Production Assets
 
-### Build
-
-```bash
 npm run build
-```
 
-### Preview production build
+Preview Production Build
 
-```bash
 npm run preview
-```
 
-### Test
+Run Tests
 
-```bash
 npm run test
-```
 
-## Environment Variables
 
-- `VITE_ADMIN_PIN` (optional): used by `AdminConsole` for PIN-gated access behavior.
+⸻
 
-For container builds, this value is passed as a Docker build arg (`ARG VITE_ADMIN_PIN`) and exposed as an environment variable in the build stage.
+Environment Variables
 
-## Container and Cloud Run Notes
+Optional environment variable
 
-- Docker build is multi-stage:
-  1. Build static assets with Node
-  2. Serve `/dist` with NGINX
-- NGINX is configured to:
-  - listen on port `8080` (Cloud Run compatible)
-  - route unknown paths to `index.html` for SPA behavior
-  - set security headers
-  - cache static assets aggressively
+VITE_ADMIN_PIN
 
-### Example container commands
+Used by the AdminConsole for PIN-gated access behavior.
 
-```bash
+During container builds the value is passed via Docker build arguments.
+
+⸻
+
+Container Deployment
+
+The Docker image uses a multi-stage build.
+
+Stage 1
+
+Build static assets with Node.
+
+Stage 2
+
+Serve compiled assets via NGINX.
+
+NGINX configuration
+	•	listens on port 8080
+	•	routes unknown paths to index.html
+	•	applies security headers
+	•	caches static assets
+
+Example container commands
+
 docker build -t infralens:local --build-arg VITE_ADMIN_PIN=1234 .
 docker run --rm -p 8080:8080 infralens:local
-```
 
-## Contribution Notes
 
-- Add new routed apps in `components/apps/`.
-- Register new routes in `config/toolsRegistry.ts`.
-- Prefer shared tokens/components in `styles/theme.css`, `design/theme.ts`, and `components/layout/`.
-- Keep large domain content in `data/` and maintain contract coverage in tests.
+⸻
 
-See `CONTRIBUTING.md` for contributor-oriented quick guidance.
+Operational Considerations
+
+Persistence
+	•	all state stored in localStorage
+	•	reset operations remove only InfraLens keys
+
+Error Handling
+	•	Sonner toaster provides user feedback
+	•	utilities in services/notifications
+
+Performance
+	•	feature apps lazy-loaded
+	•	persistence writes debounced
+	•	large datasets statically bundled
+
+Security
+	•	no authentication model yet
+	•	avoid storing sensitive customer data
+
+⸻
+
+Contribution Guidelines
+
+When adding a new tool
+	1.	create the feature inside components/apps
+	2.	register the route in config/toolsRegistry.ts
+	3.	use shared design tokens from styles/theme.css
+	4.	keep domain data inside /data
+	5.	add tests for any new datasets
+
+⸻
+
+Roadmap
+
+Future development areas include
+
+Accounts & Sync
+	•	user authentication
+	•	per-user persistence
+	•	export/import for air-gapped users
+
+Collaboration
+	•	shared workspaces
+	•	role-based access
+	•	roadmap commenting
+
+Offline Mode
+	•	dataset caching
+	•	queued writes
+
+Data Governance
+	•	versioned infrastructure datasets
+	•	change logs
+	•	admin approval workflows
+
+Testing
+	•	route-level smoke tests
+	•	dataset snapshot validation
+	•	persistence cycle tests
+
+Accessibility
+	•	keyboard navigation
+	•	focus states
+	•	improved color contrast
+
+⸻
+
+InfraLens Identity
+
+Version 4.2.0 — Codename HUMAN_PRIMACY
+
+InfraLens is a cognition layer for infrastructure engineering.
+
+It externalizes complexity across:
+	•	silicon physics
+	•	network architecture
+	•	operational economics
+	•	human decision making
+
+so engineers can reason clearly.
+
+It is not an agent.
+It is a system for amplifying judgment.
+
+⸻
+
+Operating Modes
+
+Reasoning
+Constraint mapping, architecture modeling, financial analysis.
+
+Practice
+Linux/EOS labs and CloudVision workflows.
+
+Reference
+Architecture codex and technical datasets.
+
+Delivery
+Briefing Theater and Demo Command.
+
+⸻
+
+Strategic Direction
+
+InfraLens aims to produce durable engineering artifacts that move infrastructure conversations from persuasion to proof.
+
+Key capability layers include
+	•	constraint mapping
+	•	failure pre-mortems
+	•	tradeoff matrices
+	•	architecture decision records
+	•	causal chain analysis
+
+⸻
+
+Architectural Ledger (Example)
+
+Entry: 2025-05-15 — FORGE_EVOLUTION_0.6
+
+Objective
+Shift InfraLens from an “app catalog” to a sense-making system.
+
+Implementation
+	•	renamed catalogs
+	•	aligned data models
+	•	updated UI taxonomy
+
+Outcome
+
+InfraLens now behaves as a cognitive laboratory for infrastructure reasoning rather than a simple tool collection.
+
+⸻
+
+If you’d like, I can also show you two small structural improvements to your repo that would significantly improve maintainability as InfraLens grows past ~40 tools. These are the same patterns used in large internal engineering platforms.
