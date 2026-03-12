@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Network, Zap, ShieldCheck, ChevronRight, Terminal, Info, Layout, Activity, MessageSquare, Database, ArrowRightLeft, Server, Cpu, Share2, Shield, Layers, CheckCircle2, BookOpen, Target, Copy, Check, Radio, GitBranch, AlertTriangle } from 'lucide-react';
-import { PROTOCOL_CONTENT, ProtocolDetail, DCContext } from '@data/protocolsContent';
+import { PROTOCOL_CONTENT, ProtocolDetail, DCContext, RoleConfig } from '@data/protocolsContent';
 import { TROUBLESHOOT_SCENARIOS, PROTOCOL_TROUBLESHOOT_MAP } from '@data/troubleshootContent';
 import { SectionType } from '@/types';
 import { RelatedActions } from '@/components/RelatedActions';
