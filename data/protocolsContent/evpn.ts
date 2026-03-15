@@ -29,9 +29,10 @@ export const EVPN_PROTOCOL: ProtocolDetail = {
       { legacy: 'route-target export...', arista: 'route-target import/export evpn 10:10' }
     ],
     referenceLinks: [
-      { title: 'RFC 7432 EVPN', summary: 'Control-plane route types and MAC/IP advertisement behavior.' },
-      { title: 'Arista EVPN-ESI Deployment Guide', summary: 'All-active multi-homing (ESI) and DF election caveats.' },
-      { title: 'EOS Anycast Gateway Whitepaper', summary: 'Designing stable Anycast SVIs with consistent ARP/ND.' }
+      { title: 'Arista EOS User Manual — EVPN', summary: 'Authoritative EOS EVPN configuration and operational behavior.', url: 'https://www.arista.com/en/um-eos/eos-configuring-evpn' },
+      { title: 'Arista EOS User Manual — VXLAN', summary: 'VXLAN dataplane and EVPN integration points in EOS.', url: 'https://www.arista.com/en/um-eos/eos-vxlan-configuration' },
+      { title: 'RFC 7432 EVPN', summary: 'Control-plane route types and MAC/IP advertisement behavior.', url: 'https://www.rfc-editor.org/rfc/rfc7432' },
+      { title: 'RFC 8365 NVO with EVPN', summary: 'EVPN as control plane for VXLAN/NVO overlays.', url: 'https://www.rfc-editor.org/rfc/rfc8365' }
     ],
     masteryPath: [
       {

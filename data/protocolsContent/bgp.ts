@@ -6,7 +6,7 @@ export const BGP_PROTOCOL: ProtocolDetail = {
     legacyTerm: 'OSPF / IS-IS (DC Underlay)',
     tagline: 'The universal routing protocol for the data center and beyond.',
     description:
-      'Border Gateway Protocol (BGP) has become the dominant underlay and overlay routing protocol in modern data centers. eBGP replaces OSPF/IS-IS for leaf-spine underlay routing; iBGP with route reflection drives EVPN overlays. BGP unnumbered eliminates IP address planning on point-to-point links. Mastering BGP path selection, communities, and graceful restart is foundational for any Arista SE.',
+      'Border Gateway Protocol (BGP) is the dominant routing protocol for modern IP fabrics. In Arista designs, eBGP or iBGP can be used for underlay and EVPN overlays, and BGP unnumbered can reduce point-to-point addressing overhead. Mastering path selection, communities, and graceful restart is foundational for reliable operations.',
     keyBenefits: [
       'eBGP underlay scales to thousands of routers without flooding OSPF LSAs or IS-IS LSPs.',
       'BGP unnumbered eliminates IP address management on point-to-point links using IPv6 link-local.',
@@ -250,10 +250,11 @@ router bgp 65001
       }
     ],
     referenceLinks: [
-      { title: 'RFC 4271 BGP-4', summary: 'Core BGP specification: path vector protocol, UPDATE messages, OPEN/KEEPALIVE/NOTIFICATION.' },
-      { title: 'RFC 7938 BGP in DC', summary: 'IETF best practices for BGP in large-scale data centers — Arista follows this model.' },
-      { title: 'Arista AVD BGP Design', summary: 'AVD-generated BGP unnumbered templates for leaf-spine fabrics.' },
-      { title: 'BFD for BGP (RFC 5882)', summary: 'Sub-second failure detection for BGP neighbors.' }
+      { title: 'Arista EOS User Manual — BGP', summary: 'Authoritative EOS command behavior for BGP neighbors, AFI/SAFI, and policy.', url: 'https://www.arista.com/en/um-eos/eos-border-gateway-protocol-bgp' },
+      { title: 'Arista AVD Documentation', summary: 'Reference implementation patterns for eBGP/iBGP fabrics and EVPN overlays.', url: 'https://avd.arista.com' },
+      { title: 'RFC 4271 BGP-4', summary: 'Core BGP specification: path vector protocol, UPDATE messages, OPEN/KEEPALIVE/NOTIFICATION.', url: 'https://www.rfc-editor.org/rfc/rfc4271' },
+      { title: 'RFC 7938 BGP in Data Centers', summary: 'IETF operational guidance for BGP in data center fabrics.', url: 'https://www.rfc-editor.org/rfc/rfc7938' },
+      { title: 'RFC 5880/5882 BFD', summary: 'Sub-second failure detection and BFD interaction with BGP.', url: 'https://www.rfc-editor.org/rfc/rfc5880' }
     ],
     dcContext: {
       small: {
