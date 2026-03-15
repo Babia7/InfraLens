@@ -76,12 +76,11 @@ export const VXLAN_PROTOCOL: ProtocolDetail = {
       body: 'A consistent VNI numbering scheme prevents route-target collisions during DCI and simplifies operations. Common convention on Arista: L2 VNIs = 10000 + VLAN ID (e.g., VLAN 100 → VNI 10100), L3/VRF VNIs = 50000 + VRF index (e.g., VRF Prod index 1 → VNI 50001). Route targets follow the VNI: RT for L2 = 10:10100, RT for VRF = 50:50001. Document this schema in a spreadsheet before deployment and treat it as infrastructure topology — changes after go-live require coordinated RT updates across all VTEPs and DCI peers.'
     },
     referenceLinks: [
-      { title: 'Arista Design Guide: VXLAN/EVPN Foundations', summary: 'Why VXLAN + EVPN replace STP and legacy flood-and-learn overlays.' },
-      { title: 'RFC 7348 VXLAN', summary: 'Official encapsulation spec and control-plane expectations.' },
-      { title: 'EOS Verified Designs: Cloud-Scale L2 DCI', summary: 'Validated underlay/overlay blueprints for inter-DC stretch.' },
-      { title: 'VXLAN Troubleshooting Map', summary: 'Checks for VNI/VLAN mapping, MTU, IMET or flood-list coverage.' },
-      { title: 'Preflight Checklist', summary: 'Validate MTU, loopback reachability, ECMP hashing, RT schema, and CoPP before turning up VNIs.' },
-      { title: 'Change Window Template', summary: 'Pre/post snapshots, rollback script, success metrics (ping/trace, EVPN route counts, ARP/ND sanity).' }
+      { title: 'Arista EOS User Manual — VXLAN', summary: 'Authoritative EOS VXLAN configuration model and platform caveats.', url: 'https://www.arista.com/en/um-eos/eos-vxlan-configuration' },
+      { title: 'Arista EOS User Manual — VARP / Anycast Gateway', summary: 'EOS behavior for Anycast gateway with distributed first-hop routing.', url: 'https://www.arista.com/en/um-eos/eos-varp-and-vxlan-anycast-gateway' },
+      { title: 'RFC 7348 VXLAN', summary: 'Official VXLAN encapsulation and tunnel endpoint behavior.', url: 'https://www.rfc-editor.org/rfc/rfc7348' },
+      { title: 'RFC 8365 NVO with EVPN', summary: 'Control-plane guidance when pairing VXLAN with EVPN.', url: 'https://www.rfc-editor.org/rfc/rfc8365' },
+      { title: 'Arista AVD Documentation', summary: 'Validated deployment patterns and automation examples for EVPN/VXLAN fabrics.', url: 'https://avd.arista.com' }
     ],
     roleConfigs: [
       {

@@ -32,10 +32,10 @@ export const MLAG_PROTOCOL: ProtocolDetail = {
       { legacy: 'show port-channel summary (NX-OS)', arista: 'show port-channel summary\nshow mlag interfaces' }
     ],
     referenceLinks: [
-      { title: 'Arista MLAG Tech Brief', summary: 'Peer-link, peer-address, split-brain prevention, and consistency-check guidance.' },
-      { title: 'EOS MLAG Operations Guide', summary: 'Upgrade/ISSU considerations and failover behaviors.' },
-      { title: 'Design Note: MLAG vs EVPN ESI', summary: 'When to prefer MLAG for access vs ESI upstream.' },
-      { title: 'MLAG Day-2 Runbook', summary: 'Peer-link failure drills, split-brain prevention, and reload ordering.' }
+      { title: 'Arista EOS User Manual — MLAG', summary: 'Authoritative MLAG configuration, peer-link behavior, and troubleshooting commands.', url: 'https://www.arista.com/en/um-eos/eos-multi-chassis-link-aggregation' },
+      { title: 'Arista EOS User Manual — LACP', summary: 'LACP timers, member behavior, and operational checks used with MLAG.', url: 'https://www.arista.com/en/um-eos/eos-link-aggregation-and-lacp' },
+      { title: 'Arista EOS User Manual — STP', summary: 'STP interactions and edge-port guidance relevant to MLAG access design.', url: 'https://www.arista.com/en/um-eos/eos-spanning-tree-protocol' },
+      { title: 'Arista EVPN Multi-Homing Documentation', summary: 'Design tradeoffs between classic MLAG and EVPN ESI all-active multi-homing.', url: 'https://www.arista.com/en/um-eos/eos-evpn-multi-homing' }
     ],
     masteryPath: [
       {
