@@ -483,7 +483,3 @@ Implementation
 Outcome
 
 InfraLens now behaves as a cognitive laboratory for infrastructure reasoning rather than a simple tool collection.
-
-⸻
-
-If you’d like, I can also show you two small structural improvements to your repo that would significantly improve maintainability as InfraLens grows past ~40 tools. These are the same patterns used in large internal engineering platforms.
