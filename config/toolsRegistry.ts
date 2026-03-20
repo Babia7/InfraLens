@@ -343,5 +343,12 @@ export const toolsRegistry: Record<SectionType, ToolRegistryItem> = {
     component: load(import('@apps/LearnLinuxEOS'), 'LearnLinuxEOS'),
     parentId: SectionType.APPS,
     audience: 'Internal'
+  },
+  [SectionType.CLI_CONVERTER]: {
+    id: SectionType.CLI_CONVERTER,
+    path: '/tools/cli-converter',
+    component: load(import('@apps/CLIConverter'), 'CLIConverter'),
+    parentId: SectionType.HOME,
+    audience: 'Public'
   }
 };
