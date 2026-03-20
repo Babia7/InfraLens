@@ -309,6 +309,173 @@ export const visualEssays: ConceptExplainer[] = [
       }
     ]
   },
+  // --- VAULT INSIGHT ESSAYS ---
+  {
+    id: 'c-ethernet-winning-ai',
+    title: 'Why Ethernet Is Winning AI Networking',
+    subtitle: 'The ecosystem advantage, not just the latency debate.',
+    tags: ['AI', 'Ethernet', 'RoCE', 'Strategy', 'Ecosystem'],
+    sections: [
+      {
+        heading: 'Core Insight',
+        body: 'Ethernet is becoming the default scale-out domain for AI infrastructure because the winning problem is no longer just transport latency. The structural advantage is ecosystem scale, operational continuity, and the ability to evolve AI fabrics inside the same networking domain that already runs the rest of modern infrastructure.',
+        visualPrompt: 'A network ecosystem diagram showing Ethernet spanning multiple infrastructure layers — switches, NICs, optics, orchestration — while InfiniBand appears as an isolated island.'
+      },
+      {
+        heading: 'Why This Is Happening',
+        body: 'AI infrastructure is scaling like datacenter infrastructure, not like a niche HPC island. Buyers want multi-vendor flexibility across switches, NICs, optics, and cluster designs. Operations teams already know how to automate, observe, and troubleshoot Ethernet at scale. Ethernet innovation is now targeting AI-specific pain points: congestion control, dynamic load balancing, and high-radix scale-out behavior.',
+        visualPrompt: 'A supply chain visualization showing multiple vendors feeding into a single Ethernet fabric, with a single-vendor proprietary chain contrasted alongside it.'
+      },
+      {
+        heading: 'Evidence',
+        body: 'RoCEv2, high-radix switching, adaptive load balancing, and 400G/800G Ethernet have narrowed the practical performance gap for many AI deployments. Industry coordination efforts like the Ultra Ethernet Consortium prove AI-scale performance is increasingly being solved inside the Ethernet ecosystem. AI cluster design conversations now focus on queue behavior, topology, path balance, and operational telemetry — not a binary Ethernet vs. InfiniBand debate.',
+        visualPrompt: 'A performance gap chart showing InfiniBand and Ethernet lines converging over time across key AI networking metrics: bandwidth, latency, and congestion control.'
+      },
+      {
+        heading: 'Implications for Architecture and Positioning',
+        body: 'Architecture success depends on designing Ethernet fabrics that behave predictably under AI traffic — not assuming the transport label guarantees outcomes. Operations: AI networking becomes an extension of datacenter operations discipline rather than a separate fabric specialty. Strategic positioning: Arista narratives should emphasize Ethernet scale, visibility, and operational maturity instead of arguing from protocol ideology. Customer conversations: move from protocol tribalism to workload behavior and congestion management.',
+        visualPrompt: 'A Venn diagram showing "AI Operations" fully inside "DC Operations" — not as a separate circle — with a single CloudVision pane spanning both.'
+      },
+      {
+        heading: 'Mental Model',
+        body: 'Ethernet is winning because AI has become a scale and operations problem, not only a latency-absolutism problem. The question is no longer "which transport is fastest in a lab?" — it is "which ecosystem can build, operate, and evolve AI fabrics at the speed and scale the industry requires?"',
+        visualPrompt: 'A scale balanced between "latency absolutism" on one side and "ecosystem scale + operational maturity" on the other, clearly tipping toward the ecosystem side.'
+      }
+    ]
+  },
+  {
+    id: 'c-radix-gpu-topologies',
+    title: 'Why Radix Limits Drive GPU Cluster Topologies',
+    subtitle: 'Radix is the geometry budget. When it runs out, complexity is the bill.',
+    tags: ['AI', 'Radix', 'GPU', 'Topology', 'Scale'],
+    sections: [
+      {
+        heading: 'Core Insight',
+        body: 'Radix is not a secondary hardware specification in AI fabrics. It is a first-order constraint that shapes how many stages, how many planes, how much oversubscription pressure, and how much operational complexity a GPU cluster inherits.',
+        visualPrompt: 'A fixed-radix switch with numbered ports, showing how adding more GPU nodes forces topology changes — more tiers, more planes — when the port budget runs out.'
+      },
+      {
+        heading: 'Why This Is Happening',
+        body: 'GPU cluster scale grows faster than simple two-tier fabrics can preserve low-hop path diversity. Fixed switch radix limits how many endpoints and uplinks can coexist without adding tiers or planes. Preserving near-nonblocking behavior at larger scale requires physical tradeoffs, not just better logical design. More stages and planes improve scale, but add cost, cabling complexity, and operational surface area.',
+        visualPrompt: 'A growth curve showing GPU count on the x-axis and topology complexity on the y-axis, with inflection points marking where radix limits force topology changes.'
+      },
+      {
+        heading: 'Evidence',
+        body: 'Large GPU clusters routinely move from simple leaf-spine assumptions to multi-plane and higher-stage designs as endpoint counts rise. Rail-aware and NIC-aware layouts become more important as the fabric has fewer easy paths to preserve locality and balance. Cluster conversations that start with "How many GPUs?" quickly become switch-stage and fabric-plane discussions once physical limits are acknowledged.',
+        visualPrompt: 'A side-by-side comparison: a small cluster fitting cleanly in a two-tier design versus a large cluster requiring multi-plane architecture with additional cabling and coordination.'
+      },
+      {
+        heading: 'Implications for Architecture',
+        body: 'Radix has to be discussed early because it determines realistic cluster shape, not just switch selection. Plane count, stage count, and oversubscription policy should be treated as consequences of radix and workload goals — not independent design choices. Customer conversations: cluster-size ambition without radix awareness usually hides cabling, cost, or performance tradeoffs. High-radix Ethernet matters because it delays topology complexity and preserves cleaner scale-out behavior.',
+        visualPrompt: 'A decision tree starting with GPU count, branching through radix limits, to topology recommendations: single-plane, dual-plane, or three-tier.'
+      },
+      {
+        heading: 'Mental Model',
+        body: 'Radix is the geometry budget of the fabric. When the budget runs out, topology complexity is the bill. High-radix platforms delay when that bill comes due. Every design decision that adds planes, stages, or spines is fundamentally a consequence of running out of radix at the previous level.',
+        visualPrompt: 'A budget ledger: "Radix budget" being spent with each hop tier and plane added, with a "topology complexity tax" accumulating on the right side.'
+      }
+    ]
+  },
+  {
+    id: 'c-ai-fabrics-break-dc-design',
+    title: 'Why AI Fabrics Break Traditional DC Design',
+    subtitle: 'When the network is part of the training engine, old assumptions fail.',
+    tags: ['AI', 'GPU', 'Collective Communication', 'Congestion', 'Architecture'],
+    sections: [
+      {
+        heading: 'Core Insight',
+        body: 'AI fabrics force the network to behave like part of the compute system, not just shared transport. Once collective communication, synchronized burst behavior, and scaling efficiency become job-critical, topology and congestion behavior turn directly into model-training economics.',
+        visualPrompt: 'A diagram showing the network embedded inside the GPU cluster compute loop — not sitting beside it — with bidirectional arrows showing how network performance shapes training outcomes.'
+      },
+      {
+        heading: 'Why This Is Happening',
+        body: 'Distributed training generates synchronized east-west traffic instead of loosely coupled application flows. Collective operations punish imbalance because the slowest participant gates progress for the whole job. RoCE-based Ethernet fabrics expose queue design, path balance, and rail alignment as first-order architecture concerns. Job completion time becomes sensitive to tail events, not just average throughput.',
+        visualPrompt: 'An AllReduce communication diagram showing all GPUs waiting at a synchronization barrier for the single slowest path — the barrier labeled "your network is your bottleneck."'
+      },
+      {
+        heading: 'Evidence',
+        body: 'All-Reduce and related collectives create long-lived elephant flows and synchronized bursts. Customers can report acceptable average link utilization while still seeing poor scaling efficiency — queue persistence and microbursts are the real limiter. Validation for GPU clusters increasingly focuses on completion time, congestion behavior, and consistency under scale — not simple line-rate tests. AI fabric design now routinely includes ECN thresholds, PFC risk containment, rail design, and adaptive load balancing.',
+        visualPrompt: 'Two graphs: link utilization showing "normal" averages, while job completion time degrades steeply — illustrating the gap between average-utilization visibility and tail-event impact.'
+      },
+      {
+        heading: 'Implications for Design and Operations',
+        body: 'Leaf-spine is only the starting point. Radix, rail layout, oversubscription, and congestion response have to be designed together. Visibility into queue occupancy, ECN marking, PFC counters, and job-level outcomes matters more than generic interface telemetry alone. The right framing is not "the network is fast enough" but "the fabric behaves predictably under distributed training pressure." Acceptable enterprise east-west behavior does not prove an Ethernet fabric is ready for large-scale GPU jobs.',
+        visualPrompt: 'A design checklist overlaying a leaf-spine diagram: leaf-spine ✓, plus rail alignment ✓, ECN thresholds ✓, PFC containment ✓, oversubscription plan ✓ — each as a required layer.'
+      },
+      {
+        heading: 'Mental Model',
+        body: 'In AI clusters, the fabric is part of the training engine. Bad network behavior acts like a compute stall, not a background infrastructure issue. Every millisecond of queuing delay, every retransmit triggered by packet loss, and every path imbalance is a direct cost to model iteration time and GPU utilization.',
+        visualPrompt: 'A factory production line where the network conveyor belt is integrated between compute stations — a bottleneck in the network visually halting the entire production line.'
+      }
+    ]
+  },
+  {
+    id: 'c-congestion-800g',
+    title: 'Why Congestion Control Is Hard at 800G',
+    subtitle: '800G shrinks the margin for error. Small queue mistakes become large cluster penalties.',
+    tags: ['AI', '800G', 'Congestion', 'PFC', 'ECN', 'Buffers'],
+    sections: [
+      {
+        heading: 'Core Insight',
+        body: 'At 800G, congestion mistakes become expensive before human intuition or slow control loops can catch them. The fabric can generate harmful queue growth, marking instability, and backpressure propagation on a time scale that makes "mostly fine" designs fail under real AI traffic.',
+        visualPrompt: 'A speed comparison: at 100G, a control loop can intervene in time; at 800G, queue buildup and buffer overflow occur before the same loop completes — illustrated as a car crash at increasing speeds.'
+      },
+      {
+        heading: 'Why This Is Happening',
+        body: 'Higher link rates compress the time between normal forwarding and damaging queue buildup. AI traffic is synchronized, bursty, and elephant-flow heavy — creating abrupt pressure rather than smooth utilization curves. RoCE environments are sensitive to packet loss, so the tolerance for sloppy queue behavior is low. Static path distribution is often insufficient when large flows collide under live congestion conditions.',
+        visualPrompt: 'A time-axis diagram showing queue buildup speed at 100G versus 400G versus 800G — the same flow volume filling available buffer in microseconds instead of milliseconds at higher speeds.'
+      },
+      {
+        heading: 'Evidence',
+        body: 'Microbursts can consume available buffer headroom faster than traditional troubleshooting expectations assume. A localized hot spot can trigger ECN overreaction, persistent queues, or PFC side effects that spread beyond the original collision point. Average link utilization can look healthy while tail latency and job completion time deteriorate. Validation discussions at 800G now routinely include queue occupancy, ECN thresholds, PFC containment, and adaptive routing behavior.',
+        visualPrompt: 'A dashboard showing healthy average utilization graphs alongside a LANZ queue-depth telemetry stream showing microsecond-scale spikes — both from the same switch, same time window.'
+      },
+      {
+        heading: 'Implications for Design and Validation',
+        body: 'Buffer strategy, ECN thresholds, path balance, and topology symmetry need architecture-level review — not default settings. Telemetry must capture bursts and queue persistence, not just long-interval throughput. POC success should be judged under realistic synchronized load, not clean line-rate benchmarks. The right question is whether the fabric stays stable under pressure, not whether every port can reach nominal speed.',
+        visualPrompt: 'A POC test sequence: line-rate benchmark (passes), then synchronized collective load (fails) — showing why standard benchmarks miss 800G-specific congestion failure modes.'
+      },
+      {
+        heading: 'Mental Model',
+        body: '800G shrinks the margin for error. Small queue mistakes turn into large cluster penalties before operators can reason about them manually. Arista LANZ provides the sub-microsecond visibility needed to see what static dashboards miss — and Strata-based DLB provides the path adaptation speed needed to respond faster than humans can.',
+        visualPrompt: 'A margin-for-error chart: at 100G, a wide band of tolerance; at 800G, a razor-thin line between healthy forwarding and congestion collapse.'
+      }
+    ]
+  },
+  {
+    id: 'c-ai-networking-velocity',
+    title: 'Why AI Networking Changes Faster Than DC Design',
+    subtitle: 'Static reference claims become liabilities. Validation discipline is the edge.',
+    tags: ['AI', 'Strategy', 'Architecture', 'Design Velocity'],
+    sections: [
+      {
+        heading: 'Core Insight',
+        body: 'AI networking guidance becomes outdated faster than traditional datacenter design because the AI stack itself reassembles frequently: XPU form factors, NIC behavior, optics, topology assumptions, and congestion strategies can all materially change within quarters, not years.',
+        visualPrompt: 'A timeline showing traditional DC design guidance lasting years versus AI networking guidance shifting every few months, with product generations, NIC updates, and topology changes marked as inflection points.'
+      },
+      {
+        heading: 'Why This Is Happening',
+        body: 'Questions about XPU type, NIC count per node, optics form factor, radix ceiling, and plane count can materially change cluster design — and the answers shift quarterly with new GPU generations. Each generation of accelerators brings different NIC layouts, different traffic behavior, different physical cage formats, and different workload patterns. A design that was correct for H100 clusters may be wrong for B200 clusters even at the same GPU count.',
+        visualPrompt: 'A product generation timeline showing H100 → B200 → future accelerators, each generation annotating the NIC layout, port speed, and topology changes that require design rethinking.'
+      },
+      {
+        heading: 'Evidence',
+        body: 'DGX H100 and DGX H200 present different NIC layouts despite similar GPU counts. 400G assumptions shift to 800G, changing port math, spine count, and platform decisions. Optics form factors evolve — QSFP-DD to OSFP — changing panel density and breakout assumptions. Congestion strategies that worked for data-parallel training may fail for MoE workloads on the same hardware.',
+        visualPrompt: 'A comparison table showing H100 cluster design specs versus B200 cluster design specs — same GPU count, but different port math, different topology, different congestion strategy.'
+      },
+      {
+        heading: 'Implications for SEs and Architects',
+        body: 'Operators need comparative reading and validation discipline rather than static reference claims. SEs who anchor to a specific design pattern without checking current accelerator specs will produce outdated recommendations. The right posture is: always verify node model and NIC layout first; treat every cluster conversation as potentially requiring fresh port math. Design frameworks and calculation workflows are durable — specific topology recipes for specific hardware generations are not.',
+        visualPrompt: 'A two-column checklist: left column "durable" (frameworks, port math workflow, congestion principles), right column "expires fast" (specific platform recipes, GPU-specific topology claims, optics assumptions).'
+      },
+      {
+        heading: 'Mental Model',
+        body: 'In AI networking, frameworks are durable but recipes expire. The SE who knows how to calculate port math and reason about congestion will be correct across generations. The SE who memorizes a specific topology for a specific platform will be wrong within 12 months. Validate the node model before producing any fabric sizing recommendation.',
+        visualPrompt: 'A building analogy: structural engineering principles (load, stress, foundation) are permanent; specific building codes and materials are revised every code cycle — the framework is the edge, not the recipe.'
+      }
+    ]
+  },
+
   {
     id: 'c-polymathos',
     title: 'Nexus of Craft',

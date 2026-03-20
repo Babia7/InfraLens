@@ -30,3 +30,7 @@ export { LearnLinuxEOS } from './LearnLinuxEOS';
 export { NarrativePlaybookStudio } from './NarrativePlaybookStudio';
 export { LifeSciencesArchitect } from './LifeSciencesArchitect';
 export { OpticsReference } from './OpticsReference';
+export { AITrafficPatternExplorer } from './AITrafficPatternExplorer';
+export { AIFabricPortMath } from './AIFabricPortMath';
+export { AINetworkingDiscovery } from './AINetworkingDiscovery';
+export { AIFabricPOCPlanner } from './AIFabricPOCPlanner';

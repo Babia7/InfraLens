@@ -397,6 +397,56 @@ export const initialApps: AppItem[] = [
     tags: ['Runbooks', 'Operations', 'Docs'],
     featured: false,
     adminOnly: true
+  },
+
+  // --- AI FABRIC TOOLSET ---
+  {
+    id: 'ai-traffic-patterns',
+    name: 'AI Traffic Pattern Explorer',
+    description: 'Interactive atlas of 15 AI workload traffic patterns. For each pattern: traffic signature, fabric risk matrix, design responses (DLB/CLB/ECMP), ECN thresholds, and operational watch-points.',
+    category: 'Reasoning',
+    subCategory: 'AI Fabric Design',
+    tags: ['AI/ML', 'Traffic Patterns', 'Congestion', 'GPU Fabric'],
+    internalRoute: SectionType.AI_TRAFFIC_PATTERN_EXPLORER,
+    color: 'from-violet-700 to-fuchsia-900',
+    featured: true,
+    workflowStages: ['design', 'poc']
+  },
+  {
+    id: 'port-math',
+    name: 'AI Fabric Port Math',
+    description: 'Form-based port math calculator for AI fabric sizing. GPU count → NIC ports → leaf count → spine uplinks → oversubscription ratio. Shows 2× growth path and platform fit decision.',
+    category: 'Reasoning',
+    subCategory: 'AI Fabric Design',
+    tags: ['AI/ML', 'Port Math', 'Spine-Leaf', 'Sizing'],
+    internalRoute: SectionType.PORT_MATH_CALCULATOR,
+    color: 'from-indigo-600 to-violet-800',
+    featured: true,
+    workflowStages: ['design', 'poc']
+  },
+  {
+    id: 'ai-discovery',
+    name: 'AI Networking Discovery',
+    description: 'Guided 5-layer discovery questionnaire for AI networking opportunities. Answers map to topology tier, positioning angle, proof sequence, and objection anticipation. Exports as a pre-call prep card.',
+    category: 'Sales',
+    subCategory: 'Discovery',
+    tags: ['AI/ML', 'Discovery', 'Sales', 'Pre-Call'],
+    internalRoute: SectionType.AI_NETWORKING_DISCOVERY,
+    color: 'from-emerald-600 to-teal-800',
+    featured: true,
+    workflowStages: ['discovery']
+  },
+  {
+    id: 'poc-planner',
+    name: 'AI Fabric POC Planner',
+    description: 'Phase-gated POC planning framework: scope → test design → acceptance criteria → validation sequence. Produces a structured POC brief grounded in vault methodology.',
+    category: 'Delivery',
+    subCategory: 'POC Enablement',
+    tags: ['AI/ML', 'POC', 'Validation', 'Proof'],
+    internalRoute: SectionType.AI_FABRIC_POC_PLANNER,
+    color: 'from-sky-600 to-blue-900',
+    featured: true,
+    workflowStages: ['poc']
   }
 ];
 

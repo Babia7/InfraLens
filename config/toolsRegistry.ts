@@ -350,5 +350,35 @@ export const toolsRegistry: Record<SectionType, ToolRegistryItem> = {
     component: load(import('@apps/CLIConverter'), 'CLIConverter'),
     parentId: SectionType.HOME,
     audience: 'Public'
+  },
+
+  // --- AI FABRIC TOOLS ---
+  [SectionType.AI_TRAFFIC_PATTERN_EXPLORER]: {
+    id: SectionType.AI_TRAFFIC_PATTERN_EXPLORER,
+    path: '/apps/ai-traffic-patterns',
+    component: load(import('@apps/AITrafficPatternExplorer'), 'AITrafficPatternExplorer'),
+    parentId: SectionType.APPS,
+    audience: 'Customer'
+  },
+  [SectionType.PORT_MATH_CALCULATOR]: {
+    id: SectionType.PORT_MATH_CALCULATOR,
+    path: '/apps/port-math',
+    component: load(import('@apps/AIFabricPortMath'), 'AIFabricPortMath'),
+    parentId: SectionType.APPS,
+    audience: 'Customer'
+  },
+  [SectionType.AI_NETWORKING_DISCOVERY]: {
+    id: SectionType.AI_NETWORKING_DISCOVERY,
+    path: '/apps/ai-discovery',
+    component: load(import('@apps/AINetworkingDiscovery'), 'AINetworkingDiscovery'),
+    parentId: SectionType.APPS,
+    audience: 'Internal'
+  },
+  [SectionType.AI_FABRIC_POC_PLANNER]: {
+    id: SectionType.AI_FABRIC_POC_PLANNER,
+    path: '/apps/poc-planner',
+    component: load(import('@apps/AIFabricPOCPlanner'), 'AIFabricPOCPlanner'),
+    parentId: SectionType.APPS,
+    audience: 'Internal'
   }
 };

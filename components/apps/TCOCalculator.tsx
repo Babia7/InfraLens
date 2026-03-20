@@ -363,27 +363,31 @@ Scope guardrails:
 
             {/* HIGH LEVEL STAT CARDS */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-               <div className="bg-card-bg border border-border p-8 rounded-[2rem] relative overflow-hidden group hover:border-emerald-400/40 transition-colors shadow-sm">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Zap size={80}/></div>
+               <div className="bg-card-bg border border-border p-8 rounded-[2rem] relative group hover:border-emerald-400/40 transition-colors shadow-sm">
+                  <div className="absolute inset-0 overflow-hidden rounded-[2rem] pointer-events-none">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Zap size={80}/></div>
+                  </div>
                   <span className="text-[10px] font-mono uppercase text-blue-500 tracking-[0.2em] mb-4 block">Power Efficiency</span>
                   <div className="text-3xl font-bold mb-2 text-blue-400">
                      ${Math.round(stats.powerSavings).toLocaleString()}
                   </div>
                   <p className="text-xs text-secondary leading-relaxed">
-                    Energy savings via lower <span className="relative inline-flex items-center underline decoration-dotted cursor-help text-secondary group">TDP
-                      <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-card-bg px-3 py-2 text-[11px] text-secondary shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] opacity-0 transition-opacity group-hover:opacity-100">
+                    Energy savings via lower <span className="relative inline-flex items-center underline decoration-dotted cursor-help text-secondary hover:[&>span]:opacity-100">TDP
+                      <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-card-bg px-3 py-2 text-[11px] text-secondary shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] opacity-0 transition-opacity">
                         TDP (Thermal Design Power) is the maximum heat a device is expected to generate under normal workloads.
                       </span>
-                    </span> and better <span className="relative inline-flex items-center underline decoration-dotted cursor-help text-secondary group">PUE
-                      <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-72 -translate-x-1/2 rounded-xl border border-border bg-card-bg px-3 py-2 text-[11px] text-secondary shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] opacity-0 transition-opacity group-hover:opacity-100">
+                    </span> and better <span className="relative inline-flex items-center underline decoration-dotted cursor-help text-secondary hover:[&>span]:opacity-100">PUE
+                      <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-72 -translate-x-1/2 rounded-xl border border-border bg-card-bg px-3 py-2 text-[11px] text-secondary shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] opacity-0 transition-opacity">
                         PUE (Power Usage Effectiveness) = Total facility power / IT equipment power. Lower is more efficient.
                       </span>
                     </span> utilization.
                   </p>
                </div>
 
-               <div className="bg-card-bg border border-border p-8 rounded-[2rem] relative overflow-hidden group hover:border-emerald-400/40 transition-colors shadow-sm">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Users size={80}/></div>
+               <div className="bg-card-bg border border-border p-8 rounded-[2rem] relative group hover:border-emerald-400/40 transition-colors shadow-sm">
+                  <div className="absolute inset-0 overflow-hidden rounded-[2rem] pointer-events-none">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Users size={80}/></div>
+                  </div>
                   <span className="text-[10px] font-mono uppercase text-indigo-500 tracking-[0.2em] mb-4 block">Operational Labor</span>
                   <div className="text-3xl font-bold mb-2 text-indigo-400">
                      ${Math.round(stats.laborSavings).toLocaleString()}
@@ -391,8 +395,10 @@ Scope guardrails:
                   <p className="text-xs text-secondary leading-relaxed">OpEx recovered via AVD automation and SysDB reliability.</p>
                </div>
 
-               <div className="bg-card-bg border border-border p-8 rounded-[2rem] relative overflow-hidden group hover:border-emerald-400/40 transition-colors shadow-sm">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Leaf size={80}/></div>
+               <div className="bg-card-bg border border-border p-8 rounded-[2rem] relative group hover:border-emerald-400/40 transition-colors shadow-sm">
+                  <div className="absolute inset-0 overflow-hidden rounded-[2rem] pointer-events-none">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Leaf size={80}/></div>
+                  </div>
                   <span className="text-[10px] font-mono uppercase text-emerald-500 tracking-[0.2em] mb-4 block">Sustainability</span>
                   <div className="text-3xl font-bold mb-2 text-emerald-400">
                      {Math.round(stats.carbonSaved / 1000).toFixed(1)} Tons
@@ -466,8 +472,8 @@ Scope guardrails:
                       </div>
                       <div className="p-3 rounded-xl border border-border bg-page-bg">
                         <div className="text-[10px] font-mono uppercase tracking-widest text-secondary mb-1">
-                          Power & <span className="relative inline-flex items-center underline decoration-dotted cursor-help text-secondary group">PUE
-                            <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-72 -translate-x-1/2 rounded-xl border border-border bg-card-bg px-3 py-2 text-[11px] text-secondary shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] opacity-0 transition-opacity group-hover:opacity-100">
+                          Power & <span className="relative inline-flex items-center underline decoration-dotted cursor-help text-secondary hover:[&>span]:opacity-100">PUE
+                            <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-72 -translate-x-1/2 rounded-xl border border-border bg-card-bg px-3 py-2 text-[11px] text-secondary shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] opacity-0 transition-opacity">
                               PUE (Power Usage Effectiveness) = Total facility power / IT equipment power. Lower is more efficient.
                             </span>
                           </span>

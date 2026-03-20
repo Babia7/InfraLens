@@ -28,6 +28,219 @@ export interface MigrationPattern {
 
 export const BROWNFIELD_PATTERNS: MigrationPattern[] = [
   {
+    id: 'ospf-to-ebgp',
+    title: 'OSPF Underlay → eBGP Leaf-Spine Underlay',
+    from: 'OSPF-based spine-leaf underlay (single-area or multi-area)',
+    to: 'eBGP unnumbered underlay with RFC 5549 (IPv6 link-local next-hops)',
+    useCase: 'Modernize an OSPF-based spine-leaf underlay to eBGP unnumbered — the foundation pattern for Arista AVD-managed fabrics and EVPN overlays. Eliminates OSPF area design complexity and SPF-storm risk while enabling per-link failure isolation.',
+    overview: 'eBGP replaces OSPF on spine-leaf links using RFC 5549 unnumbered adjacencies over IPv6 link-locals. OSPF continues operating on the same links during the transition window. BGP sessions are established in parallel; routes are injected once BGP is proven stable. OSPF is deactivated per-link only after BGP forwarding is validated.',
+    totalRisk: 'Medium',
+    estimatedPhases: 4,
+    keyPrinciple: 'Never remove OSPF until eBGP is proven on every link. BGP and OSPF run in parallel during the transition; route preference is shifted to BGP incrementally by adjusting administrative distance.',
+    phases: [
+      {
+        phase: 1,
+        title: 'Survey & Baseline',
+        risk: 'Low',
+        objective: 'Document the OSPF topology, prefix inventory, adjacencies, and any redistribution points before any configuration change.',
+        steps: [
+          'Run `show ip ospf neighbor` on all spine and leaf switches — document all adjacencies',
+          'Run `show ip ospf database summary` — capture the full LSDB state',
+          'Run `show ip route ospf` on all devices — document all OSPF-learned prefixes',
+          'Identify any OSPF area design: backbone-only vs multi-area; note stub/NSSA areas',
+          'Identify any redistribution: BGP → OSPF, static → OSPF, or connected routes',
+          'Document loopback addresses per device — these become eBGP neighbor addresses',
+          'Take CloudVision snapshot of current underlay state as baseline'
+        ],
+        validation: [
+          { command: 'show ip ospf neighbor', expectedResult: 'All expected adjacencies in FULL state. Document count.' },
+          { command: 'show ip route summary', expectedResult: 'Total route count documented — compare after migration for drift.' },
+          { command: 'show ip ospf database', expectedResult: 'Full LSDB captured as migration baseline.' }
+        ],
+        rollback: 'No changes made — read-only survey. No rollback required.',
+        successCriteria: 'Full OSPF adjacency map, prefix inventory, and area design documented. CloudVision baseline snapshot taken.'
+      },
+      {
+        phase: 2,
+        title: 'Enable eBGP Unnumbered in Parallel (No Route Injection)',
+        risk: 'Low',
+        objective: 'Establish eBGP unnumbered sessions on all spine-leaf links alongside existing OSPF. Do not inject routes via BGP yet — verify session state only.',
+        steps: [
+          'Enable IPv6 on all spine-leaf links: `interface Ethernet<n> → ipv6 enable`',
+          'Configure eBGP sessions using RFC 5549 (interface peering): `neighbor interface Ethernet<n> remote-as external`',
+          'Enable BGP IPv4 unicast on each session: `neighbor <iface> activate`',
+          'Set BGP timers to aggressive for fast convergence: `timers bgp 1 3`',
+          'Do NOT advertise any networks yet — sessions only',
+          'Verify all BGP sessions reach Established state',
+          'Confirm OSPF adjacencies are unaffected: OSPF must remain FULL on all links'
+        ],
+        validation: [
+          { command: 'show bgp ipv4 unicast summary', expectedResult: 'All spine-leaf eBGP sessions in Established state. Zero routes in RIB.' },
+          { command: 'show ip ospf neighbor', expectedResult: 'All OSPF adjacencies still FULL — BGP addition did not disrupt OSPF.' },
+          { command: 'show interfaces Ethernet<n> (ipv6)', expectedResult: 'IPv6 link-local address assigned. Used as eBGP source.' }
+        ],
+        rollback: 'Remove BGP configuration on all devices. OSPF continues unaffected. No forwarding impact.',
+        successCriteria: 'All eBGP sessions Established. Zero BGP routes in RIB. OSPF adjacencies fully intact.'
+      },
+      {
+        phase: 3,
+        title: 'Inject Routes via eBGP, Lower BGP Admin Distance',
+        risk: 'High',
+        objective: 'Advertise loopback prefixes via eBGP. Shift route preference to eBGP by lowering its administrative distance below OSPF (OSPF default 110, eBGP default 20 — already lower for eBGP; validate if any custom distances are set).',
+        steps: [
+          'On each device: advertise loopback under BGP: `network <loopback/32>` or `redistribute connected route-map LOOPBACKS-ONLY`',
+          'Verify loopback prefixes appear in BGP RIB on all peers',
+          'Confirm BGP-learned loopbacks are installed in FIB (eBGP AD=20 beats OSPF AD=110 by default)',
+          'Run end-to-end ping: loopback-to-loopback across the fabric using BGP-learned paths',
+          'Monitor OSPF: loopback routes still present in OSPF RIB but inactive (BGP preferred)',
+          'Take CloudVision snapshot to capture dual-protocol state'
+        ],
+        validation: [
+          { command: 'show ip route <loopback-prefix>', expectedResult: 'BGP-learned route active (AD=20). OSPF route present but inactive (AD=110).' },
+          { command: 'ping <remote-loopback> source Loopback0 repeat 100', expectedResult: '100% success via BGP-preferred path.' },
+          { command: 'show bgp ipv4 unicast', expectedResult: 'All loopback prefixes from all devices visible in BGP table.' }
+        ],
+        rollback: 'Remove BGP network statements / redistribute command. BGP routes withdrawn. OSPF routes immediately become active (AD=110). Traffic reverts to OSPF within one BGP withdrawal cycle.',
+        successCriteria: 'All loopback-to-loopback paths using BGP forwarding. OSPF routes present but inactive. End-to-end ping success via BGP paths.'
+      },
+      {
+        phase: 4,
+        title: 'Deactivate OSPF Per-Link, Validate, Remove',
+        risk: 'Medium',
+        objective: 'Remove OSPF from spine-leaf links and decommission OSPF process after validating full BGP forwarding stability.',
+        steps: [
+          'On each link: disable OSPF: `ip ospf area 0` removal, or `no ip ospf <n> area 0`',
+          'Verify OSPF adjacency drops cleanly on that link — no cascading churn',
+          'Confirm BGP continues forwarding without disruption on that link',
+          'Repeat per-link, per-device: one link at a time with 5-minute stability window each',
+          'After all links: remove OSPF process: `no router ospf <n>`',
+          'Take final CloudVision snapshot: new eBGP-only underlay baseline'
+        ],
+        validation: [
+          { command: 'show ip ospf neighbor', expectedResult: 'No OSPF adjacencies remaining. Process removed.' },
+          { command: 'show ip route summary', expectedResult: 'Route count matches BGP-only baseline. No missing prefixes.' },
+          { command: 'show bgp ipv4 unicast summary', expectedResult: 'All sessions Established. Full loopback prefix table.' }
+        ],
+        rollback: 'Re-enable OSPF on affected links. Adjacencies re-form within hold-timer window. BGP and OSPF run in parallel again during recovery.',
+        successCriteria: 'No OSPF processes running on any device. eBGP unnumbered is the sole underlay routing protocol. CloudVision compliance baseline updated.'
+      }
+    ],
+    keyTools: ['CloudVision Change Control (snapshot per phase)', 'RFC 5549 eBGP unnumbered', 'AVD (generate BGP underlay config)', 'show bgp ipv4 unicast summary', 'show ip ospf neighbor'],
+    antiPatterns: [
+      'Do NOT remove OSPF before validating BGP forwarding on every link — even one missing prefix causes a black-hole',
+      'Do NOT advertise all connected routes via BGP — use route-map to filter loopbacks only',
+      'Do NOT change administrative distances manually unless OSPF was previously tuned — eBGP default AD=20 wins over OSPF AD=110 automatically',
+      'Do NOT skip the per-link stability window — OSPF removal can trigger SPF re-runs on adjacent devices',
+      'Do NOT deactivate OSPF on all links simultaneously — do it one link at a time for isolated rollback'
+    ]
+  },
+  {
+    id: 'arista-gen-refresh',
+    title: 'Arista Generation Refresh (7050→7280 with MLAG Continuity)',
+    from: 'Arista 7050X3 leaf pair in MLAG with existing server port-channels',
+    to: 'Arista 7280R3A leaf pair in MLAG — same topology, same servers, same EOS version family',
+    useCase: 'Platform refresh within Arista: replace 7050X3 MLAG leaves with higher-radix 7280R3A or similar without disrupting server dual-homed port-channels. Common at 3-5 year platform lifecycle refresh points.',
+    overview: 'The new leaf pair is pre-staged with identical MLAG domain configuration, EVPN/VXLAN settings, and QoS policy. Server port-channels are migrated one server at a time using LACP port-priority manipulation — same technique as the vPC→MLAG pattern. Old leaves are cleanly decommissioned after all servers are migrated.',
+    totalRisk: 'Low',
+    estimatedPhases: 4,
+    keyPrinciple: 'Same EOS config, same MLAG domain ID, same EVPN VNIs. The new hardware is a drop-in replacement — the migration risk is cabling and LACP sequence, not protocol reconfiguration.',
+    phases: [
+      {
+        phase: 1,
+        title: 'Pre-Stage New Leaf Pair',
+        risk: 'Low',
+        objective: 'Deploy new 7280R3A pair with identical MLAG domain, EVPN, VXLAN, QoS, and BGP underlay config. Validate in isolation before connecting to spine.',
+        steps: [
+          'Generate new leaf configs via AVD — use same MLAG domain ID, BGP ASN, EVPN VNIs as existing leaves',
+          'Deploy and cable peer-link (Port-Channel100) between new leaves',
+          'Validate MLAG health: `show mlag` → State: active, Peer: Connected',
+          'Connect spine uplinks — do NOT connect server ports yet',
+          'Validate BGP underlay sessions to spines: `show bgp ipv4 unicast summary`',
+          'Validate EVPN sessions: `show bgp evpn summary` — IMET routes exchanged',
+          'Take CloudVision snapshot of new leaf pair in isolated state'
+        ],
+        validation: [
+          { command: 'show mlag', expectedResult: 'State: active. Peer: Connected. No config inconsistencies.' },
+          { command: 'show bgp evpn summary', expectedResult: 'EVPN sessions to spines Established. IMET routes exchanged.' },
+          { command: 'show vxlan vtep', expectedResult: 'Remote VTEPs visible. Tunnels UP.' }
+        ],
+        rollback: 'New leaves not carrying any traffic. Simply disconnect spine uplinks. No production impact.',
+        successCriteria: 'New MLAG pair healthy, BGP and EVPN running to spines, VXLAN tunnels UP. No server ports connected yet.'
+      },
+      {
+        phase: 2,
+        title: 'Migrate Servers (LACP Port-Priority)',
+        risk: 'Medium',
+        objective: 'Connect each server to both old and new MLAG pairs simultaneously. Use LACP port-priority to shift active forwarding to new leaves before removing old connections.',
+        steps: [
+          'For each server: add new leaf ports to the server port-channel (servers become 4-link LACP bundles)',
+          'On new leaves: set LACP port-priority to HIGH: `lacp port-priority 16384` (lower = higher priority)',
+          'On old leaves: set LACP port-priority to LOW: `lacp port-priority 32768`',
+          'Verify traffic shifts to new leaves: `show interfaces counters rates` on new leaf server ports',
+          'Monitor for 10 minutes per server: check for LACP flaps, MAC learning errors',
+          'Repeat for each server one at a time'
+        ],
+        validation: [
+          { command: 'show lacp neighbor interface Port-Channel<n>', expectedResult: 'New leaf ports shown as Active. Old leaf ports shown as Standby.' },
+          { command: 'show bgp evpn mac-ip | grep <server-MAC>', expectedResult: 'Server MACs learned via new MLAG VTEP.' },
+          { command: 'show mlag interfaces', expectedResult: 'Server port-channels active on new leaf pair.' }
+        ],
+        rollback: 'Raise LACP priority on old leaves back to 16384, lower new leaves to 32768. LACP shifts back within seconds. No server downtime.',
+        successCriteria: 'All server traffic forwarding via new 7280R3A MLAG pair. Old 7050X3 ports in LACP standby.'
+      },
+      {
+        phase: 3,
+        title: 'Disconnect Old Leaves',
+        risk: 'Low',
+        objective: 'Remove server connections from old 7050X3 leaves and validate new leaves as sole active path.',
+        steps: [
+          'For each server: administratively shut old leaf member interfaces: `interface Ethernet<n> → shutdown`',
+          'Verify LACP renegotiates to 2-link bundle on new leaves only',
+          'Monitor 15 minutes per server: no traffic drops, no LACP flaps',
+          'After all servers migrated: shut old leaf spine uplinks',
+          'Disconnect old peer-link cables between old leaves',
+          'Take CloudVision snapshot: new fabric baseline'
+        ],
+        validation: [
+          { command: 'show interfaces Port-Channel<n>', expectedResult: 'Only new leaf interfaces in bundle. Old interfaces absent.' },
+          { command: 'show mlag interfaces', expectedResult: 'All server port-channels in active-full state on new leaves.' },
+          { command: 'show interfaces counters errors', expectedResult: 'Zero errors on new leaf server ports for 15 minutes.' }
+        ],
+        rollback: 'Re-enable old leaf member interfaces. LACP renegotiates with 4 links. Traffic can revert to old leaves if new leaves have issues.',
+        successCriteria: 'All servers exclusively on new 7280R3A MLAG pair. Old leaves carry zero traffic.'
+      },
+      {
+        phase: 4,
+        title: 'Decommission Old 7050X3 Leaves',
+        risk: 'Low',
+        objective: 'Physically remove old leaf pair after stability monitoring period. Update CMDB and CloudVision.',
+        steps: [
+          'Confirm zero traffic on all old leaf interfaces for 24 hours',
+          'Remove old leaves from CloudVision managed inventory',
+          'Power down old 7050X3 switches',
+          'Remove physical cables and rack hardware',
+          'Update IPAM, CMDB, and NMS records',
+          'Update AVD inventory: remove old leaf entries, confirm new leaf entries are current'
+        ],
+        validation: [
+          { command: 'show mlag', expectedResult: 'New MLAG pair healthy. All server port-channels active-full.' },
+          { command: 'show bgp evpn summary', expectedResult: 'All EVPN sessions Established. Full MAC/IP table.' },
+          { command: 'show vxlan flood vtep', expectedResult: 'All VTEPs reachable. No stale tunnels.' }
+        ],
+        rollback: 'At this phase, rollback would require re-racking and re-cabling old hardware. Ensure 24-hour stability window before physical decommission.',
+        successCriteria: 'Old 7050X3 hardware physically removed. New 7280R3A pair fully operational. CloudVision baseline and AVD inventory updated.'
+      }
+    ],
+    keyTools: ['AVD (config generation for new platform)', 'CloudVision Change Control', 'LACP port-priority (traffic shift)', 'show mlag', 'show lacp neighbor'],
+    antiPatterns: [
+      'Do NOT use the same MLAG domain ID without confirming the old leaves are disconnected first — two active MLAG domains with the same ID cause duplicate MAC flapping',
+      'Do NOT migrate all servers simultaneously — one at a time allows isolated rollback',
+      'Do NOT skip the LACP port-priority step — connecting new leaves without priority manipulation causes unpredictable LACP active/standby distribution',
+      'Do NOT decommission old hardware before a 24-hour stability window on the new pair',
+      'Do NOT forget to update CloudVision and AVD inventory — stale device entries will cause future compliance failures'
+    ]
+  },
+  {
     id: 'stp-to-evpn',
     title: 'Cisco STP/VLAN → Arista EVPN/VXLAN',
     from: 'Cisco Catalyst STP + VPC access layer',
