@@ -96,7 +96,7 @@ export const LINUX_CARDS: LinuxCard[] = [
         title: 'Network & Transfer',
         snippet: `ip -d link show et1\ntcpdump -i et1 -w capture.pcap\nss -tlnp\ncurl -O http://repo/image.swi\nscp user@host:/path/file .\ndig +short arista.com\nip route show`,
         why: 'Kernel-level view of interfaces and sockets; move files faster than `copy`.',
-        insight: 'Prefer `ss -tlnp` over `netstat` on modern Fedora-based EOS. Use `ip netns exec <vrf> ss -tlnp` for per-VRF listener check.'
+        insight: 'Prefer `ss -tlnp` over `netstat` on modern Fedora-based EOS. Use `ip netns exec ns-<VRF> ss -tlnp` for per-VRF listener check.'
       },
       {
         title: 'File & Storage',
@@ -180,9 +180,9 @@ export const LINUX_CARDS: LinuxCard[] = [
     commands: [
       {
         title: 'List VRF Namespaces',
-        snippet: `ip netns list\n# Output example:\n# ns-default\n# ns-MGMT\n# ns-PROD`,
-        why: 'Each EOS VRF is a Linux network namespace; listing them maps EOS VRF names to netns handles.',
-        insight: 'The default VRF is `ns-default`. Management VRF is typically `ns-MGMT`. Custom VRFs appear as `ns-<VRF-name>`.'
+        snippet: `ip netns list\n# Output example (non-default VRFs only):\n# ns-MGMT\n# ns-PROD`,
+        why: 'Each non-default EOS VRF is a Linux network namespace; listing them maps EOS VRF names to netns handles.',
+        insight: 'The default VRF runs in the root Linux network namespace and does NOT appear in `ip netns list`. Only non-default VRFs are shown, named `ns-<VRF-name>`. To operate in the default VRF context from bash, no `ip netns exec` prefix is needed — just run commands directly.'
       },
       {
         title: 'Per-VRF Route Table',
@@ -232,7 +232,7 @@ export const LINUX_CARDS: LinuxCard[] = [
         title: 'Localhost eAPI (Unix Socket)',
         snippet: `python3 << 'EOF'\nimport jsonrpclib, json\nswitch = jsonrpclib.Server("unix:/var/run/command-api.sock")\nresult = switch.runCmds(1, ["show version"])\nprint(json.dumps(result, indent=2))\nEOF`,
         why: 'Unix socket eAPI is faster than HTTPS loopback and avoids TLS overhead for on-box scripts.',
-        insight: 'The socket at `/var/run/command-api.sock` requires `management api http-commands` to be enabled. Unix socket does not need credentials.'
+        insight: 'The socket at `/var/run/command-api.sock` requires `management api http-commands` with `protocol unix-socket` explicitly configured and the API enabled (`no shutdown`). Unix socket does not need credentials — authentication is bypassed for on-box use.'
       },
       {
         title: 'Structured Output via curl',
@@ -273,7 +273,7 @@ export const LINUX_CARDS: LinuxCard[] = [
       },
       {
         title: 'Safe Agent Restart (ProcMgr)',
-        snippet: `# Graceful restart via EOS CLI (safest):\nFastCli -p 15 -c "agent Bgp graceful-restart"\n# Or from bash via ProcMgr:\nbash sudo killall -HUP ProcMgr\n# NEVER use kill -9 on agents without TAC guidance`,
+        snippet: `# Graceful restart via EOS CLI (preferred):\nFastCli -p 15 -c "agent Bgp graceful-restart"\n# Works identically from within bash:\n# FastCli -p 15 -c "agent Bgp graceful-restart"\n# NEVER use kill -9 on agents without TAC guidance`,
         why: 'ProcMgr supervises all EOS agents. A graceful restart preserves SysDB state and avoids data-plane disruption.',
         insight: 'SysDB decouples agent state from the process. An agent can crash and restart without affecting forwarding. `kill -9` bypasses this and may corrupt state.'
       },
@@ -380,7 +380,7 @@ export const LINUX_CARDS: LinuxCard[] = [
       },
       {
         title: 'Logs Quick View',
-        snippet: `tail -f /var/log/agents\ntail -f /var/log/messages\n# Show EOS system log:\nFastCli -p 15 -c "show log last 100"\n# Filter for errors:\nFastCli -p 15 -c "show log | grep -i error"`,
+        snippet: `tail -f /var/log/agents/*\ntail -f /var/log/messages\n# Show EOS system log:\nFastCli -p 15 -c "show log last 100"\n# Filter for errors:\nFastCli -p 15 -c "show log | grep -i error"`,
         why: 'See agent-level events outside the EOS CLI. `/var/log/messages` captures kernel and system events.',
         insight: 'Correlate `/var/log/agents/<AgentName>-<PID>` timestamps with `show log` for timeline debugging. Agent logs survive across agent restarts (new file per PID).'
       }
