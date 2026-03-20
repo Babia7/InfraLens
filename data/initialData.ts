@@ -131,6 +131,18 @@ export const initialApps: AppItem[] = [
   
   // --- PRACTICE (Applied Skills & Drills) ---
   {
+    id: 'app-cli-converter',
+    name: 'Cisco → EOS CLI Converter',
+    description: 'Translate IOS and NX-OS commands to Arista EOS. Browse 120+ mappings across 12 categories or paste a config block for line-by-line translation.',
+    category: 'Practice',
+    subCategory: 'Technical Drills',
+    tags: ['EOS', 'CLI', 'IOS', 'NX-OS'],
+    internalRoute: SectionType.CLI_CONVERTER,
+    color: 'from-blue-500 to-indigo-700',
+    featured: true,
+    workflowStages: ['technical', 'poc']
+  },
+  {
     id: 'app-linux-lab',
     name: 'Linux for EOS',
     description: 'Reference + guided drills: bash, filesystem, netns, eAPI, hardening.',
