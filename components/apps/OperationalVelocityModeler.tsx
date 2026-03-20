@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { ArrowLeft, Clock, TrendingUp, DollarSign, Zap, Info, Activity, Cpu, Sparkles, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { SectionType } from '@/types';
+import { useInfraLens } from '@/context/InfraLensContext';
 
 interface OperationalVelocityModelerProps {
   onBack: () => void;
@@ -26,11 +27,13 @@ const InputField = ({ label, value, onChange, unit, icon: Icon }: any) => (
 );
 
 export const OperationalVelocityModeler: React.FC<OperationalVelocityModelerProps> = ({ onBack, onNavigate }) => {
-  // Inputs
+  const { dealContext } = useInfraLens();
+
+  // Inputs (pre-filled from shared dealContext)
   const [changesPerWeek, setChangesPerWeek] = useState(15);
   const [hoursPerManualChange, setHoursPerManualChange] = useState(4);
   const [hoursPerAutomatedChange, setHoursPerAutomatedChange] = useState(0.5);
-  const [hourlyRate, setHourlyRate] = useState(150);
+  const [hourlyRate, setHourlyRate] = useState(dealContext.hourlyRate || 150);
   const [errorRateManual, setErrorRateManual] = useState(20); // %
   const [errorRateAuto, setErrorRateAuto] = useState(1); // %
   const [remediationHours, setRemediationHours] = useState(8);

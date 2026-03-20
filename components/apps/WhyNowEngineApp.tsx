@@ -3,6 +3,7 @@ import { ArrowLeft, Hourglass, DollarSign, AlertTriangle, TrendingUp, Calculator
 import { SectionType } from '@/types';
 import { RelatedActions } from '@/components/RelatedActions';
 import { EvidenceDrawer } from '@/components/EvidenceDrawer';
+import { useInfraLens } from '@/context/InfraLensContext';
 
 interface WhyNowEngineAppProps {
   onBack: () => void;
@@ -12,17 +13,31 @@ interface WhyNowEngineAppProps {
 const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
 export const WhyNowEngineApp: React.FC<WhyNowEngineAppProps> = ({ onBack, onNavigate }) => {
+  const { dealContext, setDealContext } = useInfraLens();
+  const [synced, setSynced] = useState(false);
+
   const [inputs, setInputs] = useState({
-    customerName: 'Acme BioSystems',
+    customerName: dealContext.customerName || 'Acme BioSystems',
     renewalMonths: 6,
     annualMaintenance: 250000,
     fteCount: 4,
     hoursWastedPerWeek: 8,
-    hourlyRate: 125,
-    downtimeCost: 100000,
+    hourlyRate: dealContext.hourlyRate || 125,
+    downtimeCost: dealContext.downtimeCostPerHour || 100000,
     riskProbability: 25
   });
   const [copied, setCopied] = useState(false);
+
+  const syncToDealContext = () => {
+    setDealContext((prev) => ({
+      ...prev,
+      customerName: inputs.customerName,
+      hourlyRate: inputs.hourlyRate,
+      downtimeCostPerHour: inputs.downtimeCost
+    }));
+    setSynced(true);
+    setTimeout(() => setSynced(false), 2000);
+  };
 
   const clampValue = (value: number, min = 0, max?: number) => {
     const safeValue = Number.isFinite(value) ? value : min;
@@ -213,6 +228,14 @@ export const WhyNowEngineApp: React.FC<WhyNowEngineAppProps> = ({ onBack, onNavi
                   className="flex items-center gap-1 px-3 py-1 rounded-lg border border-border bg-card-bg text-secondary hover:text-primary text-[11px] font-semibold"
                 >
                   {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />} Copy
+                </button>
+                <button
+                  onClick={syncToDealContext}
+                  className="flex items-center gap-1 px-3 py-1 rounded-lg border border-blue-400/40 bg-blue-500/5 text-blue-400 hover:text-primary text-[11px] font-semibold"
+                  title="Sync customer name, hourly rate, and downtime cost to all modelers"
+                >
+                  {synced ? <Check size={14} className="text-emerald-400" /> : <Share2 size={14} />}
+                  {synced ? 'Synced' : 'Sync to Modelers'}
                 </button>
               </div>
               <p className="text-sm text-primary leading-relaxed">

@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode, useRef } from 'react';
-import { AppItem, BookItem, ConceptExplainer, RoadmapItem, GlobalConfig, SEPerformanceStep, Suggestion, AppCategory } from '../types';
+import { AppItem, BookItem, ConceptExplainer, RoadmapItem, GlobalConfig, SEPerformanceStep, Suggestion, AppCategory, DealContext, DEFAULT_DEAL_CONTEXT } from '../types';
 import { initialApps, initialBooks, initialConcepts, initialRoadmap, initialGlobalConfig, initialSEPerformance, initialSuggestions } from '../data/initialData';
 import { notifyError } from '@services/notifications';
 
@@ -25,6 +25,10 @@ interface InfraLensContextType {
   showAdminApps: boolean;
   setShowAdminApps: React.Dispatch<React.SetStateAction<boolean>>;
   
+  // Deal Context (shared pre-fill across financial modelers)
+  dealContext: DealContext;
+  setDealContext: React.Dispatch<React.SetStateAction<DealContext>>;
+
   // Operational Actions
   approveSuggestion: (id: string, targetCategory?: AppCategory) => void;
   denySuggestion: (id: string) => void;
@@ -48,7 +52,8 @@ export const STORAGE_KEYS = {
   CONFIG: 'infralens_field_config',
   LAST_SAVED: 'infralens_last_saved',
   LAST_ERROR: 'infralens_last_error',
-  ADMIN_VIEW: 'infralens_admin_view'
+  ADMIN_VIEW: 'infralens_admin_view',
+  DEAL_CONTEXT: 'infralens_deal_ctx'
 };
 
 const LOCKED_APP_IDS = new Set([
@@ -120,6 +125,18 @@ export const InfraLensProvider: React.FC<{ children: ReactNode }> = ({ children 
     return localStorage.getItem(STORAGE_KEYS.ADMIN_VIEW) === 'true';
   });
 
+  // Deal context loaded independently — not subject to DATA_VERSION wipe
+  const [dealContext, setDealContext] = useState<DealContext>(() => {
+    if (!isBrowser) return DEFAULT_DEAL_CONTEXT;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.DEAL_CONTEXT);
+      if (!saved) return DEFAULT_DEAL_CONTEXT;
+      return { ...DEFAULT_DEAL_CONTEXT, ...JSON.parse(saved) };
+    } catch {
+      return DEFAULT_DEAL_CONTEXT;
+    }
+  });
+
   // Ensure newly shipped apps appear even if localStorage has older lists
   useEffect(() => {
     const missing = initialApps.filter((app) => !apps.some((a) => a.id === app.id));
@@ -129,16 +146,17 @@ export const InfraLensProvider: React.FC<{ children: ReactNode }> = ({ children 
   }, [apps]);
 
   useEffect(() => {
-    let changed = false;
-    const next = apps.map((app) => {
-      if (!LOCKED_APP_IDS.has(app.id) || app.adminOnly != null) return app;
-      changed = true;
-      return { ...app, adminOnly: true };
+    setApps(prev => {
+      let changed = false;
+      const next = prev.map((app) => {
+        if (!LOCKED_APP_IDS.has(app.id) || app.adminOnly != null) return app;
+        changed = true;
+        return { ...app, adminOnly: true };
+      });
+      return changed ? next : prev;
     });
-    if (changed) {
-      setApps(next);
-    }
-  }, [apps]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // --- CONSOLIDATED PERSISTENCE ---
   // Debounce writes to prevent IO thrashing during rapid updates
@@ -157,6 +175,7 @@ export const InfraLensProvider: React.FC<{ children: ReactNode }> = ({ children 
         localStorage.setItem(STORAGE_KEYS.LAST_SAVED, new Date().toISOString());
         localStorage.removeItem(STORAGE_KEYS.LAST_ERROR);
         localStorage.setItem(STORAGE_KEYS.ADMIN_VIEW, showAdminApps ? 'true' : 'false');
+        localStorage.setItem(STORAGE_KEYS.DEAL_CONTEXT, JSON.stringify(dealContext));
       } catch (e) {
         console.error("[InfraLens] Persistence failure (Quota Exceeded?)", e);
         try {
@@ -169,7 +188,7 @@ export const InfraLensProvider: React.FC<{ children: ReactNode }> = ({ children 
     }, 1000);
 
     return () => clearTimeout(handler);
-  }, [apps, suggestions, books, concepts, roadmap, sePerformance, config]);
+  }, [apps, suggestions, books, concepts, roadmap, sePerformance, config, dealContext, showAdminApps]);
 
   // --- OPERATIONAL LOGIC ---
 
@@ -243,7 +262,8 @@ export const InfraLensProvider: React.FC<{ children: ReactNode }> = ({ children 
       sePerformance, setSEPerformance,
       config, setConfig,
       showAdminApps, setShowAdminApps,
-      approveSuggestion, 
+      dealContext, setDealContext,
+      approveSuggestion,
       denySuggestion,
       resetToDefaults
     }}>

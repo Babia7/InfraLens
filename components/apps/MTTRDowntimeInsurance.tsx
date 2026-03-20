@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { ArrowLeft, ShieldAlert, TrendingDown, DollarSign, Activity, Zap, AlertTriangle, ShieldCheck, Clock, Layers, Sparkles, Copy, Check, Shield, Target, Telescope, Info } from 'lucide-react';
 import { EvidenceDrawer } from '@/components/EvidenceDrawer';
 import { SectionType } from '@/types';
+import { useInfraLens } from '@/context/InfraLensContext';
 
 interface MTTRDowntimeInsuranceProps {
   onBack: () => void;
@@ -36,8 +37,10 @@ const InputField = ({ label, value, onChange, unit, icon: Icon, desc }: any) => 
 );
 
 export const MTTRDowntimeInsurance: React.FC<MTTRDowntimeInsuranceProps> = ({ onBack, onNavigate }) => {
-  // Financial Inputs
-  const [downtimeCostPerHour, setDowntimeCostPerHour] = useState(150000);
+  const { dealContext } = useInfraLens();
+
+  // Financial Inputs (pre-filled from shared dealContext)
+  const [downtimeCostPerHour, setDowntimeCostPerHour] = useState(dealContext.downtimeCostPerHour || 150000);
   const [incidentsPerYear, setIncidentsPerYear] = useState(4);
   const [legacyMTTR, setLegacyMTTR] = useState(8); // Hours
   const [aristaMTTR, setAristaMTTR] = useState(0.5); // Hours (SysDB hitless or rapid converge)

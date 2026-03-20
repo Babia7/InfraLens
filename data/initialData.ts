@@ -13,7 +13,8 @@ export const initialApps: AppItem[] = [
     tags: ['Finance', 'Efficiency', 'TCO'],
     internalRoute: SectionType.TCO_CALCULATOR,
     color: 'from-emerald-600 to-teal-800',
-    featured: true
+    featured: true,
+    workflowStages: ['discovery', 'close']
   },
   {
     id: 'app-op-velocity',
@@ -24,7 +25,8 @@ export const initialApps: AppItem[] = [
     tags: ['Automation', 'ROI', 'Efficiency'],
     internalRoute: SectionType.OPERATIONAL_VELOCITY_MODELER,
     color: 'from-blue-500 to-indigo-700',
-    featured: true
+    featured: true,
+    workflowStages: ['close', 'expand']
   },
   {
     id: 'app-mttr-downtime',
@@ -35,7 +37,8 @@ export const initialApps: AppItem[] = [
     tags: ['Reliability', 'Risk', 'MTTR'],
     internalRoute: SectionType.MTTR_DOWNTIME_INSURANCE,
     color: 'from-rose-600 to-red-800',
-    featured: true
+    featured: true,
+    workflowStages: ['discovery', 'close']
   },
   {
     id: 'app-unified-os-roi',
@@ -46,7 +49,8 @@ export const initialApps: AppItem[] = [
     tags: ['Operations', 'Skills', 'Unified'],
     internalRoute: SectionType.UNIFIED_OS_TALENT_ROI,
     color: 'from-amber-600 to-orange-800',
-    featured: true
+    featured: true,
+    workflowStages: ['close']
   },
   {
     id: 'app-why-now-engine',
@@ -57,7 +61,8 @@ export const initialApps: AppItem[] = [
     tags: ['Sales', 'Finance', 'Risk'],
     internalRoute: SectionType.WHY_NOW_ENGINE,
     color: 'from-emerald-500 to-blue-700',
-    featured: true
+    featured: true,
+    workflowStages: ['discovery', 'close']
   },
   {
     id: 'app-vertical-matrix',
@@ -68,7 +73,8 @@ export const initialApps: AppItem[] = [
     tags: ['Verticals', 'Bio-Pharma', 'Genomics'],
     internalRoute: SectionType.VERTICAL_MATRIX,
     color: 'from-emerald-500 to-teal-700',
-    featured: true
+    featured: true,
+    workflowStages: ['discovery']
   },
   {
     id: 'app-ai-fabric-designer',
@@ -80,7 +86,8 @@ export const initialApps: AppItem[] = [
     internalRoute: SectionType.AI_FABRIC_DESIGNER,
     color: 'from-violet-600 to-indigo-900',
     featured: true,
-    adminOnly: true
+    adminOnly: true,
+    workflowStages: ['design', 'poc']
   },
   {
     id: 'app-storage-architect',
@@ -92,7 +99,8 @@ export const initialApps: AppItem[] = [
     internalRoute: SectionType.STORAGE_FABRIC_PLANNER,
     color: 'from-blue-700 to-cyan-900',
     featured: true,
-    adminOnly: true
+    adminOnly: true,
+    workflowStages: ['design', 'poc']
   },
   {
     id: 'app-7280-selector',
@@ -131,7 +139,8 @@ export const initialApps: AppItem[] = [
     tags: ['Linux', 'Bash', 'ACT', 'EOS'],
     internalRoute: SectionType.LINUX_LAB,
     color: 'from-emerald-500 to-teal-700',
-    featured: true
+    featured: true,
+    workflowStages: ['technical', 'poc']
   },
   {
     id: 'app-cloudvision-field-guide',
@@ -142,7 +151,8 @@ export const initialApps: AppItem[] = [
     tags: ['CloudVision', 'Runbooks', 'Day 0/1/2'],
     internalRoute: SectionType.CLOUDVISION_ENABLEMENT,
     color: 'from-blue-600 to-indigo-900',
-    featured: true
+    featured: true,
+    workflowStages: ['poc', 'expand']
   },
   {
     id: 'app-avd-studio',
@@ -223,7 +233,8 @@ export const initialApps: AppItem[] = [
     tags: ['Legacy', 'Gap', 'Analysis'],
     internalRoute: SectionType.ARCHITECTURAL_GAP_ANALYSIS,
     color: 'from-rose-600 to-pink-800',
-    featured: true
+    featured: true,
+    workflowStages: ['discovery', 'design']
   },
 
   // --- DELIVERY (Storytelling & Enablement) ---
@@ -236,7 +247,8 @@ export const initialApps: AppItem[] = [
     tags: ['Briefing', 'Narrative', 'Teleprompter'],
     internalRoute: SectionType.BRIEFING_THEATER,
     color: 'from-purple-600 to-indigo-900',
-    featured: true
+    featured: true,
+    workflowStages: ['discovery']
   },
   {
     id: 'app-demo-command',
@@ -247,7 +259,8 @@ export const initialApps: AppItem[] = [
     tags: ['Demo', 'Narrative', 'Enablement'],
     internalRoute: SectionType.DEMO_COMMAND,
     color: 'from-purple-500 to-indigo-800',
-    featured: true
+    featured: true,
+    workflowStages: ['poc']
   },
   {
     id: 'app-narrative-playbook',
@@ -258,7 +271,8 @@ export const initialApps: AppItem[] = [
     tags: ['Narrative', 'Branching', 'Teleprompter'],
     internalRoute: SectionType.NARRATIVE_PLAYBOOK,
     color: 'from-blue-600 to-emerald-700',
-    featured: true
+    featured: true,
+    workflowStages: ['discovery', 'poc']
   },
   {
     id: 'app-protocol-collision',
@@ -281,7 +295,8 @@ export const initialApps: AppItem[] = [
     tags: ['Design', 'AVD', 'Runbooks'],
     internalRoute: SectionType.VALIDATED_DESIGN_NAVIGATOR,
     color: 'from-emerald-500 to-blue-700',
-    featured: true
+    featured: true,
+    workflowStages: ['design', 'poc']
   },
   {
     id: 'app-sales-playbook',
@@ -292,7 +307,8 @@ export const initialApps: AppItem[] = [
     tags: ['Sales', 'Playbook', 'Objections'],
     internalRoute: SectionType.SALES_PLAYBOOK_COACH,
     color: 'from-indigo-500 to-emerald-600',
-    featured: true
+    featured: true,
+    workflowStages: ['discovery', 'close']
   },
   {
     id: 'app-lifesciences-architect',
@@ -309,13 +325,15 @@ export const initialApps: AppItem[] = [
   },
   {
     id: 'app-transceiver-economics',
-    name: 'Optics & Power Optimizer',
-    description: 'Model optics and cabling choices for a fabric—power draw, reach, and cost tradeoffs across QSFP-DD/OSFP/SR/LR.',
-    category: 'Reasoning',
+    name: 'Optics Reference',
+    description: 'Quick reference for fiber types, form factors, signaling, and AI fabric optics strategy. Rules of thumb for every SE conversation.',
+    category: 'Reference',
     subCategory: 'Hardware Spec',
-    tags: ['Optics', 'Power', 'Cost'],
-    featured: false,
-    adminOnly: true
+    tags: ['Optics', 'Fiber', 'Form Factor', 'PAM4', 'SR/LR'],
+    internalRoute: SectionType.OPTICS_REFERENCE,
+    color: 'from-cyan-600 to-blue-800',
+    featured: true,
+    workflowStages: ['design', 'poc']
   },
   {
     id: 'app-campus-ai-ops',

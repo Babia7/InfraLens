@@ -252,6 +252,89 @@ export const AIClusterFabricDesigner: React.FC<AIClusterFabricDesignerProps> = (
                         </div>
                      </section>
 
+                     {/* LOSSLESS FABRIC CONFIG */}
+                     <section className="space-y-6">
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+                           <ShieldCheck size={14} className="text-emerald-500" /> Lossless Fabric Config (RoCE v2 / PFC+ECN)
+                        </h3>
+                        <div className="p-6 bg-zinc-900 border border-zinc-800 rounded-3xl space-y-4">
+                           <p className="text-xs text-zinc-400 leading-relaxed">
+                             Apply these EOS snippets to all leaf and spine switches. Configure ECN to fire at ~30% of buffer to give senders time to back off before PFC PAUSE triggers at 80%.
+                           </p>
+                           <pre className="text-[11px] font-mono text-emerald-300 bg-black rounded-2xl p-5 overflow-x-auto leading-relaxed whitespace-pre">{connectivity === '800G' ? `! 800G RoCE v2 — Lossless Profile (7060X6 / 7800R4)
+! ─────────────────────────────────────────────
+! Step 1: Enable lossless queue on priority 3
+qos profile ROCE-LOSSLESS
+  trust dscp
+  tx-queue 3
+    bandwidth percent 40
+    no random-detect
+
+! Step 2: PFC on priority 3 only (never on all priorities)
+priority-flow-control mode on
+priority-flow-control priority 3 no-drop
+
+! Step 3: ECN thresholds (fire BEFORE PFC)
+qos profile DCQCN
+  ecn minimum-threshold 200000    ! ~30% of 640MB buffer
+  ecn maximum-threshold 400000    ! ~50%
+  pfc threshold 600000            ! ~80%
+
+! Step 4: Apply to every RoCE-bearing interface
+interface Ethernet1/1 - 64/1
+  qos trust dscp
+  service-policy type qos ROCE-LOSSLESS
+  priority-flow-control mode on
+
+! Step 5: DSCP marking — map RoCE to CS3 (DSCP 24)
+! Confirm with GPU vendor; H200/B200 default is DSCP 26
+ip access-list ROCE-MARK
+  10 permit ip any any dscp 26 set dscp cs3` : `! 400G RoCE v2 — Lossless Profile (7060X5 / 7280R3)
+! ─────────────────────────────────────────────
+! Step 1: Enable lossless queue on priority 3
+qos profile ROCE-LOSSLESS
+  trust dscp
+  tx-queue 3
+    bandwidth percent 40
+    no random-detect
+
+! Step 2: PFC on priority 3 only
+priority-flow-control mode on
+priority-flow-control priority 3 no-drop
+
+! Step 3: ECN thresholds (ECN fires before PFC)
+qos profile DCQCN
+  ecn minimum-threshold 100000    ! ~30% of buffer
+  ecn maximum-threshold 200000    ! ~50%
+  pfc threshold 300000            ! ~80%
+
+! Step 4: Apply to every RoCE-bearing interface
+interface Ethernet1 - 32
+  qos trust dscp
+  service-policy type qos ROCE-LOSSLESS
+  priority-flow-control mode on
+
+! Step 5: DSCP marking — map RoCE to CS3 (DSCP 24)
+ip access-list ROCE-MARK
+  10 permit ip any any dscp 26 set dscp cs3`}</pre>
+                           <div className="grid grid-cols-3 gap-3 text-[10px]">
+                              {[
+                                { label: 'PFC Priority', value: '3 (no-drop)', color: 'text-emerald-400' },
+                                { label: 'ECN Trigger', value: '~30% buffer', color: 'text-blue-400' },
+                                { label: 'PFC Trigger', value: '~80% buffer', color: 'text-amber-400' }
+                              ].map(item => (
+                                <div key={item.label} className="p-3 rounded-xl border border-zinc-800 bg-black text-center">
+                                  <p className="text-zinc-500 mb-1">{item.label}</p>
+                                  <p className={`font-mono font-bold ${item.color}`}>{item.value}</p>
+                                </div>
+                              ))}
+                           </div>
+                           <p className="text-[10px] text-zinc-600 leading-relaxed">
+                             Verify with: <span className="font-mono text-zinc-400">show qos profile</span> · <span className="font-mono text-zinc-400">show interfaces Ethernet1 queues</span> · <span className="font-mono text-zinc-400">show priority-flow-control</span>
+                           </p>
+                        </div>
+                     </section>
+
                      {/* BOTTOM CTA */}
                      <div className="p-12 bg-violet-950/20 border border-violet-500/20 rounded-[3rem] text-center">
                         <h3 className="text-2xl font-serif font-bold text-white mb-4">Validate with AVD</h3>

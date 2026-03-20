@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ArrowLeft, Search, Cpu, Zap, Layers, ArrowUpRight, Box, Grid, Beaker, LayoutGrid, Terminal, Check, X, Info, Brain, Activity, PenTool, BookOpen, Presentation, Calculator, TrendingUp, Lock } from 'lucide-react';
 import { useInfraLens } from '@/context/InfraLensContext';
-import { SectionType, AppItem, Suggestion, AppCategory } from '@/types';
+import { SectionType, AppItem, Suggestion, AppCategory, WorkflowStage } from '@/types';
 
 const RETIRED_APP_IDS = new Set([
   'app-upgrade-orchestrator',
@@ -104,6 +104,7 @@ export const AppShowcase: React.FC<AppShowcaseProps> = ({ onBack, onNavigate }) 
     return 'All';
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeStage, setActiveStage] = useState<WorkflowStage | 'All'>('All');
 
   useEffect(() => {
     localStorage.removeItem(FORGE_CATEGORY_STORAGE_KEY);
@@ -141,8 +142,11 @@ export const AppShowcase: React.FC<AppShowcaseProps> = ({ onBack, onNavigate }) 
         const q = searchQuery.toLowerCase();
         result = result.filter(a => a.name.toLowerCase().includes(q) || a.description.toLowerCase().includes(q) || a.tags.some(t => t.toLowerCase().includes(q)));
     }
+    if (activeStage !== 'All') {
+      result = result.filter(a => a.workflowStages?.includes(activeStage));
+    }
     return result;
-  }, [activeCategory, searchQuery, showAdminApps, lockedApps, unlockedApps]);
+  }, [activeCategory, searchQuery, showAdminApps, lockedApps, unlockedApps, activeStage]);
 
   const groupedApps = useMemo(() => {
     // Unified view: everything in one bucket
@@ -195,6 +199,25 @@ export const AppShowcase: React.FC<AppShowcaseProps> = ({ onBack, onNavigate }) 
             <CategorySidebarItem active={activeCategory === 'Delivery'} onClick={() => setActiveCategory('Delivery')} icon={Presentation} label="Narrative & Delivery" count={unlockedApps.filter(a => a.category === 'Delivery').length} accentColor="text-violet-500" />
             <div className="my-2 h-px bg-border mx-4"></div>
             <CategorySidebarItem active={activeCategory === 'Locked'} onClick={() => setActiveCategory('Locked')} icon={Lock} label="Locked" count={lockedApps.length} accentColor="text-amber-500" />
+            <div className="my-3 h-px bg-border mx-4"></div>
+            <div className="px-2 pb-2">
+              <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-secondary px-2 mb-2">SE Stage</p>
+              <div className="flex flex-wrap gap-1.5 px-2">
+                {(['All', 'discovery', 'design', 'poc', 'close', 'expand', 'technical'] as const).map((stage) => (
+                  <button
+                    key={stage}
+                    onClick={() => setActiveStage(stage)}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all ${
+                      activeStage === stage
+                        ? 'border-emerald-400/60 text-emerald-300 bg-emerald-500/10'
+                        : 'border-border text-secondary hover:text-primary hover:border-border/80'
+                    }`}
+                  >
+                    {stage === 'All' ? 'All Stages' : stage.charAt(0).toUpperCase() + stage.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
          </nav>
       </aside>
 

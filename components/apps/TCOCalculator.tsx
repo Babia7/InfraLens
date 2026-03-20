@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { ArrowLeft, Calculator, Zap, Leaf, Info, ChevronRight, TrendingDown, Server, Globe, Clock, Users, BookOpen, Target, FileText, ShieldCheck } from 'lucide-react';
 import { RelatedActions } from '@/components/RelatedActions';
 import { SectionType } from '@/types';
+import { useInfraLens } from '@/context/InfraLensContext';
 
 interface TCOCalculatorProps {
   onBack: () => void;
@@ -41,16 +42,19 @@ const REGIONS: Record<string, { kwh: number; labor: number; co2: number }> = {
 };
 
 export const TCOCalculator: React.FC<TCOCalculatorProps> = ({ onBack, onNavigate }) => {
-  // --- STATE ---
-  const [region, setRegion] = useState('North America');
-  const [numSwitches, setNumSwitches] = useState(48);
+  const { dealContext } = useInfraLens();
+
+  // --- STATE (pre-filled from shared dealContext) ---
+  const [region, setRegion] = useState(dealContext.region || 'North America');
+  const [numSwitches, setNumSwitches] = useState(dealContext.numSwitches || 48);
   const [years, setYears] = useState(5);
   const [savingsView, setSavingsView] = useState<'total' | 'annual'>('total');
   
   // Costs (Auto-adjusted by Region, but editable)
-  const [kwhPrice, setKwhPrice] = useState(REGIONS['North America'].kwh);
-  const [hourlyRate, setHourlyRate] = useState(REGIONS['North America'].labor);
-  const [co2Factor, setCo2Factor] = useState(REGIONS['North America'].co2);
+  const initialRegionData = REGIONS[dealContext.region] ?? REGIONS['North America'];
+  const [kwhPrice, setKwhPrice] = useState(initialRegionData.kwh);
+  const [hourlyRate, setHourlyRate] = useState(dealContext.hourlyRate || initialRegionData.labor);
+  const [co2Factor, setCo2Factor] = useState(initialRegionData.co2);
   
   // Power & Environment
   const [pue, setPue] = useState(1.6); // Power Usage Effectiveness

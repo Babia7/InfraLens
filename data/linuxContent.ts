@@ -50,9 +50,9 @@ export const LINUX_CARDS: LinuxCard[] = [
     commands: [
       {
         title: 'Bash Access',
-        snippet: 'bash\n# Return to EOS CLI:\nexit',
+        snippet: 'bash\n# Elevate to root inside bash:\nsudo bash\n# Return to EOS CLI:\nexit',
         why: 'EOS is Fedora-based; bash exposes GNU tools and the real filesystem.',
-        insight: 'Use `bash sudo` for root-level diagnostics. Never run `bash sudo` unnecessarily—use least privilege.'
+        insight: 'Enter bash with `bash`, then elevate with `sudo bash` for root-level diagnostics. Use `sudo -l` to check available commands. Apply least-privilege—avoid staying as root.'
       },
       {
         title: 'Process Management',
@@ -346,10 +346,7 @@ export const LINUX_CARDS: LinuxCard[] = [
       },
       {
         title: 'Evidence Bundle for TAC',
-        snippet: `# Create dated bundle:\nTIMESTAMP=$(date +%Y%m%d-%H%M)\nbash sudo tar -czvf /mnt/flash/diag-${TIMESTAMP}.tgz \\
-  /var/log/agents \\
-  /mnt/flash/cores \\
-  /mnt/flash/startup-config\n# Verify bundle:\ntar -tzvf /mnt/flash/diag-${TIMESTAMP}.tgz | head\n# Offload:\nscp /mnt/flash/diag-${TIMESTAMP}.tgz user@jumphost:/cases/`,
+        snippet: `# Create dated bundle:\nTIMESTAMP=$(date +%Y%m%d-%H%M)\nsudo tar -czvf /mnt/flash/diag-\${TIMESTAMP}.tgz \\\n  /var/log/agents \\\n  /mnt/flash/cores \\\n  /mnt/flash/startup-config\n# Verify bundle:\ntar -tzvf /mnt/flash/diag-\${TIMESTAMP}.tgz | head\n# Offload:\nscp /mnt/flash/diag-\${TIMESTAMP}.tgz user@jumphost:/cases/`,
         why: 'TAC requires logs, coredumps, and config in one package. Do this before any remediation.',
         insight: 'Always bundle BEFORE restarting agents or rebooting. Post-reboot logs are truncated. Include `show tech-support` output in the bundle for completeness.'
       },

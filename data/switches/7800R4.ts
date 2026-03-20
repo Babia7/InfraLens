@@ -42,7 +42,7 @@ export const family7800R4: SwitchSpec[] = [
     "eosLicenseGroup": 4,
     "datasheetUrl": "https://www.arista.com/en/products/7800-series",
     "source": { "document": "Arista 7800R4 Series AI Spine Switch Datasheet", "page": 8, "table": "Line Card Technical Specifications" },
-    "compatibleChassis": ["7804R", "7808R", "7812R", "7816LR"]
+    "compatibleChassis": ["7804R", "7808R", "7812R", "7816R"]
   },
   {
     "id": "7800R4-36PE",
@@ -79,7 +79,7 @@ export const family7800R4: SwitchSpec[] = [
     "eosLicenseGroup": 4,
     "datasheetUrl": "https://www.arista.com/en/products/7800-series",
     "source": { "document": "Arista 7800R4 Series AI Spine Switch Datasheet", "page": 8, "table": "Line Card Technical Specifications" },
-    "compatibleChassis": ["7804R", "7808R", "7812R", "7816LR"]
+    "compatibleChassis": ["7804R", "7808R", "7812R", "7816R"]
   },
   {
     "id": "7800R4K-36PE",
@@ -116,6 +116,6 @@ export const family7800R4: SwitchSpec[] = [
     "eosLicenseGroup": 4,
     "datasheetUrl": "https://www.arista.com/en/products/7800-series",
     "source": { "document": "Arista 7800R4 Series AI Spine Switch Datasheet", "page": 8, "table": "Line Card Technical Specifications" },
-    "compatibleChassis": ["7804R", "7808R", "7812R", "7816LR"]
+    "compatibleChassis": ["7804R", "7808R", "7812R", "7816R"]
   }
 ];

@@ -269,9 +269,9 @@ export const toolsRegistry: Record<SectionType, ToolRegistryItem> = {
   },
   [SectionType.NARRATIVE_PLAYBOOK]: {
     id: SectionType.NARRATIVE_PLAYBOOK,
-    path: '/delivery/playbook',
+    path: '/apps/playbook',
     component: load(import('@apps/NarrativePlaybookStudio'), 'NarrativePlaybookStudio'),
-    parentId: SectionType.HOME,
+    parentId: SectionType.APPS,
     audience: 'Internal'
   },
   [SectionType.CLOUDVISION_ENABLEMENT]: {
@@ -327,6 +327,20 @@ export const toolsRegistry: Record<SectionType, ToolRegistryItem> = {
     id: SectionType.BROWNFIELD_MIGRATION,
     path: '/apps/brownfield',
     component: load(import('@apps/BrownfieldMigration'), 'BrownfieldMigration'),
+    parentId: SectionType.APPS,
+    audience: 'Customer'
+  },
+  [SectionType.OPTICS_REFERENCE]: {
+    id: SectionType.OPTICS_REFERENCE,
+    path: '/apps/optics',
+    component: load(import('@apps/OpticsReference'), 'OpticsReference'),
+    parentId: SectionType.APPS,
+    audience: 'Customer'
+  },
+  [SectionType.LINUX_TRAINING]: {
+    id: SectionType.LINUX_TRAINING,
+    path: '/apps/linux-training',
+    component: load(import('@apps/LearnLinuxEOS'), 'LearnLinuxEOS'),
     parentId: SectionType.APPS,
     audience: 'Internal'
   }

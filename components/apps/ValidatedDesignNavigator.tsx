@@ -62,6 +62,7 @@ const DESIGNS: ValidatedDesign[] = [
       url: 'https://www.arista.com/en/solutions/validated-designs',
       lastValidated: 'Q1 FY25',
       eosTrain: '4.31.2F (R)',
+      avdVersion: 'v5.0.0',
       caveats: [
         'Avoid mixed MTU on TOR → Spine links',
         'Ensure RT uniqueness when peering brownfield VRFs',
@@ -126,6 +127,7 @@ const DESIGNS: ValidatedDesign[] = [
       source: 'Campus Spline VdC',
       lastValidated: 'Q4 FY24',
       eosTrain: '4.30.5M (M)',
+      avdVersion: 'v4.9.0',
       caveats: [
         'Avoid mixed jumbo defaults on access',
         'Ensure DHCP relay VRF is reachable from core',
@@ -193,6 +195,7 @@ const DESIGNS: ValidatedDesign[] = [
       source: 'EVPN DCI Validation',
       lastValidated: 'Q1 FY25',
       eosTrain: '4.31.1F (R)',
+      avdVersion: 'v4.10.2',
       caveats: [
         'RT collisions with campus VRFs can blackhole',
         'MACsec throughput depends on platform/optic',
@@ -262,6 +265,7 @@ const DESIGNS: ValidatedDesign[] = [
       source: 'AI Pod Regression',
       lastValidated: 'Q1 FY25',
       eosTrain: '4.31.2F (R)',
+      avdVersion: 'v5.0.0',
       caveats: ['Limit PFC domain; avoid end-to-end unless required', 'Ensure ECN thresholds match buffer profile', 'Breakout only per platform support matrix']
     },
     exports: [
@@ -318,6 +322,7 @@ const DESIGNS: ValidatedDesign[] = [
       source: 'Campus Spline VdC (Small/Medium)',
       lastValidated: 'Q4 FY24',
       eosTrain: '4.30.5M (M)',
+      avdVersion: 'v4.9.0',
       caveats: [
         'Avoid mixed jumbo defaults on access ports',
         'Document PoE priority for phones, APs, and cameras',
@@ -381,6 +386,7 @@ const DESIGNS: ValidatedDesign[] = [
       url: 'https://www.arista.com/en/solutions/validated-designs',
       lastValidated: 'Q1 FY25',
       eosTrain: '4.31.2F (R)',
+      avdVersion: 'v5.0.0',
       caveats: [
         'Greenfield recommended — MACsec overhead breaks brownfield MTU assumptions',
         'MSS-Group rule audit required before production — default deny is aggressive',
@@ -441,6 +447,7 @@ const DESIGNS: ValidatedDesign[] = [
       source: 'Branch ZTP Reference Design',
       lastValidated: 'Q4 FY24',
       eosTrain: '4.30.5M (M)',
+      avdVersion: 'v4.9.0',
       caveats: [
         'ZTP requires CVaaS reachability at boot — ensure OOB or WAN is up',
         'Dual WAN BFD timer alignment matters — mismatch causes flapping',
@@ -504,6 +511,7 @@ const DESIGNS: ValidatedDesign[] = [
       url: 'https://www.arista.com/en/solutions/validated-designs',
       lastValidated: 'Q1 FY25',
       eosTrain: '4.31.2F (R)',
+      avdVersion: 'v5.0.0',
       caveats: [
         'Do not mix general-purpose and storage traffic on same PFC domain',
         'ECN threshold defaults are NOT correct for NVMe-oF — must tune per buffer profile',
@@ -559,6 +567,7 @@ export const ValidatedDesignNavigator: React.FC<ValidatedDesignNavigatorProps> =
     if (type === 'AVD Inventory') {
       const payload = {
         fabric: design.fabricType,
+        avdVersion: design.evidence.avdVersion ?? 'unspecified',
         topology: design.topology,
         rtSchema: design.rtSchema,
         mtuPlan: design.mtuPlan,
@@ -738,6 +747,11 @@ ${design.runbook.map((r, idx) => `${idx + 1}. ${r}`).join('\n')}
                 <div className="px-3 py-1 rounded-full text-[11px] font-semibold border border-emerald-400/40 text-emerald-400 bg-emerald-500/5">
                   EOS {design.evidence.eosTrain}
                 </div>
+                {design.evidence.avdVersion && (
+                  <div className="px-3 py-1 rounded-full text-[11px] font-semibold border border-blue-400/40 text-blue-400 bg-blue-500/5">
+                    AVD {design.evidence.avdVersion}
+                  </div>
+                )}
                 {design.brownfieldReady && (
                   <span className="px-3 py-1 rounded-full text-[10px] font-semibold border border-amber-400/40 text-amber-400 bg-amber-500/5">
                     Brownfield Ready
@@ -908,6 +922,7 @@ ${design.runbook.map((r, idx) => `${idx + 1}. ${r}`).join('\n')}
                     <p className="text-sm text-secondary">RT Schema: {design.rtSchema || 'N/A'}</p>
                     <p className="text-sm text-secondary">MTU: {design.mtuPlan || 'N/A'}</p>
                     <p className="text-sm text-secondary">EOS: {design.evidence.eosTrain}</p>
+                    {design.evidence.avdVersion && <p className="text-sm text-secondary">AVD: {design.evidence.avdVersion}</p>}
                     <p className="text-sm text-secondary">Last Validated: {design.evidence.lastValidated}</p>
                     <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary mt-2">Top caveats</p>
                     <ul className="space-y-1 text-sm text-secondary">
@@ -951,7 +966,7 @@ ${design.runbook.map((r, idx) => `${idx + 1}. ${r}`).join('\n')}
                     <span className="text-xs font-bold uppercase tracking-[0.2em]">{d.name}</span>
                     <span className="text-[10px] font-mono text-secondary">Last: {d.evidence.lastValidated}</span>
                   </div>
-                  <p className="text-xs text-secondary mt-1">EOS: {d.evidence.eosTrain}</p>
+                  <p className="text-xs text-secondary mt-1">EOS: {d.evidence.eosTrain}{d.evidence.avdVersion ? ` · AVD ${d.evidence.avdVersion}` : ''}</p>
                   <div className="flex items-center gap-2 mt-2 text-[11px] text-emerald-400">
                     <GitBranch size={12} /> {d.evidence.source}
                     {d.evidence.url && (

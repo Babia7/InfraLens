@@ -43,7 +43,8 @@ export enum SectionType {
   LIFE_SCIENCES_ARCHITECT = 'LIFE_SCIENCES_ARCHITECT',
   WHY_NOW_ENGINE = 'WHY_NOW_ENGINE',
   TROUBLESHOOTING_LAB = 'TROUBLESHOOTING_LAB',
-  BROWNFIELD_MIGRATION = 'BROWNFIELD_MIGRATION'
+  BROWNFIELD_MIGRATION = 'BROWNFIELD_MIGRATION',
+  OPTICS_REFERENCE = 'OPTICS_REFERENCE'
 }
 
 export interface SalesPlayContext {
@@ -76,6 +77,7 @@ export interface ValidatedDesignEvidence {
   url?: string;
   lastValidated: string;
   eosTrain: string;
+  avdVersion?: string;
   caveats: string[];
 }
 
@@ -159,6 +161,7 @@ export interface BookSummary {
 
 // Taxonomy Update: Aligned with "Reasoning + Enablement"
 export type AppCategory = 'Reasoning' | 'Sales' | 'Practice' | 'Reference' | 'Delivery';
+export type WorkflowStage = 'discovery' | 'design' | 'poc' | 'close' | 'expand' | 'technical';
 
 export interface AppItem {
   id: string;
@@ -173,6 +176,7 @@ export interface AppItem {
   featured?: boolean;
   hidden?: boolean;
   adminOnly?: boolean;
+  workflowStages?: WorkflowStage[];
 }
 
 export interface Suggestion extends Omit<AppItem, 'category'> {
@@ -227,6 +231,22 @@ export interface TileConfig {
   label?: string;
   category?: string;
 }
+
+export interface DealContext {
+  customerName: string;
+  region: string;
+  numSwitches: number;
+  downtimeCostPerHour: number;
+  hourlyRate: number;
+}
+
+export const DEFAULT_DEAL_CONTEXT: DealContext = {
+  customerName: '',
+  region: 'North America',
+  numSwitches: 48,
+  downtimeCostPerHour: 150000,
+  hourlyRate: 150
+};
 
 export interface GlobalConfig {
   hero: {
@@ -324,7 +344,8 @@ export interface SwitchSpec {
   eosLicense?: string;
   eosLicenseGroup?: number;
   datasheetUrl?: string;
-  source?: { document?: string; page?: number; table?: string };
+  source?: { document?: string; page?: number; table?: string; notes?: string };
+  compatibleChassis?: string[];
 }
 
 export interface ChassisSpec {

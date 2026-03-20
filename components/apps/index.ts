@@ -29,3 +29,4 @@ export { ResourceHub } from './ResourceHub';
 export { LearnLinuxEOS } from './LearnLinuxEOS';
 export { NarrativePlaybookStudio } from './NarrativePlaybookStudio';
 export { LifeSciencesArchitect } from './LifeSciencesArchitect';
+export { OpticsReference } from './OpticsReference';

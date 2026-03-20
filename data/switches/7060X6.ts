@@ -28,7 +28,7 @@ export const family7060X6: SwitchSpec[] = [
     "weight": "46 lbs (20.8 kg)",
     "eosLicense": "N/A",
     "eosLicenseGroup": 4,
-    "datasheetUrl": "https://www.arista.com/en/products/7060x-series",
+    "datasheetUrl": "https://www.arista.com/en/products/7060x6-series",
     "source": { "document": "Arista 7060X6 Datasheet", "page": 5, "table": "Model Comparison" }
   },
   {
@@ -58,7 +58,7 @@ export const family7060X6: SwitchSpec[] = [
     "weight": "29.2 lbs (13.2 kg)",
     "eosLicense": "N/A",
     "eosLicenseGroup": 3,
-    "datasheetUrl": "https://www.arista.com/en/products/7060x-series",
+    "datasheetUrl": "https://www.arista.com/en/products/7060x6-series",
     "source": { "document": "Arista 7060X6 Datasheet", "page": 5, "table": "Model Comparison" }
   }
 ];

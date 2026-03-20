@@ -520,6 +520,63 @@ mac security
 interface Ethernet1
   macsec profile PROD-MACSEC`,
     prevention: 'Before enabling MACsec on production links, test the key exchange on a lab/staging link. Document CAK/CKN values in a vault (never in plain text). Add a post-change health check: `show macsec summary` and confirm "Secured" state within 30 seconds of enabling.'
+  },
+
+  // ── MLAG Split-Brain ───────────────────────────────────────────────────────
+  {
+    id: 'mlag-split-brain',
+    title: 'MLAG Split-Brain: Peer-Link Failure Causes Traffic Blackhole',
+    protocol: 'MLAG',
+    severity: 'Critical',
+    symptom: 'MLAG peer-link goes down. Both switches enter MLAG "isolated" state. Dual-homed servers lose connectivity. Half the fabric goes unreachable. Logs show "MLAG peer-link is down" and "MLAG is in isolated mode".',
+    context: 'EOS MLAG pair with shared VLAN/SVI. Peer-link carried on dedicated port-channel. No out-of-band management path between peers. Reload-delay configured or defaulted.',
+    steps: [
+      {
+        check: 'Confirm MLAG peer-link status and isolation state.',
+        command: 'show mlag',
+        expected: '"Peer-link status: up". "State: active". "Dual-primary detection: disabled or active".',
+        divergence: '"Peer-link status: down" with "State: disabled" = split-brain. The secondary peer (lower system MAC) will disable its MLAG port-channels to avoid duplicate forwarding. The primary peer continues forwarding; secondary becomes effectively isolated for MLAG traffic.'
+      },
+      {
+        check: 'Determine which peer is primary vs secondary.',
+        command: 'show mlag detail | grep "Primary\\|Secondary\\|System MAC"',
+        expected: 'Primary peer has lower system MAC. Primary continues forwarding. Secondary disables MLAG interfaces.',
+        divergence: 'If both claim primary, dual-primary detection (LACP or dedicated link) has failed. Check `show mlag config-sanity` for dual-primary detection configuration.'
+      },
+      {
+        check: 'Check reload-delay timer to assess recovery window.',
+        command: 'show mlag | grep "Reload delay\\|reload-delay"',
+        expected: 'Reload delay value shown (default 300s). Timer countdown visible if recently recovered.',
+        divergence: 'No reload-delay configured = MLAG port-channels re-enable instantly on peer-link recovery, before BGP/EVPN reconverges. This causes a brief dual-forwarding window. Always configure `mlag configuration → reload-delay <seconds>` ≥ BGP convergence time.'
+      },
+      {
+        check: 'Run configuration sanity check for common MLAG misconfigurations.',
+        command: 'show mlag config-sanity',
+        expected: 'All checks pass. No inconsistencies in VLANs, spanning-tree, or port-channel config between peers.',
+        divergence: 'Any "Error" or "Warning" outputs indicate inconsistency between peer configs. Common: VLANs allowed on peer-link differ between nodes, or STP timers are inconsistent.'
+      },
+      {
+        check: 'Verify peer-link physical health and port-channel state.',
+        command: 'show port-channel <peer-link-PO> detail\nshow interfaces <peer-link-PO> counters errors',
+        expected: 'Port-channel active with all member links in "bundled" state. Zero or negligible input/output errors.',
+        divergence: 'Error counters on peer-link member interfaces indicate physical layer problem (cable, transceiver, or far-end port). Replace the offending link. Do not restore MLAG until peer-link is stable.'
+      }
+    ],
+    rootCause: 'MLAG peer-link loss triggers split-brain. EOS handles this deterministically: the secondary peer (higher system MAC) disables its MLAG port-channels to prevent duplicate MAC forwarding. The primary continues forwarding. Recovery requires peer-link restoration followed by the reload-delay timer to expire, allowing BGP/EVPN to reconverge before MLAG port-channels re-enable.',
+    fix: `! Verify and set reload-delay to exceed BGP/EVPN convergence time:
+mlag configuration
+   reload-delay 300       ! seconds; set >= BGP hold-timer + EVPN convergence
+
+! Verify peer-link port-channel is healthy:
+show mlag
+show mlag config-sanity
+
+! After peer-link restoration, monitor timer:
+show mlag | grep "Reload"
+
+! If forced recovery is needed (after verifying no active split-brain):
+! Allow reload-delay to expire naturally — do NOT manually clear unless instructed by TAC`,
+    prevention: 'Use a dedicated MLAG peer-link (minimum 2x 100G LAG) separate from data traffic. Enable dual-primary detection via a dedicated heartbeat interface (`mlag configuration → peer-address heartbeat <OOB-IP>`). Set reload-delay ≥ 300s. Monitor peer-link utilization in CloudVision — alert at >70% sustained to prevent congestion-induced flap. Run `show mlag config-sanity` as a pre-change checklist item for any VLAN or port-channel modifications.'
   }
 ];
 
@@ -528,7 +585,7 @@ export const PROTOCOL_TROUBLESHOOT_MAP: Record<string, string[]> = {
   EVPN:    ['evpn-rt-miss', 'evpn-dup-mac', 'evpn-type5-miss'],
   VXLAN:   ['vxlan-mtu-black', 'vxlan-tunnel-down'],
   BGP:     ['bgp-idle', 'bgp-route-withdraw'],
-  MLAG:    ['mlag-peer-inactive'],
+  MLAG:    ['mlag-peer-inactive', 'mlag-split-brain'],
   LINUX:   ['linux-netns-miss'],
   QOS:     ['qos-pfc-storm'],
   MACSEC:  ['macsec-session-fail'],
