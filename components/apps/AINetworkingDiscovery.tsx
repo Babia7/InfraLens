@@ -128,8 +128,8 @@ export const AINetworkingDiscovery: React.FC<AINetworkingDiscoveryProps> = ({ on
               <Search size={18} />
             </div>
             <div>
-              <h1 className="font-serif font-bold text-lg tracking-tight leading-none">AI Networking Discovery</h1>
-              <span className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1 block">5-Layer Pre-Call Framework · Vault: Discovery Playbook</span>
+              <h1 className="app-header-title">AI Networking Discovery</h1>
+              <span className="app-header-subtitle">5-Layer Pre-Call Framework · Vault: Discovery Playbook</span>
             </div>
           </div>
         </div>
@@ -153,7 +153,7 @@ export const AINetworkingDiscovery: React.FC<AINetworkingDiscoveryProps> = ({ on
       <main className="flex-1 p-6 md:p-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Progress sidebar */}
         <section className="lg:col-span-1 space-y-3">
-          <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-3">Discovery Layers</p>
+          <p className="tool-label mb-3">Discovery Layers</p>
           {DISCOVERY_QUESTIONS.map((q, i) => {
             const answered = !!answers[q.id];
             const isActive = i === activeQuestion && !showOutput;
@@ -168,7 +168,7 @@ export const AINetworkingDiscovery: React.FC<AINetworkingDiscoveryProps> = ({ on
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-mono text-secondary uppercase tracking-widest">{q.layer}</span>
+                  <span className="tool-label">{q.layer}</span>
                   {answered && <CheckCircle2 size={14} className="text-emerald-400" />}
                 </div>
                 <p className="text-sm font-semibold text-primary">{q.layerDescription}</p>
@@ -184,9 +184,9 @@ export const AINetworkingDiscovery: React.FC<AINetworkingDiscoveryProps> = ({ on
         <section className="lg:col-span-2">
           {!showOutput ? (
             <div className="space-y-4">
-              <div className="p-6 rounded-3xl border border-border bg-card-bg">
+              <div className="tool-card-md">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[10px] font-mono text-secondary uppercase tracking-widest">
+                  <span className="tool-label">
                     {DISCOVERY_QUESTIONS[activeQuestion].layer} — {DISCOVERY_QUESTIONS[activeQuestion].layerDescription}
                   </span>
                 </div>
@@ -242,7 +242,7 @@ export const AINetworkingDiscovery: React.FC<AINetworkingDiscoveryProps> = ({ on
           ) : (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-mono text-secondary uppercase tracking-widest">Pre-Call Prep Card</p>
+                <p className="tool-label">Pre-Call Prep Card</p>
                 <button
                   onClick={() => {
                     const el = document.createElement('a');
@@ -256,19 +256,19 @@ export const AINetworkingDiscovery: React.FC<AINetworkingDiscoveryProps> = ({ on
                 </button>
               </div>
 
-              <div className="p-5 rounded-3xl border border-border bg-card-bg space-y-4">
+              <div className="tool-card space-y-4">
                 <div>
-                  <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-2">Recommended Topology</p>
+                  <p className="tool-label mb-2">Recommended Topology</p>
                   <p className="text-sm text-primary leading-relaxed">{output.topologyTier}</p>
                 </div>
                 <div className="border-t border-border pt-4">
-                  <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-2">Positioning Angle</p>
+                  <p className="tool-label mb-2">Positioning Angle</p>
                   <p className="text-sm text-secondary leading-relaxed">{output.positioningAngle}</p>
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
-                <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-3">Proof Sequence</p>
+              <div className="tool-note">
+                <p className="tool-label mb-3">Proof Sequence</p>
                 <ol className="space-y-2">
                   {output.proofSequence.map((p, i) => (
                     <li key={p} className="flex gap-3 text-sm text-secondary">
@@ -280,7 +280,7 @@ export const AINetworkingDiscovery: React.FC<AINetworkingDiscoveryProps> = ({ on
               </div>
 
               {output.objectionAnticipation.length > 0 && (
-                <div className="p-5 rounded-2xl border border-amber-400/20 bg-amber-500/5">
+                <div className="tool-warning">
                   <p className="text-[10px] font-mono text-amber-400 uppercase tracking-widest mb-3">Objection Anticipation</p>
                   {output.objectionAnticipation.map((o) => (
                     <p key={o} className="text-sm text-secondary leading-relaxed mb-2">· {o}</p>

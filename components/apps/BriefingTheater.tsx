@@ -1269,7 +1269,7 @@ const IPFabricVisuals: React.FC<{ index: number }> = ({ index }) => {
 
 const SceneVisual: React.FC<{ intent: string; index: number; active: boolean; presetId?: string }> = ({ intent, index, active, presetId }) => {
   return (
-    <div className={`relative w-full h-full flex items-center justify-center transition-all duration-700 bg-zinc-950 ${active ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+    <div className={`relative w-full h-full flex items-center justify-center transition-all duration-700 bg-page-bg ${active ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
 
        {presetId === 'why-arista-2' ? (
           <div className="scale-90 md:scale-100">
@@ -1434,30 +1434,30 @@ export const BriefingTheater: React.FC<BriefingTheaterProps> = ({ onBack }) => {
   if (!narrative) {
     // ... (Selection Screen - Modified)
     return (
-      <div className="min-h-screen bg-zinc-950 text-white font-sans flex items-center justify-center p-8 overflow-y-auto">
+      <div className="min-h-screen bg-page-bg text-primary font-sans flex items-center justify-center p-8 overflow-y-auto">
          <div className="max-w-4xl w-full space-y-16 animate-fade-in py-12">
             <header className="text-center space-y-6">
-               <button onClick={onBack} className="text-zinc-600 hover:text-white flex items-center gap-2 mx-auto text-xs font-bold uppercase tracking-widest transition-colors mb-4">
+               <button onClick={onBack} className="text-secondary hover:text-primary flex items-center gap-2 mx-auto text-xs font-bold uppercase tracking-widest transition-colors mb-4">
                   <ArrowLeft size={14} /> Systems Return
                </button>
                <div className="w-20 h-20 bg-violet-500/10 border border-violet-500/20 rounded-3xl flex items-center justify-center text-violet-400 mx-auto shadow-2xl">
                   <Tv size={40} />
                </div>
                <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tighter">Briefing Theater</h1>
-               <p className="text-zinc-500 text-lg max-w-2xl mx-auto">Cinema-grade architectural storytelling. Replace static slides with a curated narrative journey.</p>
+               <p className="text-secondary text-lg max-w-2xl mx-auto">Cinema-grade architectural storytelling. Replace static slides with a curated narrative journey.</p>
             </header>
             <div className="space-y-12">
                <section className="space-y-6">
-                  <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-600 text-center flex items-center justify-center gap-4">
-                     <span className="h-px w-12 bg-zinc-800"></span> Signature Series <span className="h-px w-12 bg-zinc-800"></span>
+                  <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-secondary text-center flex items-center justify-center gap-4">
+                     <span className="h-px w-12 bg-border"></span> Signature Series <span className="h-px w-12 bg-border"></span>
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                      {PRESETS.map((preset) => (
-                        <button key={preset.id} onClick={() => handleSelectPreset(preset.id)} className={`group p-6 bg-zinc-900 border border-zinc-800 rounded-[2rem] text-left transition-all hover:border-violet-500/50 hover:bg-zinc-900/80 hover:-translate-y-1 disabled:opacity-50`}>
+                        <button key={preset.id} onClick={() => handleSelectPreset(preset.id)} className={`group p-6 bg-card-bg border border-border rounded-[2rem] text-left transition-all hover:border-violet-500/50 hover:bg-card-bg/80 hover:-translate-y-1 disabled:opacity-50`}>
                            <div className={`w-10 h-10 rounded-2xl ${preset.bg} ${preset.border} flex items-center justify-center ${preset.color} mb-6 transition-transform group-hover:scale-110`}><preset.icon size={20} /></div>
-                           <h4 className="text-xl font-serif font-bold text-white mb-2 group-hover:text-violet-400 transition-colors">{preset.title}</h4>
-                           <p className="text-xs text-zinc-500 leading-relaxed mb-6 line-clamp-3">{preset.topic}</p>
-                           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-600 group-hover:text-white transition-colors">Initialize <ChevronRight size={12} /></div>
+                           <h4 className="text-xl font-serif font-bold text-primary mb-2 group-hover:text-violet-400 transition-colors">{preset.title}</h4>
+                           <p className="text-xs text-secondary leading-relaxed mb-6 line-clamp-3">{preset.topic}</p>
+                           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-secondary group-hover:text-primary transition-colors">Initialize <ChevronRight size={12} /></div>
                         </button>
                      ))}
                   </div>
@@ -1471,34 +1471,34 @@ export const BriefingTheater: React.FC<BriefingTheaterProps> = ({ onBack }) => {
   const activeScene = narrative.scenes[currentScene];
 
   return (
-    <div className={`min-h-screen bg-black text-white font-sans flex flex-col overflow-hidden transition-all duration-1000 ${isZen || presenterMode ? 'cursor-none' : ''}`}>
+    <div className={`min-h-screen bg-surface-muted text-primary font-sans flex flex-col overflow-hidden transition-all duration-1000 ${isZen || presenterMode ? 'cursor-none' : ''}`}>
        
        {/* TOP HUD */}
        {!isZen && !presenterMode && (
-          <header className="h-16 border-b border-zinc-900 flex items-center justify-between px-8 bg-zinc-950/80 backdrop-blur-md shrink-0 z-50">
+          <header className="h-16 border-b border-border flex items-center justify-between px-8 bg-page-bg/80 backdrop-blur-md shrink-0 z-50">
              <div className="flex items-center gap-6">
-                <button 
+                <button
                   onClick={() => {
                     setNarrative(null);
                     navigate(location.pathname, { replace: true });
-                  }} 
-                  className="p-2 text-zinc-600 hover:text-white transition-colors"
+                  }}
+                  className="p-2 text-secondary hover:text-primary transition-colors"
                 >
                    <ArrowLeft size={20} />
                 </button>
-                <div className="h-4 w-px bg-zinc-800"></div>
+                <div className="h-4 w-px bg-border"></div>
                 <div>
                    <h2 className="text-sm font-bold uppercase tracking-wider">{narrative.title}</h2>
                    <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                      <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">Theater Online</span>
+                      <span className="tool-label">Theater Online</span>
                    </div>
                 </div>
              </div>
              <div className="flex items-center gap-4">
-                <button onClick={() => setPresenterMode(true)} className="p-2 rounded-lg border border-zinc-800 text-zinc-600 hover:text-white transition-colors" title="Presenter Mode"><Presentation size={16} /></button>
-                <button onClick={() => setShowTeleprompter(!showTeleprompter)} className={`p-2 rounded-lg border transition-all ${showTeleprompter ? 'bg-violet-500/10 border-violet-500/50 text-violet-400' : 'border-zinc-800 text-zinc-600'}`}><Mic2 size={16} /></button>
-                <button onClick={() => setIsZen(!isZen)} className="p-2 border border-zinc-800 rounded-lg text-zinc-600 hover:text-white"><Maximize2 size={16} /></button>
+                <button onClick={() => setPresenterMode(true)} className="p-2 rounded-lg border border-border text-secondary hover:text-primary transition-colors" title="Presenter Mode"><Presentation size={16} /></button>
+                <button onClick={() => setShowTeleprompter(!showTeleprompter)} className={`p-2 rounded-lg border transition-all ${showTeleprompter ? 'bg-violet-500/10 border-violet-500/50 text-violet-400' : 'border-border text-secondary'}`}><Mic2 size={16} /></button>
+                <button onClick={() => setIsZen(!isZen)} className="p-2 border border-border rounded-lg text-secondary hover:text-primary"><Maximize2 size={16} /></button>
              </div>
           </header>
        )}
@@ -1521,12 +1521,12 @@ export const BriefingTheater: React.FC<BriefingTheaterProps> = ({ onBack }) => {
                    <span className="font-mono text-xs text-blue-500 uppercase tracking-[0.4em] mb-2 block border-b border-blue-500/20 pb-2">
                       Part {currentScene < 9 ? `0${currentScene + 1}` : currentScene + 1}
                    </span>
-                   <div className="h-px bg-zinc-900 flex-1"></div>
+                   <div className="h-px bg-border flex-1"></div>
                 </div>
                 <h1 className="text-5xl md:text-7xl font-serif font-black tracking-tighter leading-[0.95] drop-shadow-2xl max-w-4xl">
                    {activeScene.heading}
                 </h1>
-                <p className="text-xl text-zinc-400 font-light max-w-3xl leading-relaxed italic border-l-2 border-zinc-800 pl-6">
+                <p className="text-xl text-secondary font-light max-w-3xl leading-relaxed italic border-l-2 border-border pl-6">
                    {activeScene.caption}
                 </p>
              </div>
@@ -1536,12 +1536,12 @@ export const BriefingTheater: React.FC<BriefingTheaterProps> = ({ onBack }) => {
                 <div className="absolute bottom-8 left-10 right-10 flex justify-between items-center z-50">
                    <div className="flex gap-1.5 flex-wrap max-w-[60%]">
                       {narrative.scenes.map((_, i) => (
-                         <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === currentScene ? 'w-12 bg-white' : 'w-4 bg-zinc-800 hover:bg-zinc-600 cursor-pointer'}`} onClick={() => setCurrentScene(i)}></div>
+                         <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === currentScene ? 'w-12 bg-primary' : 'w-4 bg-border hover:bg-secondary cursor-pointer'}`} onClick={() => setCurrentScene(i)}></div>
                       ))}
                    </div>
                    <div className="flex gap-4">
-                      <button onClick={prev} disabled={currentScene === 0} className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-zinc-500 hover:text-white disabled:opacity-20"><ChevronLeft size={24} /></button>
-                      <button onClick={next} disabled={currentScene === narrative.scenes.length - 1} className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-zinc-500 hover:text-white disabled:opacity-20"><ChevronRight size={24} /></button>
+                      <button onClick={prev} disabled={currentScene === 0} className="p-4 bg-card-bg/50 border border-border rounded-2xl text-secondary hover:text-primary disabled:opacity-20"><ChevronLeft size={24} /></button>
+                      <button onClick={next} disabled={currentScene === narrative.scenes.length - 1} className="p-4 bg-card-bg/50 border border-border rounded-2xl text-secondary hover:text-primary disabled:opacity-20"><ChevronRight size={24} /></button>
                    </div>
                 </div>
              )}
@@ -1563,19 +1563,19 @@ export const BriefingTheater: React.FC<BriefingTheaterProps> = ({ onBack }) => {
 
           {/* TELEPROMPTER */}
           {showTeleprompter && !isZen && !presenterMode && (
-             <aside className="w-80 bg-zinc-900/90 backdrop-blur border-l border-zinc-800 p-8 flex flex-col gap-8 animate-fade-in overflow-y-auto">
+             <aside className="w-80 bg-card-bg/90 backdrop-blur border-l border-border p-8 flex flex-col gap-8 animate-fade-in overflow-y-auto">
                 <div>
-                   <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-4 flex items-center gap-2">
+                   <h3 className="text-xs font-bold uppercase tracking-widest text-secondary mb-4 flex items-center gap-2">
                       <Mic2 size={14} /> Talk Track
                    </h3>
-                   <div className="p-6 bg-black border border-zinc-800 rounded-2xl relative">
-                      <p className="text-lg leading-relaxed text-zinc-200 font-medium font-serif">
+                   <div className="p-6 bg-surface-muted border border-border rounded-2xl relative">
+                      <p className="text-lg leading-relaxed text-primary font-medium font-serif">
                          {activeScene.teleprompter}
                       </p>
                    </div>
                 </div>
-                <div className="mt-auto bg-zinc-950 border border-zinc-800 p-4 rounded-xl text-center">
-                   <p className="text-[10px] text-zinc-500 font-mono">Present with authority.</p>
+                <div className="mt-auto bg-page-bg border border-border p-4 rounded-xl text-center">
+                   <p className="text-[10px] text-secondary font-mono">Present with authority.</p>
                 </div>
              </aside>
           )}
@@ -1583,20 +1583,20 @@ export const BriefingTheater: React.FC<BriefingTheaterProps> = ({ onBack }) => {
 
        {/* COMMAND PALETTE */}
         {paletteOpen && (
-           <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-start justify-center pt-32 animate-fade-in" onClick={(e) => { if (e.target === e.currentTarget) setPaletteOpen(false); }}>
-              <div className="w-full max-w-lg bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[60vh]">
-                 <div className="p-4 border-b border-zinc-800 flex items-center gap-3">
-                    <Search size={18} className="text-zinc-500" />
-                   <input ref={paletteInputRef} className="flex-1 bg-transparent border-none outline-none text-white placeholder-zinc-600 text-lg font-sans" placeholder="Jump to section..." value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && filteredScenes.length > 0) jumpToScene(filteredScenes[0].originalIndex); }} />
-                   <div className="px-2 py-1 rounded bg-zinc-800 border border-zinc-700 text-[10px] font-mono text-zinc-400">ESC</div>
+           <div className="fixed inset-0 z-[100] bg-surface-muted/80 backdrop-blur-sm flex items-start justify-center pt-32 animate-fade-in" onClick={(e) => { if (e.target === e.currentTarget) setPaletteOpen(false); }}>
+              <div className="w-full max-w-lg bg-card-bg border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[60vh]">
+                 <div className="p-4 border-b border-border flex items-center gap-3">
+                    <Search size={18} className="text-secondary" />
+                   <input ref={paletteInputRef} className="flex-1 bg-transparent border-none outline-none text-primary placeholder-secondary text-lg font-sans" placeholder="Jump to section..." value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && filteredScenes.length > 0) jumpToScene(filteredScenes[0].originalIndex); }} />
+                   <div className="px-2 py-1 rounded bg-card-bg border border-border text-[10px] font-mono text-secondary">ESC</div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-2 space-y-1">
                    {filteredScenes.length > 0 ? filteredScenes.map((scene, idx) => (
-                      <button key={idx} onClick={() => jumpToScene(scene.originalIndex)} className={`w-full text-left px-4 py-3 rounded-xl flex items-center justify-between group transition-colors ${idx === 0 ? 'bg-violet-600/10 border border-violet-500/20' : 'hover:bg-zinc-800 border border-transparent'}`}>
-                         <div className="flex flex-col"><span className={`text-sm font-bold ${idx === 0 ? 'text-violet-400' : 'text-zinc-200 group-hover:text-white'}`}>{scene.heading}</span><span className="text-[10px] text-zinc-500 line-clamp-1">{scene.caption}</span></div>
+                      <button key={idx} onClick={() => jumpToScene(scene.originalIndex)} className={`w-full text-left px-4 py-3 rounded-xl flex items-center justify-between group transition-colors ${idx === 0 ? 'bg-violet-600/10 border border-violet-500/20' : 'hover:bg-card-bg border border-transparent'}`}>
+                         <div className="flex flex-col"><span className={`text-sm font-bold ${idx === 0 ? 'text-violet-400' : 'text-primary group-hover:text-primary'}`}>{scene.heading}</span><span className="text-[10px] text-secondary line-clamp-1">{scene.caption}</span></div>
                          {idx === 0 && <CornerDownLeft size={14} className="text-violet-500" />}
                       </button>
-                   )) : <div className="p-8 text-center text-zinc-500 text-xs font-mono uppercase tracking-widest">No matching scenes</div>}
+                   )) : <div className="p-8 text-center text-secondary text-xs font-mono uppercase tracking-widest">No matching scenes</div>}
                 </div>
               </div>
            </div>

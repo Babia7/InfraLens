@@ -64,6 +64,7 @@ body {
 .text-secondary { color: var(--text-secondary) !important; }
 
 .surface-muted { background-color: var(--surface-muted) !important; }
+.bg-surface-muted { background-color: var(--surface-muted) !important; }
 .surface-strong { background-color: var(--surface-strong) !important; }
 .pill { background-color: var(--pill-bg); color: var(--text-primary); }
 
@@ -158,3 +159,105 @@ body {
 ::view-transition-new(root) {
   animation-duration: 0.4s;
 }
+
+/* ─── Tool App Design System ─── */
+
+/* Type scale */
+.tool-label {
+  font-size: 10px;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+  display: block;
+}
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+.metric-value-sm {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.metric-label {
+  font-size: 10px;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  display: block;
+}
+.app-header-title {
+  font-family: ui-serif, Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  color: var(--text-primary);
+}
+.app-header-subtitle {
+  font-size: 10px;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* Card primitives */
+.tool-card {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+}
+.tool-card-md {
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+}
+.tool-card-lg {
+  padding: 2rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+}
+.tool-note {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  background-color: color-mix(in srgb, var(--card-bg) 50%, transparent);
+}
+.tool-warning {
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  background-color: rgba(245, 158, 11, 0.05);
+}
+
+/* Tab navigation */
+.tool-tab {
+  padding: 0.5rem 1rem;
+  font-size: 11px;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tool-tab:hover { color: var(--text-primary); }
+.tool-tab.active { color: var(--text-primary); border-bottom-color: #8b5cf6; }

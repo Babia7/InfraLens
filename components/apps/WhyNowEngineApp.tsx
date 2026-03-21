@@ -74,7 +74,7 @@ export const WhyNowEngineApp: React.FC<WhyNowEngineAppProps> = ({ onBack, onNavi
           </button>
           <div>
             <div className="font-serif font-bold text-lg tracking-tight">Why Now Engine</div>
-            <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">Cost of Inaction · InfraLens</div>
+            <div className="app-header-subtitle">Cost of Inaction · InfraLens</div>
           </div>
         </div>
         {onNavigate && (
@@ -126,7 +126,7 @@ export const WhyNowEngineApp: React.FC<WhyNowEngineAppProps> = ({ onBack, onNavi
               <button onClick={() => setInputs((p) => ({ ...p, renewalMonths: p.renewalMonths + 1 }))} className="px-2 py-1 rounded border border-border bg-card-bg">+1m</button>
             </div>
             <div className="border border-border rounded-xl p-3 space-y-3 bg-card-bg/70">
-              <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">Financials</p>
+              <p className="tool-label">Financials</p>
               <label className="text-xs text-secondary flex flex-col gap-1">
                 Legacy Maintenance (Annual)
                 <div className="flex items-center gap-2">
@@ -171,7 +171,7 @@ export const WhyNowEngineApp: React.FC<WhyNowEngineAppProps> = ({ onBack, onNavi
             </div>
 
             <div className="border border-border rounded-xl p-3 space-y-3 bg-card-bg/70">
-              <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">Risk Model (deferral window)</p>
+              <p className="tool-label">Risk Model (deferral window)</p>
               <label className="text-xs text-secondary flex flex-col gap-1">
                 Cost of major incident
                 <div className="flex items-center gap-2">
@@ -215,9 +215,9 @@ export const WhyNowEngineApp: React.FC<WhyNowEngineAppProps> = ({ onBack, onNavi
               InfraLens frames the opportunity cost in three dimensions: sunk maintenance, operational drag, and probabilistic risk.
               Use this to anchor the “Why Now” story in Sales Playbook Coach or pull the summary straight into Narrative Playbook beats.
             </p>
-            <div className="p-4 rounded-2xl border border-border bg-card-bg/70 flex flex-col gap-3">
+            <div className="tool-note flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">Exec blurb</span>
+                <span className="tool-label">Exec blurb</span>
                 <button
                   onClick={() => {
                     const blurb = `Waiting ${results.months} months costs ${currency.format(results.total)} (${currency.format(results.sunkMaintenance)} maintenance, ${currency.format(results.laborWaste)} ops drag, ${currency.format(results.riskExposure)} risk). Fund the move with stopped bleed; pair with MTTR + TCO for proof.`;
@@ -251,7 +251,7 @@ export const WhyNowEngineApp: React.FC<WhyNowEngineAppProps> = ({ onBack, onNavi
               { label: 'Operational Drag', value: results.laborWaste, icon: Gauge, tone: 'text-blue-300', desc: 'Hours lost to manual work on brittle systems.' },
               { label: 'Risk Exposure', value: results.riskExposure, icon: AlertTriangle, tone: 'text-rose-300', desc: 'Probabilistic cost of a major incident over the window.' }
             ].map((card) => (
-              <div key={card.label} className="p-4 rounded-2xl border border-border bg-card-bg/70 space-y-2">
+              <div key={card.label} className="tool-note space-y-2">
                 <div className="flex items-center gap-2 text-secondary text-xs uppercase tracking-[0.3em]">
                   <card.icon size={14} className={card.tone} /> {card.label}
                 </div>
@@ -262,8 +262,8 @@ export const WhyNowEngineApp: React.FC<WhyNowEngineAppProps> = ({ onBack, onNavi
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-3">
-              <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary flex items-center gap-2">
+            <div className="tool-note space-y-3">
+              <div className="tool-label flex items-center gap-2">
                 <TrendingUp size={14} className="text-blue-400" /> Narrative Hooks
               </div>
               <ul className="list-disc list-inside text-secondary space-y-2 text-sm">
@@ -272,8 +272,8 @@ export const WhyNowEngineApp: React.FC<WhyNowEngineAppProps> = ({ onBack, onNavi
                 <li>Export to Sales Coach to personalize for persona/vertical and attach proof steps.</li>
               </ul>
             </div>
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-3">
-              <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary flex items-center gap-2">
+            <div className="tool-note space-y-3">
+              <div className="tool-label flex items-center gap-2">
                 <ArrowRightLeft size={14} className="text-emerald-400" /> Integration Path
               </div>
               <p className="text-sm text-secondary leading-relaxed">
@@ -287,8 +287,8 @@ export const WhyNowEngineApp: React.FC<WhyNowEngineAppProps> = ({ onBack, onNavi
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-3">
-            <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">
+          <div className="tool-note space-y-3">
+            <div className="flex items-center gap-2 tool-label">
               <ClipboardList size={14} className="text-emerald-300" /> Recommendations
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-secondary">

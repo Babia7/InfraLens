@@ -36,12 +36,12 @@ export const AITrafficPatternExplorer: React.FC<AITrafficPatternExplorerProps> =
               <Activity size={18} />
             </div>
             <div>
-              <h1 className="font-serif font-bold text-lg tracking-tight leading-none">AI Traffic Pattern Explorer</h1>
-              <span className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1 block">Workload → Fabric Risk → Design Response</span>
+              <h1 className="app-header-title">AI Traffic Pattern Explorer</h1>
+              <span className="app-header-subtitle">Workload → Fabric Risk → Design Response</span>
             </div>
           </div>
         </div>
-        <div className="text-[10px] font-mono text-secondary uppercase tracking-widest">
+        <div className="tool-label">
           {AI_TRAFFIC_PATTERNS.length} Patterns · Vault: AI Traffic Pattern Atlas
         </div>
       </header>
@@ -49,7 +49,7 @@ export const AITrafficPatternExplorer: React.FC<AITrafficPatternExplorerProps> =
       <main className="flex-1 p-6 md:p-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Pattern list */}
         <section className="lg:col-span-1 space-y-2">
-          <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-3">Patterns</p>
+          <p className="tool-label mb-3">Patterns</p>
           {AI_TRAFFIC_PATTERNS.map((p) => (
             <button
               key={p.id}
@@ -81,7 +81,7 @@ export const AITrafficPatternExplorer: React.FC<AITrafficPatternExplorerProps> =
         {/* Detail panel */}
         <section className="lg:col-span-2 space-y-4">
           {/* Header card */}
-          <div className="p-6 rounded-3xl border border-border bg-card-bg">
+          <div className="tool-card-md">
             <div className="flex items-start justify-between gap-4 mb-3">
               <div>
                 <div className="flex items-center gap-2 mb-1">
@@ -94,14 +94,14 @@ export const AITrafficPatternExplorer: React.FC<AITrafficPatternExplorerProps> =
             </div>
             <p className="text-secondary text-sm leading-relaxed mb-4">{selected.description}</p>
 
-            <div className="p-4 rounded-2xl border border-border bg-card-bg/50">
-              <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-2">Traffic Signature</p>
+            <div className="tool-note">
+              <p className="tool-label mb-2">Traffic Signature</p>
               <p className="text-sm text-primary leading-relaxed">{selected.trafficSignature}</p>
             </div>
 
             {selected.whereItShowsUp.length > 0 && (
               <div className="mt-4">
-                <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-2">Where It Shows Up</p>
+                <p className="tool-label mb-2">Where It Shows Up</p>
                 <ul className="space-y-1">
                   {selected.whereItShowsUp.map((w) => (
                     <li key={w} className="flex gap-2 text-sm text-secondary">
@@ -175,7 +175,7 @@ export const AITrafficPatternExplorer: React.FC<AITrafficPatternExplorerProps> =
           )}
 
           {activeTab === 'ops' && (
-            <div className="p-5 rounded-2xl border border-border bg-card-bg">
+            <div className="tool-card">
               <div className="flex items-center gap-2 mb-4 text-xs font-bold uppercase tracking-widest text-secondary">
                 <Eye size={14} className="text-cyan-400" /> Operational Watch Points
               </div>

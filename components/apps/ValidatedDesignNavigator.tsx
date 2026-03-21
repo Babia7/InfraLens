@@ -623,8 +623,8 @@ ${design.runbook.map((r, idx) => `${idx + 1}. ${r}`).join('\n')}
               <Map size={18} />
             </div>
             <div>
-              <h1 className="font-serif font-bold text-lg tracking-tight leading-none">Validated Design Navigator</h1>
-              <span className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1 block">Arista Verified · Exportable Kits</span>
+              <h1 className="app-header-title">Validated Design Navigator</h1>
+              <span className="app-header-subtitle">Arista Verified · Exportable Kits</span>
             </div>
           </div>
         </div>
@@ -669,7 +669,7 @@ ${design.runbook.map((r, idx) => `${idx + 1}. ${r}`).join('\n')}
           ]}
         />
         <EvidenceDrawer contextTags={['Navigator']} />
-        <section className="p-6 rounded-3xl border border-border bg-card-bg flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <section className="tool-card-md flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
             <p className="text-xs font-mono uppercase tracking-[0.3em] text-secondary flex items-center gap-2">
               <Globe2 size={14} className="text-emerald-400" /> Grounded in Arista Validated Designs
@@ -686,7 +686,7 @@ ${design.runbook.map((r, idx) => `${idx + 1}. ${r}`).join('\n')}
           </div>
         </section>
 
-        <section className="p-4 rounded-2xl border border-border bg-card-bg/60">
+        <section className="tool-note">
           <div className="flex items-center gap-3 mb-4">
             <Filter size={16} className="text-emerald-400" />
             <span className="text-xs font-bold uppercase tracking-[0.3em] text-secondary">Filter by mission</span>
@@ -732,10 +732,10 @@ ${design.runbook.map((r, idx) => `${idx + 1}. ${r}`).join('\n')}
 
         <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredDesigns.map((design) => (
-            <div key={design.id} className="p-6 rounded-3xl border border-border bg-card-bg shadow-lg space-y-4">
+            <div key={design.id} className="tool-card-md shadow-lg space-y-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary flex items-center gap-2">
+                  <p className="tool-label flex items-center gap-2">
                     <Layers size={14} className="text-blue-400" /> {design.scale}
                   </p>
                   <h3 className="text-2xl font-serif font-bold text-primary mt-1">{design.name}</h3>
@@ -769,8 +769,8 @@ ${design.runbook.map((r, idx) => `${idx + 1}. ${r}`).join('\n')}
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl border border-border bg-card-bg/60">
-                <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-secondary mb-2">Topology sketch</p>
+              <div className="tool-note">
+                <p className="tool-label mb-2">Topology sketch</p>
                 <div className="grid grid-cols-4 gap-2 text-center text-[11px] text-secondary">
                   <div className="rounded-lg border border-border py-2 bg-card-bg/60">Spines: {design.avdSeed?.spines ?? '-'}</div>
                   <div className="rounded-lg border border-border py-2 bg-card-bg/60">Leaves: {design.avdSeed?.leaves ?? '-'}</div>
@@ -895,7 +895,7 @@ ${design.runbook.map((r, idx) => `${idx + 1}. ${r}`).join('\n')}
         </section>
 
         {compareIds.length > 0 && (
-          <section className="p-6 rounded-3xl border border-border bg-card-bg/80 space-y-4">
+          <section className="tool-card-md space-y-4">
             <div className="flex items-center justify-between">
               <div className="text-xs font-bold uppercase tracking-[0.3em] text-secondary flex items-center gap-2">
                 <GitBranch size={14} className="text-emerald-400" /> Compare ({compareIds.length}/2)
@@ -912,7 +912,7 @@ ${design.runbook.map((r, idx) => `${idx + 1}. ${r}`).join('\n')}
                 const design = DESIGNS.find((d) => d.id === id);
                 if (!design) return null;
                 return (
-                  <div key={design.id} className="p-4 rounded-2xl border border-border bg-card-bg/60 space-y-2">
+                  <div key={design.id} className="tool-note space-y-2">
                     <div className="flex items-center justify-between">
                       <h4 className="text-lg font-serif font-bold text-primary">{design.name}</h4>
                       <span className="text-[10px] font-mono text-secondary">{design.scale}</span>
@@ -940,7 +940,7 @@ ${design.runbook.map((r, idx) => `${idx + 1}. ${r}`).join('\n')}
           </section>
         )}
 
-        <section className="p-6 rounded-3xl border border-border bg-card-bg/70 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section className="tool-card-md grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-secondary">Workflow</p>
             <p className="text-sm text-secondary leading-relaxed">

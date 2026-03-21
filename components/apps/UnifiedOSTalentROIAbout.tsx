@@ -22,8 +22,8 @@ export const UnifiedOSTalentROIAbout: React.FC<UnifiedOSTalentROIAboutProps> = (
               <GraduationCap size={18} />
             </div>
             <div>
-              <h1 className="font-serif font-bold text-lg tracking-tight leading-none">Talent ROI · About</h1>
-              <span className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1 block">Unified EOS Productivity Model</span>
+              <h1 className="app-header-title">Talent ROI · About</h1>
+              <span className="app-header-subtitle">Unified EOS Productivity Model</span>
             </div>
           </div>
         </div>
@@ -39,7 +39,7 @@ export const UnifiedOSTalentROIAbout: React.FC<UnifiedOSTalentROIAboutProps> = (
       <main className="flex-1 p-6 md:p-12 space-y-10 relative z-10">
         <section className="grid grid-cols-1 lg:grid-cols-[1.2fr,0.8fr] gap-6">
           <div className="p-8 rounded-[2.5rem] border border-border bg-card-bg/95 shadow-[0_25px_60px_-40px_rgba(0,0,0,0.85)] space-y-5">
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">
+            <div className="flex items-center gap-2 tool-label">
               <Info size={14} className="text-amber-500" /> Why this model exists
             </div>
             <h2 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">
@@ -56,7 +56,7 @@ export const UnifiedOSTalentROIAbout: React.FC<UnifiedOSTalentROIAboutProps> = (
             </div>
           </div>
           <div className="p-6 rounded-[2.5rem] border border-border bg-card-bg/90 shadow-[0_25px_60px_-40px_rgba(0,0,0,0.85)] space-y-4">
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">
+            <div className="flex items-center gap-2 tool-label">
               <BookOpen size={14} className="text-amber-500" /> Assumptions
             </div>
             <ul className="text-sm text-primary/80 space-y-2 list-disc list-inside">
@@ -98,7 +98,7 @@ export const UnifiedOSTalentROIAbout: React.FC<UnifiedOSTalentROIAboutProps> = (
 
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="p-6 rounded-[2rem] border border-border bg-card-bg/90 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] space-y-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">Typical Ranges</div>
+            <div className="tool-label">Typical Ranges</div>
             <ul className="text-sm text-primary/80 space-y-2">
               <li><span className="text-primary font-semibold">Team size:</span> 5-50 FTEs</li>
               <li><span className="text-primary font-semibold">Legacy OS count:</span> 2-6</li>
@@ -107,7 +107,7 @@ export const UnifiedOSTalentROIAbout: React.FC<UnifiedOSTalentROIAboutProps> = (
             </ul>
           </div>
           <div className="p-6 rounded-[2rem] border border-border bg-card-bg/90 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] space-y-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">Validation Checklist</div>
+            <div className="tool-label">Validation Checklist</div>
             <ul className="text-sm text-primary/80 space-y-2">
               <li>Use training records to verify annual hours per OS.</li>
               <li>Survey engineers to estimate context switching time.</li>
@@ -115,7 +115,7 @@ export const UnifiedOSTalentROIAbout: React.FC<UnifiedOSTalentROIAboutProps> = (
             </ul>
           </div>
           <div className="p-6 rounded-[2rem] border border-border bg-card-bg/90 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] space-y-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">Scope Boundaries</div>
+            <div className="tool-label">Scope Boundaries</div>
             <ul className="text-sm text-primary/80 space-y-2">
               <li>Does not include tooling license or support costs.</li>
               <li>Excludes hiring and attrition impacts.</li>
@@ -129,35 +129,35 @@ export const UnifiedOSTalentROIAbout: React.FC<UnifiedOSTalentROIAboutProps> = (
             <Info size={14} className="text-amber-500" /> Math at a Glance
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-              <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">Legacy Training Cost</p>
+            <div className="tool-note space-y-2">
+              <p className="tool-label">Legacy Training Cost</p>
               <p className="text-sm text-primary font-mono">
                 Team Size x Legacy OS Count x Training Hours x $/Hour
               </p>
             </div>
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-              <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">Legacy Cognitive Cost</p>
+            <div className="tool-note space-y-2">
+              <p className="tool-label">Legacy Cognitive Cost</p>
               <p className="text-sm text-primary font-mono">
                 (Team Size x 2080 x Switching Tax%) x $/Hour
               </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-              <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">Unified Training Cost</p>
+            <div className="tool-note space-y-2">
+              <p className="tool-label">Unified Training Cost</p>
               <p className="text-sm text-primary font-mono">
                 Team Size x (Training Hours x 1.2) x $/Hour
               </p>
             </div>
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-              <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">Unified Cognitive Cost</p>
+            <div className="tool-note space-y-2">
+              <p className="tool-label">Unified Cognitive Cost</p>
               <p className="text-sm text-primary font-mono">
                 (Team Size x 2080 x 1%) x $/Hour
               </p>
             </div>
           </div>
-          <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-            <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">Talent ROI</p>
+          <div className="tool-note space-y-2">
+            <p className="tool-label">Talent ROI</p>
             <p className="text-sm text-primary font-mono">
               Legacy OpEx - Unified OpEx
             </p>
@@ -168,7 +168,7 @@ export const UnifiedOSTalentROIAbout: React.FC<UnifiedOSTalentROIAboutProps> = (
         </section>
 
         <section className="p-8 rounded-[2.5rem] border border-border bg-card-bg/95 shadow-[0_25px_60px_-40px_rgba(0,0,0,0.85)]">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">Executive Takeaway</div>
+          <div className="tool-label">Executive Takeaway</div>
           <p className="text-base md:text-lg text-primary/85 leading-relaxed mt-3">
             Lead with focus: "Unified EOS reduces training churn and cognitive tax, freeing engineers for architecture work."
           </p>

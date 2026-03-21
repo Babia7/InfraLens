@@ -22,8 +22,8 @@ export const TCOAbout: React.FC<TCOAboutProps> = ({ onBack, onNavigate }) => {
               <Calculator size={18} />
             </div>
             <div>
-              <h1 className="font-serif font-bold text-lg tracking-tight leading-none">TCO Modeler · About</h1>
-              <span className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1 block">Calculations & Assumptions</span>
+              <h1 className="app-header-title">TCO Modeler · About</h1>
+              <span className="app-header-subtitle">Calculations & Assumptions</span>
             </div>
           </div>
         </div>
@@ -39,7 +39,7 @@ export const TCOAbout: React.FC<TCOAboutProps> = ({ onBack, onNavigate }) => {
       <main className="flex-1 p-6 md:p-12 space-y-10 relative z-10">
         <section className="grid grid-cols-1 lg:grid-cols-[1.2fr,0.8fr] gap-6">
           <div className="p-8 rounded-[2.5rem] border border-border bg-card-bg/95 shadow-[0_25px_60px_-40px_rgba(0,0,0,0.85)] space-y-5">
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">
+            <div className="flex items-center gap-2 tool-label">
               <Info size={14} className="text-blue-400" /> Why this model exists
             </div>
             <h2 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">
@@ -56,7 +56,7 @@ export const TCOAbout: React.FC<TCOAboutProps> = ({ onBack, onNavigate }) => {
             </div>
           </div>
           <div className="p-6 rounded-[2.5rem] border border-border bg-card-bg/90 shadow-[0_25px_60px_-40px_rgba(0,0,0,0.85)] space-y-4">
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">
+            <div className="flex items-center gap-2 tool-label">
               <BookOpen size={14} className="text-blue-400" /> Assumptions
             </div>
             <ul className="text-sm text-primary/80 space-y-2 list-disc list-inside">
@@ -108,7 +108,7 @@ export const TCOAbout: React.FC<TCOAboutProps> = ({ onBack, onNavigate }) => {
 
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="p-6 rounded-[2rem] border border-border bg-card-bg/90 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] space-y-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">Typical Ranges</div>
+            <div className="tool-label">Typical Ranges</div>
             <ul className="text-sm text-primary/80 space-y-2">
               <li><span className="text-primary font-semibold">PUE:</span> 1.2–1.8 (use site-specific data if available)</li>
               <li><span className="text-primary font-semibold">Energy:</span> $0.08–$0.30 per kWh by region</li>
@@ -116,7 +116,7 @@ export const TCOAbout: React.FC<TCOAboutProps> = ({ onBack, onNavigate }) => {
             </ul>
           </div>
           <div className="p-6 rounded-[2rem] border border-border bg-card-bg/90 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] space-y-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">Validation Checklist</div>
+            <div className="tool-label">Validation Checklist</div>
             <ul className="text-sm text-primary/80 space-y-2">
               <li>Pull power rates from the last two utility bills.</li>
               <li>Use change tickets to estimate yearly maintenance hours per switch.</li>
@@ -124,7 +124,7 @@ export const TCOAbout: React.FC<TCOAboutProps> = ({ onBack, onNavigate }) => {
             </ul>
           </div>
           <div className="p-6 rounded-[2rem] border border-border bg-card-bg/90 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] space-y-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">Scope Boundaries</div>
+            <div className="tool-label">Scope Boundaries</div>
             <ul className="text-sm text-primary/80 space-y-2">
               <li>Excludes financing, depreciation, and tax impacts.</li>
               <li>Does not model facilities capex or real estate costs.</li>
@@ -138,8 +138,8 @@ export const TCOAbout: React.FC<TCOAboutProps> = ({ onBack, onNavigate }) => {
             <Info size={14} className="text-blue-400" /> Math at a Glance
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-              <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">Power Cost</p>
+            <div className="tool-note space-y-2">
+              <p className="tool-label">Power Cost</p>
               <p className="text-sm text-primary font-mono">
                 (Watts × Switches × 8760 × PUE × Years) ÷ 1000 × $/kWh
               </p>
@@ -147,8 +147,8 @@ export const TCOAbout: React.FC<TCOAboutProps> = ({ onBack, onNavigate }) => {
                 8760 = 24 hours × 365 days. Divide by 1000 to convert watts to kW.
               </p>
             </div>
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-              <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">Labor Cost</p>
+            <div className="tool-note space-y-2">
+              <p className="tool-label">Labor Cost</p>
               <p className="text-sm text-primary font-mono">
                 Switches × Maintenance Hours/Year × Years × $/Hour
               </p>
@@ -157,8 +157,8 @@ export const TCOAbout: React.FC<TCOAboutProps> = ({ onBack, onNavigate }) => {
               </p>
             </div>
           </div>
-          <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-            <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">Total TCO (N-Year)</p>
+          <div className="tool-note space-y-2">
+            <p className="tool-label">Total TCO (N-Year)</p>
             <p className="text-sm text-primary font-mono">
               Hardware + Power Cost + Labor Cost
             </p>
@@ -169,7 +169,7 @@ export const TCOAbout: React.FC<TCOAboutProps> = ({ onBack, onNavigate }) => {
         </section>
 
         <section className="p-8 rounded-[2.5rem] border border-border bg-card-bg/95 shadow-[0_25px_60px_-40px_rgba(0,0,0,0.85)]">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">Executive Takeaway</div>
+          <div className="tool-label">Executive Takeaway</div>
           <p className="text-base md:text-lg text-primary/85 leading-relaxed mt-3">
             Lead with the delta: “At this scale, Arista reduces multi-year TCO by focusing on power efficiency and operational hours, not just hardware.”
           </p>

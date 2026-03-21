@@ -340,7 +340,7 @@ export const NarrativePlaybookStudio: React.FC<NarrativePlaybookStudioProps> = (
           >
             <Download size={14} className="text-emerald-400" /> Export
           </button>
-          <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary flex items-center gap-2">
+          <div className="tool-label flex items-center gap-2">
             <ShieldCheck size={14} className="text-emerald-400" /> Versioned
           </div>
         </div>

@@ -47,7 +47,7 @@ export const LifeSciencesArchitect: React.FC<LifeSciencesArchitectProps> = ({ on
           </button>
           <div>
             <div className="font-serif font-bold text-lg tracking-tight">BioNet Architect</div>
-            <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">Decidable Network Architecture · Life Sciences</div>
+            <div className="app-header-subtitle">Decidable Network Architecture · Life Sciences</div>
           </div>
         </div>
         {onNavigate && (
@@ -123,7 +123,7 @@ export const LifeSciencesArchitect: React.FC<LifeSciencesArchitectProps> = ({ on
         {/* Main content */}
         <section className="bg-card-bg border border-border rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
           <div className="flex flex-wrap items-center gap-3 justify-between">
-            <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">
+            <div className="flex items-center gap-2 tool-label">
               <Sparkles size={14} className="text-emerald-400" /> Blueprint
             </div>
             <div className="flex gap-3 text-[11px] text-secondary">
@@ -134,7 +134,7 @@ export const LifeSciencesArchitect: React.FC<LifeSciencesArchitectProps> = ({ on
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl border border-border bg-card-bg/70 space-y-2">
+            <div className="tool-note space-y-2">
               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-secondary">
                 <Network size={14} className="text-blue-400" /> Optic & Breakout
               </div>
@@ -142,7 +142,7 @@ export const LifeSciencesArchitect: React.FC<LifeSciencesArchitectProps> = ({ on
               <p className="text-sm text-secondary">Distance: {distance}m · Speed: {speed}G</p>
               <p className="text-sm text-secondary">{result.breakoutNote}</p>
             </div>
-            <div className="p-4 rounded-2xl border border-border bg-card-bg/70 space-y-2">
+            <div className="tool-note space-y-2">
               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-secondary">
                 <ShieldCheck size={14} className="text-emerald-400" /> Buffer Guidance
               </div>
@@ -155,7 +155,7 @@ export const LifeSciencesArchitect: React.FC<LifeSciencesArchitectProps> = ({ on
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl border border-border bg-card-bg/70 space-y-3">
+          <div className="tool-note space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-secondary">
                 <Target size={14} className="text-emerald-400" /> Decision Rationale
@@ -175,20 +175,20 @@ export const LifeSciencesArchitect: React.FC<LifeSciencesArchitectProps> = ({ on
             </ul>
             {summary && (
               <div className="p-3 rounded-lg border border-border bg-card-bg text-sm text-primary">
-                <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary mb-1">Executive summary</div>
+                <div className="tool-label mb-1">Executive summary</div>
                 {summary}
               </div>
             )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl border border-border bg-card-bg/70 space-y-2">
+            <div className="tool-note space-y-2">
               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-secondary">
                 <Ruler size={14} className="text-blue-400" /> Physics
               </div>
               <p className="text-sm text-secondary">Modeled from instrument physics (payload size, burst factor) not user counts. Keep MTU consistent and validate ECMP symmetry.</p>
             </div>
-            <div className="p-4 rounded-2xl border border-border bg-card-bg/70 space-y-2">
+            <div className="tool-note space-y-2">
               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-secondary">
                 <MessageCircle size={14} className="text-emerald-400" /> Ask the Architect
               </div>

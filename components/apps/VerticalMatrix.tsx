@@ -172,25 +172,25 @@ export const VerticalMatrix: React.FC<VerticalMatrixProps> = ({ onBack }) => {
   const [selectedDive, setSelectedDive] = useState<DesignDiveContent | null>(null);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white font-sans flex flex-col overflow-hidden selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-page-bg text-primary font-sans flex flex-col overflow-hidden selection:bg-emerald-500/30">
       
       {/* DESIGN DIVE MODAL */}
       {selectedDive && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-xl animate-fade-in">
-           <div className="w-full max-w-5xl bg-zinc-900 border border-zinc-800 rounded-[3rem] shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
-              <header className="p-8 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
+           <div className="w-full max-w-5xl bg-card-bg border border-border rounded-[3rem] shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
+              <header className="p-8 border-b border-border flex justify-between items-center bg-card-bg/50">
                  <div className="flex items-center gap-4">
                     <div className={`p-3 bg-${activeVertical.color}-500/10 rounded-2xl border border-${activeVertical.color}-500/20 text-${activeVertical.color}-400`}>
                         <Search size={24} />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-serif font-bold text-white tracking-tight">{selectedDive.title}</h2>
-                        <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Architectural Design Dive // {activeVertical.name} Spec</span>
+                        <h2 className="text-2xl font-serif font-bold text-primary tracking-tight">{selectedDive.title}</h2>
+                        <span className="tool-label">Architectural Design Dive // {activeVertical.name} Spec</span>
                     </div>
                  </div>
                  <button 
                     onClick={() => setSelectedDive(null)}
-                    className="p-3 bg-zinc-800 hover:bg-zinc-700 rounded-full text-zinc-400 hover:text-white transition-all"
+                    className="p-3 bg-card-bg hover:bg-border rounded-full text-secondary hover:text-primary transition-all"
                  >
                     <X size={20} />
                  </button>
@@ -198,22 +198,22 @@ export const VerticalMatrix: React.FC<VerticalMatrixProps> = ({ onBack }) => {
 
               <div className="flex-1 overflow-y-auto p-8 md:p-12 space-y-12">
                  <section className="max-w-3xl">
-                    <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-500 mb-4 flex items-center gap-2">
+                    <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-secondary mb-4 flex items-center gap-2">
                         <Fingerprint size={16} className={`text-${activeVertical.color}-500`} /> The Problem Statement
                     </h3>
-                    <p className="text-xl md:text-2xl text-zinc-300 font-light leading-relaxed italic border-l-2 pl-8 transition-colors" style={{ borderColor: `var(--tw-color-${activeVertical.color}-500)` }}>
+                    <p className="text-xl md:text-2xl text-primary font-light leading-relaxed italic border-l-2 pl-8 transition-colors" style={{ borderColor: `var(--tw-color-${activeVertical.color}-500)` }}>
                        "{selectedDive.concept}"
                     </p>
                  </section>
 
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {selectedDive.technicalPillars.map((pillar, i) => (
-                        <div key={i} className="p-8 bg-zinc-950 border border-zinc-800 rounded-[2rem] transition-all group hover:border-zinc-700">
+                        <div key={i} className="p-8 bg-page-bg border border-border rounded-[2rem] transition-all group hover:border-border">
                             <div className={`text-${activeVertical.color}-500 mb-6 group-hover:scale-110 transition-transform origin-left`}>
                                 {activeVertical.id === 'life-sciences' && i === 2 && selectedDive.title.includes('Wi-Fi') ? <Wifi size={28} /> : i === 0 ? <Zap size={28} /> : i === 1 ? <Box size={28} /> : <Layers size={28} />}
                             </div>
-                            <h4 className="text-lg font-serif font-bold text-white mb-4">{pillar.title}</h4>
-                            <p className="text-sm text-zinc-500 leading-relaxed">{pillar.body}</p>
+                            <h4 className="text-lg font-serif font-bold text-primary mb-4">{pillar.title}</h4>
+                            <p className="text-sm text-secondary leading-relaxed">{pillar.body}</p>
                         </div>
                     ))}
                  </div>
@@ -229,8 +229,8 @@ export const VerticalMatrix: React.FC<VerticalMatrixProps> = ({ onBack }) => {
                  </section>
               </div>
 
-              <footer className="p-8 border-t border-zinc-800 bg-zinc-950/50 flex justify-between items-center">
-                 <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest">Confidential // Arista Field Strategy Module</span>
+              <footer className="p-8 border-t border-border bg-page-bg/50 flex justify-between items-center">
+                 <span className="tool-label">Confidential // Arista Field Strategy Module</span>
                  <button 
                     onClick={() => setSelectedDive(null)}
                     className="px-8 py-3 bg-white text-black font-bold uppercase tracking-widest rounded-xl hover:bg-zinc-200 transition-all text-xs"
@@ -243,26 +243,26 @@ export const VerticalMatrix: React.FC<VerticalMatrixProps> = ({ onBack }) => {
       )}
       
       {/* HEADER */}
-      <header className="h-16 border-b border-zinc-800 flex items-center justify-between px-8 bg-zinc-950 shrink-0 z-50">
+      <header className="h-16 border-b border-border flex items-center justify-between px-8 bg-page-bg shrink-0 z-50">
         <div className="flex items-center gap-6">
-            <button onClick={onBack} className="group p-2 text-zinc-500 hover:text-white transition-colors">
+            <button onClick={onBack} className="group p-2 text-secondary hover:text-primary transition-colors">
                 <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
             </button>
-            <div className="h-4 w-px bg-zinc-800"></div>
+            <div className="h-4 w-px bg-border"></div>
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
                     <Target size={20} />
                 </div>
                 <div>
                     <h1 className="text-sm font-bold uppercase tracking-wider">Life Sciences Stratum</h1>
-                    <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Architectural Spec: Bio-Pharma</span>
+                    <span className="tool-label">Architectural Spec: Bio-Pharma</span>
                 </div>
             </div>
         </div>
         <div className="flex items-center gap-4">
-           <div className="bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full flex items-center gap-2">
+           <div className="bg-card-bg border border-border px-3 py-1 rounded-full flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-              <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest">Vertical Lock: Active</span>
+              <span className="tool-label">Vertical Lock: Active</span>
            </div>
         </div>
       </header>
@@ -281,26 +281,26 @@ export const VerticalMatrix: React.FC<VerticalMatrixProps> = ({ onBack }) => {
                       <div className={`w-14 h-14 rounded-2xl bg-${activeVertical.color}-500/10 border border-${activeVertical.color}-500/20 flex items-center justify-center text-${activeVertical.color}-400`}>
                          <activeVertical.icon size={28} />
                       </div>
-                      <h2 className="text-5xl md:text-7xl font-serif font-bold tracking-tighter text-white">{activeVertical.name}</h2>
+                      <h2 className="text-5xl md:text-7xl font-serif font-bold tracking-tighter text-primary">{activeVertical.name}</h2>
                    </div>
-                   <p className="text-2xl text-zinc-400 font-light leading-relaxed max-w-2xl italic border-l-2 pl-8 transition-colors" style={{ borderColor: `var(--tw-color-${activeVertical.color}-500)` }}>
+                   <p className="text-2xl text-secondary font-light leading-relaxed max-w-2xl italic border-l-2 pl-8 transition-colors" style={{ borderColor: `var(--tw-color-${activeVertical.color}-500)` }}>
                       "{activeVertical.pitch}"
                    </p>
                 </header>
 
                 <div className="grid grid-cols-1 gap-6">
-                    <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-zinc-600 mb-2 flex items-center gap-2">
+                    <h3 className="text-xs font-bold uppercase tracking-[0.4em] text-secondary mb-2 flex items-center gap-2">
                         <CheckCircle2 size={14} className={`text-${activeVertical.color}-500`} /> Alignment Strategy
                     </h3>
                     
                     {activeVertical.mappings.map((mapping, idx) => (
-                        <div key={idx} className="bg-zinc-900 border border-zinc-800 rounded-[2.5rem] overflow-hidden group hover:border-zinc-600 transition-all flex flex-col md:flex-row">
+                        <div key={idx} className="bg-card-bg border border-border rounded-[2.5rem] overflow-hidden group hover:border-border transition-all flex flex-col md:flex-row">
                             {/* PAIN SECTION */}
-                            <div className="md:w-1/3 p-8 border-b md:border-b-0 md:border-r border-zinc-800 bg-zinc-900/40">
+                            <div className="md:w-1/3 p-8 border-b md:border-b-0 md:border-r border-border bg-card-bg/40">
                                 <div className="flex items-center gap-2 text-rose-500 mb-4 text-[10px] font-bold uppercase tracking-widest">
                                     <AlertTriangle size={14} /> The Customer Pain
                                 </div>
-                                <p className="text-lg text-zinc-100 font-medium leading-relaxed">
+                                <p className="text-lg text-primary font-medium leading-relaxed">
                                     {mapping.pain}
                                 </p>
                             </div>
@@ -309,17 +309,17 @@ export const VerticalMatrix: React.FC<VerticalMatrixProps> = ({ onBack }) => {
                             <div className="flex-1 p-8 space-y-6">
                                 <div className="space-y-2">
                                     <span className={`text-[9px] font-mono uppercase tracking-[0.3em] text-${activeVertical.color}-500`}>Arista Intervention</span>
-                                    <h4 className="text-2xl font-serif font-bold text-white tracking-tight">{mapping.solution}</h4>
+                                    <h4 className="text-2xl font-serif font-bold text-primary tracking-tight">{mapping.solution}</h4>
                                 </div>
                                 
                                 <div className="flex flex-wrap gap-3">
-                                    <div className="px-3 py-1 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center gap-2">
+                                    <div className="px-3 py-1 bg-page-bg border border-border rounded-lg flex items-center gap-2">
                                         <Zap size={12} className={`text-${activeVertical.color}-400`} />
-                                        <span className="text-[10px] font-mono text-zinc-400 uppercase font-bold">{mapping.feature}</span>
+                                        <span className="text-[10px] font-mono text-secondary uppercase font-bold">{mapping.feature}</span>
                                     </div>
                                 </div>
 
-                                <p className="text-sm text-zinc-400 leading-relaxed">
+                                <p className="text-sm text-secondary leading-relaxed">
                                     {mapping.value}
                                 </p>
                                 
@@ -327,7 +327,7 @@ export const VerticalMatrix: React.FC<VerticalMatrixProps> = ({ onBack }) => {
                                     <button 
                                         disabled={!mapping.designDive}
                                         onClick={() => mapping.designDive && setSelectedDive(mapping.designDive)}
-                                        className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all ${mapping.designDive ? `text-zinc-600 group-hover:text-${activeVertical.color}-400` : 'text-zinc-800 cursor-not-allowed'}`}
+                                        className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all ${mapping.designDive ? `text-secondary group-hover:text-${activeVertical.color}-400` : 'text-zinc-800 cursor-not-allowed'}`}
                                     >
                                         {mapping.designDive ? 'View Design Dive' : 'Dive Unavailable'} <ChevronRight size={14} />
                                     </button>
@@ -338,14 +338,14 @@ export const VerticalMatrix: React.FC<VerticalMatrixProps> = ({ onBack }) => {
                 </div>
 
                 {/* BOTTOM CTA / ACTION */}
-                <div className={`mt-20 p-12 rounded-[3rem] bg-gradient-to-br from-zinc-900 to-black border border-zinc-800 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-12 group`}>
+                <div className={`mt-20 p-12 rounded-[3rem] bg-gradient-to-br from-card-bg to-surface-muted border border-border relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-12 group`}>
                     <div className={`absolute inset-0 bg-${activeVertical.color}-500/5 opacity-50`}></div>
                     <div className="relative z-10 max-w-xl">
-                        <div className={`w-12 h-12 bg-${activeVertical.color}-500 rounded-2xl flex items-center justify-center text-white mb-6 shadow-[0_0_30px_rgba(var(--tw-color-${activeVertical.color}-500),0.4)]`}>
+                        <div className={`w-12 h-12 bg-${activeVertical.color}-500 rounded-2xl flex items-center justify-center text-primary mb-6 shadow-[0_0_30px_rgba(var(--tw-color-${activeVertical.color}-500),0.4)]`}>
                             <Tv size={24} />
                         </div>
-                        <h3 className="text-3xl font-serif font-bold text-white mb-4">Elevator Synthesis</h3>
-                        <p className="text-zinc-500 leading-relaxed">Ready to present this architecture? Generate a cinematic narrative tailored for {activeVertical.name} stakeholders in the Briefing Theater.</p>
+                        <h3 className="text-3xl font-serif font-bold text-primary mb-4">Elevator Synthesis</h3>
+                        <p className="text-secondary leading-relaxed">Ready to present this architecture? Generate a cinematic narrative tailored for {activeVertical.name} stakeholders in the Briefing Theater.</p>
                     </div>
                     <div className="relative z-10 shrink-0">
                         <button className="px-10 py-5 bg-white text-black font-bold uppercase tracking-widest rounded-2xl hover:bg-zinc-100 transition-all shadow-2xl">
@@ -359,7 +359,7 @@ export const VerticalMatrix: React.FC<VerticalMatrixProps> = ({ onBack }) => {
       </main>
 
       {/* SYSTEM HUD */}
-      <div className="h-10 bg-zinc-950 border-t border-zinc-900 px-8 flex items-center justify-between text-[8px] font-mono text-zinc-600 uppercase tracking-[0.4em] shrink-0 z-20">
+      <div className="h-10 bg-page-bg border-t border-zinc-900 px-8 flex items-center justify-between text-[8px] font-mono text-secondary uppercase tracking-[0.4em] shrink-0 z-20">
          <div className="flex items-center gap-4">
             <span>Arista Strategic Kernel</span>
             <span className="w-1 h-1 bg-zinc-800 rounded-full"></span>

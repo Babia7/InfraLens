@@ -101,7 +101,7 @@ export const MTTRDowntimeInsurance: React.FC<MTTRDowntimeInsuranceProps> = ({ on
                 </div>
                 <div>
                     <h1 className="text-xl font-serif font-bold tracking-tight text-primary">MTTR Insurance</h1>
-                    <div className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-0.5">Reliability Modeler</div>
+                    <div className="tool-label mt-0.5">Reliability Modeler</div>
                 </div>
             </div>
          </div>
@@ -152,7 +152,7 @@ export const MTTRDowntimeInsurance: React.FC<MTTRDowntimeInsuranceProps> = ({ on
             </header>
 
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">Sample scenarios</span>
+              <span className="tool-label">Sample scenarios</span>
               {(['SaaS', 'Finance', 'Campus'] as const).map((name) => (
                 <button
                   key={name}

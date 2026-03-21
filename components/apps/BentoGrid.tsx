@@ -158,7 +158,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({ onNavigate }) => {
         </div>
       </div>
       
-      <div className="bg-zinc-950 border-t border-zinc-800 px-8 py-3 flex items-center justify-between shrink-0 z-50">
+      <div className="bg-page-bg border-t border-border px-8 py-3 flex items-center justify-between shrink-0 z-50">
          <div className="flex gap-6">
             <button 
               onClick={() => onNavigate(SectionType.ABOUT)}

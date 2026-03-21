@@ -322,10 +322,10 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ onBack, onNaviga
             </div>
          </div>
          <div className="flex gap-4 pointer-events-auto">
-            <button onClick={() => { setRotation({x:0, y:0}); setZoom(1); }} className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-500 hover:text-white transition-all">
+            <button onClick={() => { setRotation({x:0, y:0}); setZoom(1); }} className="p-3 bg-card-bg border border-border rounded-xl text-secondary hover:text-primary transition-all">
                 <RefreshCw size={16} />
             </button>
-            <div className="px-5 py-3 bg-zinc-900/80 backdrop-blur-xl border border-zinc-800 rounded-2xl flex gap-6 text-[9px] font-mono font-bold tracking-widest">
+            <div className="px-5 py-3 bg-card-bg/80 backdrop-blur-xl border border-border rounded-2xl flex gap-6 text-[9px] font-mono font-bold tracking-widest">
                 <div className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div> ASIC</div>
                 <div className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div> APPS</div>
                 <div className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> CONCEPTS</div>
@@ -345,10 +345,10 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ onBack, onNaviga
 
       {/* NODE DETAILS MODAL */}
       {selectedNode && detail && (
-        <div className="absolute bottom-10 right-10 w-96 bg-zinc-950/90 backdrop-blur-2xl border border-zinc-800 rounded-[2.5rem] p-8 z-30 animate-fade-in shadow-2xl overflow-hidden group">
+        <div className="absolute bottom-10 right-10 w-96 bg-page-bg/90 backdrop-blur-2xl border border-border rounded-[2.5rem] p-8 z-30 animate-fade-in shadow-2xl overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
             <div className="flex justify-between items-start mb-6 relative z-10">
-                <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-inner">
+                <div className="p-4 rounded-2xl bg-card-bg border border-border shadow-inner">
                     {selectedNode.type === 'hardware' && <Cpu size={24} className="text-rose-500" />}
                     {selectedNode.type === 'protocol' && <Network size={24} className="text-sky-500" />}
                     {selectedNode.type === 'app' && <Zap size={24} className="text-indigo-500" />}
@@ -364,18 +364,18 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ onBack, onNaviga
                     <Maximize2 size={16} />
                 </button>
             </div>
-            <h3 className="text-3xl font-serif font-bold text-white mb-2 leading-tight">{selectedNode.label}</h3>
-            <p className="text-zinc-400 text-sm leading-relaxed mb-6 italic">
+            <h3 className="text-3xl font-serif font-bold text-primary mb-2 leading-tight">{selectedNode.label}</h3>
+            <p className="text-secondary text-sm leading-relaxed mb-6 italic">
                 {('description' in detail ? detail.description : '')}
             </p>
             <div className="flex flex-wrap gap-2 mb-8">
                 {selectedNode.tags.map(tag => (
-                    <span key={tag} className="text-[8px] font-mono uppercase tracking-widest bg-zinc-900 border border-zinc-800 text-zinc-500 px-2 py-1 rounded-md">
+                    <span key={tag} className="text-[8px] font-mono uppercase tracking-widest bg-card-bg border border-border text-secondary px-2 py-1 rounded-md">
                         {tag}
                     </span>
                 ))}
             </div>
-            <div className="pt-6 border-t border-zinc-800 flex justify-between items-center text-[8px] font-mono text-zinc-600 uppercase tracking-[0.4em]">
+            <div className="pt-6 border-t border-border flex justify-between items-center text-[8px] font-mono text-secondary uppercase tracking-[0.4em]">
                 <span>RELATIONAL DEPTH: HIGH</span>
                 <span className="flex items-center gap-2"><MousePointer2 size={10} /> Fabric Lock</span>
             </div>

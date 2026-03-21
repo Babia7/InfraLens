@@ -19,25 +19,25 @@ const FeatureDossier: React.FC<{ feature: DeconstructedFeature }> = ({ feature }
   };
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-[2rem] overflow-hidden shadow-2xl group hover:border-sky-500/50 transition-all duration-500">
+    <div className="bg-card-bg border border-border rounded-[2rem] overflow-hidden shadow-2xl group hover:border-sky-500/50 transition-all duration-500">
       <div className="p-8 space-y-6">
         <div className="flex justify-between items-start">
           <div className="space-y-1">
              <span className="text-[10px] font-mono text-sky-400 uppercase tracking-[0.3em] px-2 py-0.5 rounded bg-sky-900/10 border border-sky-500/20">
                {feature.vertical}
              </span>
-             <h3 className="text-2xl font-serif font-bold text-white tracking-tight">{feature.name}</h3>
+             <h3 className="text-2xl font-serif font-bold text-primary tracking-tight">{feature.name}</h3>
           </div>
-          <button onClick={handleCopy} className="p-3 bg-zinc-950 border border-zinc-800 rounded-2xl text-zinc-500 hover:text-white transition-all group-hover:border-sky-500/30">
+          <button onClick={handleCopy} className="p-3 bg-surface-muted border border-border rounded-2xl text-secondary hover:text-primary transition-all group-hover:border-sky-500/30">
             {copied ? <CheckCircle2 size={18} className="text-emerald-500" /> : <Clipboard size={18} />}
           </button>
         </div>
 
         <section className="space-y-3">
-          <h4 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+          <h4 className="text-[10px] font-bold uppercase tracking-widest text-secondary flex items-center gap-2">
             <Terminal size={12} /> Technical Substrate
           </h4>
-          <p className="text-sm text-zinc-400 leading-relaxed font-light">
+          <p className="text-sm text-secondary leading-relaxed font-light">
             {feature.technicalSummary}
           </p>
         </section>
@@ -47,12 +47,12 @@ const FeatureDossier: React.FC<{ feature: DeconstructedFeature }> = ({ feature }
            <h4 className="text-[10px] font-bold uppercase tracking-widest text-sky-400 mb-3 flex items-center gap-2">
             <Target size={14} /> Value Talk Track
           </h4>
-          <p className="text-lg text-white font-medium italic leading-relaxed">
+          <p className="text-lg text-primary font-medium italic leading-relaxed">
             "{feature.businessValue}"
           </p>
         </section>
       </div>
-      <footer className="px-8 py-4 bg-zinc-950/50 border-t border-zinc-800 flex justify-between items-center text-[8px] font-mono text-zinc-600 uppercase tracking-widest">
+      <footer className="px-8 py-4 bg-surface-muted/50 border-t border-border flex justify-between items-center text-[8px] font-mono text-secondary uppercase tracking-widest">
          <span>Extraction complete</span>
          <span>Reliability: Grounded</span>
       </footer>
@@ -76,29 +76,29 @@ export const ReleaseNoteDeconstructor: React.FC<ReleaseNoteDeconstructorProps> =
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white font-sans flex flex-col overflow-hidden selection:bg-sky-500/30">
-      
+    <div className="min-h-screen bg-page-bg text-primary font-sans flex flex-col overflow-hidden selection:bg-sky-500/30">
+
       {/* HEADER */}
-      <header className="h-16 border-b border-zinc-800 flex items-center justify-between px-8 bg-zinc-950 shrink-0 z-50">
+      <header className="h-16 border-b border-border flex items-center justify-between px-8 bg-page-bg shrink-0 z-50">
         <div className="flex items-center gap-6">
-            <button onClick={onBack} className="group p-2 text-zinc-500 hover:text-white transition-colors">
+            <button onClick={onBack} className="group p-2 text-secondary hover:text-primary transition-colors">
                 <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
             </button>
-            <div className="h-4 w-px bg-zinc-800"></div>
+            <div className="h-4 w-px bg-border"></div>
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-sky-500/10 border border-sky-500/20 rounded-lg text-sky-400">
                     <FileText size={20} />
                 </div>
                 <div>
                     <h1 className="text-sm font-bold uppercase tracking-wider">Release Note Deconstructor</h1>
-                    <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Firmware Intelligence v2.0</span>
+                    <span className="tool-label">Firmware Intelligence v2.0</span>
                 </div>
             </div>
         </div>
         <div className="flex items-center gap-4">
-           <div className="bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full flex items-center gap-2">
+           <div className="bg-card-bg border border-border px-3 py-1 rounded-full flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-              <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest">Parser Ready</span>
+              <span className="text-[9px] font-mono text-secondary uppercase tracking-widest">Parser Ready</span>
            </div>
         </div>
       </header>
@@ -107,13 +107,13 @@ export const ReleaseNoteDeconstructor: React.FC<ReleaseNoteDeconstructorProps> =
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
         
         {/* LEFT: INPUT */}
-        <section className="w-full md:w-[450px] lg:w-[500px] bg-zinc-950 border-r border-zinc-900 flex flex-col shrink-0 relative overflow-y-auto">
+        <section className="w-full md:w-[450px] lg:w-[500px] bg-page-bg border-r border-border flex flex-col shrink-0 relative overflow-y-auto">
            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none"></div>
            
            <div className="p-8 md:p-12 relative z-10 space-y-8 flex flex-col h-full">
               <header className="space-y-4">
-                 <h2 className="text-4xl font-serif font-bold text-white tracking-tighter">Raw Ingestion</h2>
-                 <p className="text-sm text-zinc-500 leading-relaxed">Paste the raw text from an EOS Release Note PDF. The kernel will strip technical noise and extract strategic value.</p>
+                 <h2 className="text-4xl font-serif font-bold text-primary tracking-tighter">Raw Ingestion</h2>
+                 <p className="text-sm text-secondary leading-relaxed">Paste the raw text from an EOS Release Note PDF. The kernel will strip technical noise and extract strategic value.</p>
               </header>
 
               <div className="flex-1 relative group">
@@ -121,16 +121,16 @@ export const ReleaseNoteDeconstructor: React.FC<ReleaseNoteDeconstructorProps> =
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     placeholder="Paste release notes here (e.g. 'EOS-4.32.1F-ReleaseNotes.pdf content')..."
-                    className="w-full h-full bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-sm font-mono text-zinc-300 resize-none focus:border-sky-500 outline-none transition-all placeholder-zinc-700 shadow-inner"
+                    className="w-full h-full bg-card-bg border border-border rounded-2xl p-6 text-sm font-mono text-primary resize-none focus:border-sky-500 outline-none transition-all placeholder-secondary shadow-inner"
                  />
                  <div className="absolute top-4 right-4 flex gap-2">
                    {input && (
-                      <button onClick={clear} className="text-[10px] font-bold uppercase text-zinc-500 hover:text-white bg-zinc-800 px-2 py-1 rounded transition-colors">
+                      <button onClick={clear} className="text-[10px] font-bold uppercase text-secondary hover:text-primary bg-card-bg px-2 py-1 rounded transition-colors">
                          Clear
                       </button>
                    )}
                    {!input && (
-                      <button onClick={() => setResult(releaseNotesSeed)} className="text-[10px] font-bold uppercase text-sky-400 hover:text-white bg-sky-900/40 border border-sky-500/30 px-2 py-1 rounded transition-colors">
+                      <button onClick={() => setResult(releaseNotesSeed)} className="text-[10px] font-bold uppercase text-sky-400 hover:text-primary bg-sky-900/40 border border-sky-500/30 px-2 py-1 rounded transition-colors">
                         Load Sample
                       </button>
                    )}
@@ -149,27 +149,27 @@ export const ReleaseNoteDeconstructor: React.FC<ReleaseNoteDeconstructorProps> =
         </section>
 
         {/* RIGHT: OUTPUT */}
-        <section className="flex-1 overflow-y-auto bg-black p-8 md:p-16 relative">
+        <section className="flex-1 overflow-y-auto bg-surface-muted p-8 md:p-16 relative">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(14,165,233,0.05)_0%,transparent_70%)] pointer-events-none"></div>
             
             <div className="max-w-4xl mx-auto space-y-12 animate-fade-in relative z-10">
                {!result ? (
                   <div className="h-[60vh] flex flex-col items-center justify-center text-center opacity-20">
-                     <div className="w-24 h-24 border-2 border-dashed border-zinc-800 rounded-full flex items-center justify-center animate-spin-slower mb-12">
-                        <Share2 size={40} className="text-zinc-600" />
+                     <div className="w-24 h-24 border-2 border-dashed border-border rounded-full flex items-center justify-center animate-spin-slower mb-12">
+                        <Share2 size={40} className="text-secondary" />
                      </div>
-                     <h3 className="text-3xl font-serif italic text-zinc-500">Awaiting raw data stream...</h3>
+                     <h3 className="text-3xl font-serif italic text-secondary">Awaiting raw data stream...</h3>
                   </div>
                ) : result && (
                   <div className="space-y-12 pb-20">
-                     <header className="flex items-center justify-between pb-8 border-b border-zinc-900">
+                     <header className="flex items-center justify-between pb-8 border-b border-border">
                         <div className="space-y-2">
                            <span className="text-[10px] font-mono text-sky-500 uppercase tracking-widest">Target Firmware</span>
-                           <h2 className="text-5xl font-serif font-bold text-white tracking-tighter">{result.version}</h2>
+                           <h2 className="text-5xl font-serif font-bold text-primary tracking-tighter">{result.version}</h2>
                         </div>
                         <div className="text-right hidden md:block">
-                           <span className="block text-[10px] font-mono text-zinc-600 uppercase tracking-widest mb-1">Extraction Yield</span>
-                           <span className="text-xl font-bold text-white">{result.features.length} Strategic Items</span>
+                           <span className="block text-[10px] font-mono text-secondary uppercase tracking-widest mb-1">Extraction Yield</span>
+                           <span className="text-xl font-bold text-primary">{result.features.length} Strategic Items</span>
                         </div>
                      </header>
 
@@ -185,10 +185,10 @@ export const ReleaseNoteDeconstructor: React.FC<ReleaseNoteDeconstructorProps> =
       </main>
 
       {/* SYSTEM HUD */}
-      <footer className="h-10 bg-zinc-950 border-t border-zinc-900 px-8 flex items-center justify-between text-[8px] font-mono text-zinc-600 uppercase tracking-[0.4em] shrink-0 z-20">
+      <footer className="h-10 bg-page-bg border-t border-border px-8 flex items-center justify-between text-[8px] font-mono text-secondary uppercase tracking-[0.4em] shrink-0 z-20">
          <div className="flex items-center gap-4">
             <span>Semantic Extraction Core</span>
-            <span className="w-1 h-1 bg-zinc-800 rounded-full"></span>
+            <span className="w-1 h-1 bg-border rounded-full"></span>
             <span className="text-sky-900">Module: PARSER-REL-04</span>
          </div>
          <div className="flex items-center gap-2">

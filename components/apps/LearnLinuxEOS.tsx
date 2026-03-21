@@ -134,8 +134,8 @@ export const LearnLinuxEOS: React.FC<LearnLinuxEOSProps> = ({ onBack }) => {
     return (
       <div className="min-h-screen bg-[#060608] text-white flex items-center justify-center">
         <div className="text-center space-y-3">
-          <p className="text-sm text-zinc-400">No modules available.</p>
-          <button onClick={onBack} className="px-4 py-2 border border-zinc-800 rounded-lg text-xs uppercase tracking-widest text-zinc-300 hover:text-white hover:border-emerald-500 transition">Return</button>
+          <p className="text-sm text-secondary">No modules available.</p>
+          <button onClick={onBack} className="px-4 py-2 border border-border rounded-lg text-xs uppercase tracking-widest text-primary hover:text-primary hover:border-emerald-500 transition">Return</button>
         </div>
       </div>
     );
@@ -153,7 +153,7 @@ export const LearnLinuxEOS: React.FC<LearnLinuxEOSProps> = ({ onBack }) => {
             <div className="text-sm text-secondary">EdTech-inspired track-based drills</div>
           </div>
         </div>
-        <div className="flex items-center gap-3 text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">
+        <div className="flex items-center gap-3 tool-label">
           <Clock size={14} /> Sprint ready
         </div>
       </header>
@@ -289,7 +289,7 @@ export const LearnLinuxEOS: React.FC<LearnLinuxEOSProps> = ({ onBack }) => {
                         <div className="space-y-3">
                           {card.commands.map((cmd, idx) => (
                             <div key={idx} className="p-3 bg-card-bg border border-border rounded-xl space-y-2">
-                              <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">
+                              <div className="flex items-center gap-2 tool-label">
                                 <Brain size={12} className="text-emerald-500" /> {cmd.title}
                               </div>
                           <div className="font-mono text-body-lg text-emerald-700 whitespace-pre-wrap">{cmd.snippet}</div>
@@ -346,7 +346,7 @@ export const LearnLinuxEOS: React.FC<LearnLinuxEOSProps> = ({ onBack }) => {
                 <>
                   <div className="p-5 bg-card-bg border border-border rounded-2xl shadow-sm space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">
+                      <div className="flex items-center gap-2 tool-label">
                         <Info size={14} className="text-emerald-500" /> Phase 0 — {PRIMER.title}
                       </div>
                       <span className="text-[10px] text-secondary uppercase tracking-[0.3em]">Start here</span>

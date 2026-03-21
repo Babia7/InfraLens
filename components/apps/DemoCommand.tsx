@@ -229,23 +229,23 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
 
   if (selectedGuide) {
      return (
-        <div className="min-h-screen bg-zinc-950 text-white font-sans flex flex-col selection:bg-emerald-500/30">
-           <header className="h-16 border-b border-zinc-900 flex items-center justify-between px-8 bg-zinc-950 shrink-0 z-50">
+        <div className="min-h-screen bg-page-bg text-primary font-sans flex flex-col selection:bg-emerald-500/30">
+           <header className="h-16 border-b border-border flex items-center justify-between px-8 bg-page-bg shrink-0 z-50">
               <div className="flex items-center gap-6">
-                 <button onClick={() => setSelectedGuide(null)} className="p-2 text-zinc-500 hover:text-white transition-colors">
+                 <button onClick={() => setSelectedGuide(null)} className="p-2 text-secondary hover:text-primary transition-colors">
                     <ArrowLeft size={20} />
                  </button>
-                 <div className="h-4 w-px bg-zinc-800"></div>
+                 <div className="h-4 w-px bg-border"></div>
                  <div>
                     <h2 className="text-sm font-bold uppercase tracking-wider">{selectedGuide.title}</h2>
                     <span className="text-[9px] font-mono text-emerald-500 uppercase tracking-widest">Active Sequence</span>
                  </div>
               </div>
               <div className="flex items-center gap-4">
-                 <button onClick={() => handleExportBrief(selectedGuide)} className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-xs font-bold uppercase tracking-widest hover:text-white hover:border-emerald-500 transition-colors">
+                 <button onClick={() => handleExportBrief(selectedGuide)} className="flex items-center gap-2 px-4 py-2 bg-card-bg border border-border rounded-lg text-xs font-bold uppercase tracking-widest hover:text-primary hover:border-emerald-500 transition-colors">
                     <Download size={14} /> Export Brief
                  </button>
-                 <button onClick={() => setSelectedGuide(null)} className="p-2 text-zinc-500 hover:text-white"><X size={20}/></button>
+                 <button onClick={() => setSelectedGuide(null)} className="p-2 text-secondary hover:text-primary"><X size={20}/></button>
               </div>
            </header>
            
@@ -253,13 +253,13 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
               <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none"></div>
               
               <div className="max-w-4xl mx-auto space-y-12 animate-fade-in">
-                 <div className="flex justify-between items-end border-b border-zinc-800 pb-8">
+                 <div className="flex justify-between items-end border-b border-border pb-8">
                     <div className="space-y-2">
-                       <h2 className="text-5xl font-serif font-bold text-white leading-tight">{selectedGuide.title}</h2>
+                       <h2 className="text-5xl font-serif font-bold text-primary leading-tight">{selectedGuide.title}</h2>
                        <p className="text-emerald-400 font-mono text-[10px] uppercase tracking-[0.4em]">Target Persona: {selectedGuide.persona}</p>
                     </div>
                     <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl hidden md:block">
-                        <span className="text-[8px] font-mono text-zinc-600 uppercase tracking-widest">Logic Density</span>
+                        <span className="text-[8px] font-mono text-secondary uppercase tracking-widest">Logic Density</span>
                         <div className="flex gap-1 mt-1">
                            {[1,2,3,4,5].map(i => <div key={i} className="w-4 h-1 bg-emerald-500 rounded-full"></div>)}
                         </div>
@@ -268,33 +268,33 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
 
                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                     <div className="lg:col-span-8 space-y-8">
-                       <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 flex items-center gap-2"><ListChecks size={14}/> Execution Sequence</h3>
+                       <h3 className="text-xs font-bold uppercase tracking-widest text-secondary flex items-center gap-2"><ListChecks size={14}/> Execution Sequence</h3>
                        <div className="space-y-6">
                           {selectedGuide.playbook.map((step, idx) => (
-                             <div key={idx} className="group p-6 bg-zinc-900 border border-zinc-800 rounded-3xl hover:border-zinc-600 transition-all">
+                             <div key={idx} className="group p-6 bg-card-bg border border-border rounded-3xl hover:border-border transition-all">
                                 <div className="flex gap-6">
-                                   <div className="w-10 h-10 rounded-2xl bg-black border border-zinc-800 flex items-center justify-center font-serif font-bold text-emerald-500 shrink-0">
+                                   <div className="w-10 h-10 rounded-2xl bg-surface-muted border border-border flex items-center justify-center font-serif font-bold text-emerald-500 shrink-0">
                                       0{idx + 1}
                                    </div>
                                    <div className="space-y-4 flex-1">
-                                      <h4 className="text-xl font-bold text-white leading-tight">{step.step}</h4>
-                                      
+                                      <h4 className="text-xl font-bold text-primary leading-tight">{step.step}</h4>
+
                                       <div className="p-4 bg-emerald-950/20 border border-emerald-500/20 rounded-xl">
                                          <div className="flex items-center gap-2 text-[8px] font-black text-emerald-500 uppercase tracking-widest mb-2">
                                             <BrainCircuit size={10} /> Narrative Logic (The Why)
                                          </div>
-                                         <p className="text-sm text-zinc-300 leading-relaxed font-medium italic">"{step.highlight}"</p>
+                                         <p className="text-sm text-primary leading-relaxed font-medium italic">"{step.highlight}"</p>
                                       </div>
 
                                       {step.cliCommand && (
-                                         <div className="mt-4 p-4 bg-black border border-zinc-800 rounded-xl relative group/code">
+                                         <div className="mt-4 p-4 bg-surface-muted border border-border rounded-xl relative group/code">
                                             <div className="flex justify-between items-center mb-2">
-                                               <span className="text-[8px] font-mono text-zinc-600 uppercase tracking-widest flex items-center gap-1"><Terminal size={10}/> Verification CLI</span>
+                                               <span className="text-[8px] font-mono text-secondary uppercase tracking-widest flex items-center gap-1"><Terminal size={10}/> Verification CLI</span>
                                             </div>
                                             <pre className="text-[10px] font-mono text-emerald-500/70 pl-2 leading-relaxed">
                                                {step.cliCommand}
                                             </pre>
-                                            <button className="absolute top-3 right-3 p-1.5 rounded bg-zinc-900 border border-zinc-800 opacity-0 group-hover/code:opacity-100 transition-opacity hover:text-white">
+                                            <button className="absolute top-3 right-3 p-1.5 rounded bg-card-bg border border-border opacity-0 group-hover/code:opacity-100 transition-opacity hover:text-primary">
                                                <Copy size={10} />
                                             </button>
                                          </div>
@@ -310,14 +310,14 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
                        <div className="p-8 bg-emerald-500/5 border border-emerald-500/10 rounded-[2rem] relative overflow-hidden">
                           <div className="absolute top-0 right-0 p-4 opacity-10"><Zap size={100} className="text-emerald-500" /></div>
                           <h3 className="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-4">The Differentiator</h3>
-                          <p className="text-lg leading-relaxed text-zinc-300 font-serif italic">
+                          <p className="text-lg leading-relaxed text-primary font-serif italic">
                              {selectedGuide.cognitiveAngle}
                           </p>
                        </div>
 
-                       <div className="p-8 bg-zinc-900 border border-zinc-800 rounded-3xl">
-                          <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-6">Expert Framing</h4>
-                          <ul className="space-y-4 text-xs text-zinc-400">
+                       <div className="p-8 bg-card-bg border border-border rounded-3xl">
+                          <h4 className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-6">Expert Framing</h4>
+                          <ul className="space-y-4 text-xs text-secondary">
                              <li className="flex items-start gap-3">
                                 <div className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 shadow-[0_0_8px_#10b981]"></div>
                                 <span>Pause after the "Snapshot" diff to let the user process the forensic depth.</span>
@@ -337,12 +337,12 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white font-sans flex flex-col md:flex-row overflow-hidden selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-page-bg text-primary font-sans flex flex-col md:flex-row overflow-hidden selection:bg-emerald-500/30">
       
       {/* SIDEBAR */}
-      <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r border-zinc-800 bg-zinc-950 flex flex-col shrink-0 z-30 overflow-y-auto h-[40vh] md:h-screen">
-         <div className="p-8 border-b border-zinc-900">
-            <button onClick={onBack} className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest mb-6">
+      <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r border-border bg-page-bg flex flex-col shrink-0 z-30 overflow-y-auto h-[40vh] md:h-screen">
+         <div className="p-8 border-b border-border">
+            <button onClick={onBack} className="flex items-center gap-2 text-secondary hover:text-primary transition-colors text-xs font-bold uppercase tracking-widest mb-6">
                 <ArrowLeft size={14} /> Systems Return
             </button>
             <div className="flex items-center gap-3">
@@ -351,22 +351,22 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
                 </div>
                 <div>
                     <h1 className="text-xl font-serif font-bold tracking-tight">Demo Enablement</h1>
-                    <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest mt-0.5">Architecture-First v4.0</div>
+                    <div className="tool-label mt-0.5">Architecture-First v4.0</div>
                 </div>
             </div>
          </div>
 
          <div className="p-8 space-y-8 flex-1">
             <section className="space-y-4">
-                <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Cognitive Principles</h3>
-                <div className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl space-y-4">
+                <h3 className="text-[10px] font-bold text-secondary uppercase tracking-[0.3em]">Cognitive Principles</h3>
+                <div className="p-4 bg-card-bg/50 border border-border rounded-xl space-y-4">
                    <div className="flex items-start gap-3">
                       <MessageSquare size={14} className="text-emerald-500 shrink-0 mt-1" />
-                      <p className="text-[10px] text-zinc-400 leading-relaxed italic">"Prove the architecture, don't sell the feature. Use the CLI only to verify what the UI promised."</p>
+                      <p className="text-[10px] text-secondary leading-relaxed italic">"Prove the architecture, don't sell the feature. Use the CLI only to verify what the UI promised."</p>
                    </div>
                    <div className="flex items-start gap-3">
                       <AlertTriangle size={14} className="text-amber-500 shrink-0 mt-1" />
-                      <p className="text-[10px] text-zinc-400 leading-relaxed italic">"Pitfall: Getting stuck in 'Inventory'. Stay in 'Telemetry' and 'Events'—that is where the Cognition lives."</p>
+                      <p className="text-[10px] text-secondary leading-relaxed italic">"Pitfall: Getting stuck in 'Inventory'. Stay in 'Telemetry' and 'Events'—that is where the Cognition lives."</p>
                    </div>
                 </div>
             </section>
@@ -378,29 +378,29 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none"></div>
 
          {/* NAVIGATION TABS */}
-         <div className="h-16 border-b border-zinc-900 flex items-center px-8 bg-zinc-950/80 backdrop-blur-md shrink-0 z-20 overflow-x-auto">
-            <div className="flex gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800">
-               <button 
+         <div className="h-16 border-b border-border flex items-center px-8 bg-page-bg/80 backdrop-blur-md shrink-0 z-20 overflow-x-auto">
+            <div className="flex gap-1 bg-card-bg p-1 rounded-lg border border-border">
+               <button
                  onClick={() => setActiveTab('PRE_FLIGHT')}
-                 className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'PRE_FLIGHT' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                 className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'PRE_FLIGHT' ? 'bg-card-bg text-primary shadow-sm' : 'text-secondary hover:text-primary'}`}
                >
                   Runbook Prep
                </button>
-               <button 
+               <button
                  onClick={() => setActiveTab('FOUNDATIONS')}
-                 className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'FOUNDATIONS' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                 className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'FOUNDATIONS' ? 'bg-card-bg text-primary shadow-sm' : 'text-secondary hover:text-primary'}`}
                >
                  Foundations
                </button>
-               <button 
+               <button
                  onClick={() => setActiveTab('SCENARIO')}
-                 className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'SCENARIO' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                 className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'SCENARIO' ? 'bg-card-bg text-primary shadow-sm' : 'text-secondary hover:text-primary'}`}
                >
                  Scenario Architect
                </button>
-               <button 
+               <button
                  onClick={() => setActiveTab('IMPROVEMENTS')}
-                 className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'IMPROVEMENTS' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                 className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'IMPROVEMENTS' ? 'bg-card-bg text-primary shadow-sm' : 'text-secondary hover:text-primary'}`}
                >
                   Roadmap
                </button>
@@ -418,8 +418,8 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
                                 <ListChecks size={24} />
                             </div>
                             <div>
-                                <h2 className="text-3xl font-serif font-bold text-white">Runbook Prep</h2>
-                                <p className="text-zinc-500 text-sm">Lock intent, sequence, and proof points before touching the UI.</p>
+                                <h2 className="text-3xl font-serif font-bold text-primary">Runbook Prep</h2>
+                                <p className="text-secondary text-sm">Lock intent, sequence, and proof points before touching the UI.</p>
                             </div>
                         </div>
                     </header>
@@ -434,17 +434,17 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
                                     { id: 'clean_slate', label: 'Environment Reset', sub: 'Have previous changes been rolled back to a clean state?' },
                                     { id: 'story_arc', label: 'Narrative Arc Selected', sub: 'Do you have a beginning, middle, and end?' }
                                 ].map((check) => (
-                                    <button 
+                                    <button
                                         key={check.id}
                                         onClick={() => toggleCheck(check.id)}
-                                        className={`w-full p-6 rounded-2xl border flex items-center gap-6 transition-all ${checks[check.id] ? 'bg-emerald-900/10 border-emerald-500/50' : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'}`}
+                                        className={`w-full p-6 rounded-2xl border flex items-center gap-6 transition-all ${checks[check.id] ? 'bg-emerald-900/10 border-emerald-500/50' : 'bg-card-bg border-border hover:border-border'}`}
                                     >
-                                        <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${checks[check.id] ? 'bg-emerald-500 border-emerald-500 text-black' : 'border-zinc-600 text-transparent'}`}>
+                                        <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${checks[check.id] ? 'bg-emerald-500 border-emerald-500 text-black' : 'border-secondary text-transparent'}`}>
                                             <Check size={16} strokeWidth={4} />
                                         </div>
                                         <div className="text-left">
-                                            <h4 className={`text-lg font-bold ${checks[check.id] ? 'text-white' : 'text-zinc-400'}`}>{check.label}</h4>
-                                            <p className="text-xs text-zinc-500">{check.sub}</p>
+                                            <h4 className={`text-lg font-bold ${checks[check.id] ? 'text-primary' : 'text-secondary'}`}>{check.label}</h4>
+                                            <p className="text-xs text-secondary">{check.sub}</p>
                                         </div>
                                     </button>
                                     ))}
@@ -463,47 +463,47 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
 
                         <section className="lg:col-span-7 space-y-6">
                             <header>
-                                <h3 className="text-3xl font-serif font-bold tracking-tight text-white">Objection Logic Map</h3>
-                                <p className="text-sm text-zinc-500">Structured architectural counters to common field pushback. Logic over argument.</p>
+                                <h3 className="text-3xl font-serif font-bold tracking-tight text-primary">Objection Logic Map</h3>
+                                <p className="text-sm text-secondary">Structured architectural counters to common field pushback. Logic over argument.</p>
                             </header>
 
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                                 {objections.map((obj) => (
-                                    <div key={obj.id} className="group p-8 bg-zinc-900 border border-zinc-800 rounded-[2.5rem] hover:border-amber-500/50 transition-all flex flex-col shadow-2xl relative overflow-hidden h-full">
+                                    <div key={obj.id} className="group p-8 bg-card-bg border border-border rounded-[2.5rem] hover:border-amber-500/50 transition-all flex flex-col shadow-2xl relative overflow-hidden h-full">
                                         <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity"><obj.icon size={64} className="text-amber-500" /></div>
                                         
                                         <div className="mb-8">
                                             <span className="text-[10px] font-mono text-amber-500 uppercase tracking-widest border border-amber-500/20 px-2 py-1 rounded bg-amber-900/10">Objection Pattern</span>
-                                            <h3 className="text-2xl font-serif font-bold text-white mt-4">{obj.title}</h3>
+                                            <h3 className="text-2xl font-serif font-bold text-primary mt-4">{obj.title}</h3>
                                         </div>
 
                                         <div className="space-y-6 flex-1">
-                                            <div className="p-4 bg-black/50 rounded-xl border border-zinc-800">
-                                                <div className="flex items-center gap-2 text-zinc-500 text-[10px] uppercase font-bold mb-2">
+                                            <div className="p-4 bg-surface-muted/50 rounded-xl border border-border">
+                                                <div className="flex items-center gap-2 text-secondary text-[10px] uppercase font-bold mb-2">
                                                     <AlertCircle size={12} className="text-rose-500" /> The Pushback
                                                 </div>
-                                                <p className="text-sm text-zinc-300 italic">"{obj.trigger}"</p>
+                                                <p className="text-sm text-primary italic">"{obj.trigger}"</p>
                                             </div>
 
                                         <div className="relative pl-4 border-l-2 border-amber-500/50">
                                             <div className="flex items-center gap-2 text-amber-500 text-[10px] uppercase font-bold mb-2">
                                                 <BrainCircuit size={12} /> The Logic Core
                                             </div>
-                                            <p className="text-sm text-zinc-400 leading-relaxed">
+                                            <p className="text-sm text-secondary leading-relaxed">
                                                 {obj.counter}
                                             </p>
                                         </div>
 
-                                        <div className="p-4 bg-zinc-950/60 rounded-xl border border-zinc-800">
+                                        <div className="p-4 bg-page-bg/60 rounded-xl border border-border">
                                             <div className="flex items-center gap-2 text-emerald-400 text-[10px] uppercase font-bold mb-3">
                                                 <MessageSquare size={12} /> Field Response
                                             </div>
-                                            <div className="space-y-2 text-[11px] text-zinc-400 leading-relaxed">
-                                                <p><span className="text-zinc-500">Acknowledge:</span> {obj.fieldResponse.acknowledge}</p>
-                                                <p><span className="text-zinc-500">Align:</span> {obj.fieldResponse.align}</p>
-                                                <p><span className="text-zinc-500">Architecture anchor:</span> {obj.fieldResponse.anchor}</p>
-                                                <p><span className="text-zinc-500">Proof:</span> {obj.fieldResponse.proof}</p>
-                                                <p><span className="text-zinc-500">Next step:</span> {obj.fieldResponse.nextStep}</p>
+                                            <div className="space-y-2 text-[11px] text-secondary leading-relaxed">
+                                                <p><span className="text-secondary">Acknowledge:</span> {obj.fieldResponse.acknowledge}</p>
+                                                <p><span className="text-secondary">Align:</span> {obj.fieldResponse.align}</p>
+                                                <p><span className="text-secondary">Architecture anchor:</span> {obj.fieldResponse.anchor}</p>
+                                                <p><span className="text-secondary">Proof:</span> {obj.fieldResponse.proof}</p>
+                                                <p><span className="text-secondary">Next step:</span> {obj.fieldResponse.nextStep}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -518,32 +518,32 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
             {activeTab === 'FOUNDATIONS' && (
                <div className="max-w-6xl mx-auto space-y-12 animate-fade-in">
                   <header className="max-w-2xl">
-                     <h2 className="text-5xl font-serif font-bold tracking-tighter mb-4 text-white">Golden Flows</h2>
-                     <p className="text-xl text-zinc-500 font-light">The foundational narratives every Arista Systems Engineer must master. Focus on the architectural hooks.</p>
+                     <h2 className="text-5xl font-serif font-bold tracking-tighter mb-4 text-primary">Golden Flows</h2>
+                     <p className="text-xl text-secondary font-light">The foundational narratives every Arista Systems Engineer must master. Focus on the architectural hooks.</p>
                   </header>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                      {goldenFlows.map((flow) => (
-                        <div key={flow.id} className="group p-8 bg-zinc-900 border border-zinc-800 rounded-[2.5rem] hover:border-emerald-500/50 transition-all flex flex-col justify-between h-full shadow-2xl">
+                        <div key={flow.id} className="group p-8 bg-card-bg border border-border rounded-[2.5rem] hover:border-emerald-500/50 transition-all flex flex-col justify-between h-full shadow-2xl">
                            <div className="space-y-4">
-                              <div className={`w-12 h-12 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-center ${flow.color} group-hover:scale-110 transition-transform`}>
+                              <div className={`w-12 h-12 rounded-2xl bg-page-bg border border-border flex items-center justify-center ${flow.color} group-hover:scale-110 transition-transform`}>
                                  <flow.icon size={24} />
                               </div>
                               <div>
-                                 <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-1">{flow.platform}</div>
-                                 <h3 className="text-2xl font-serif font-bold text-white group-hover:text-emerald-400 transition-colors leading-tight">{flow.title}</h3>
+                                 <div className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-1">{flow.platform}</div>
+                                 <h3 className="text-2xl font-serif font-bold text-primary group-hover:text-emerald-400 transition-colors leading-tight">{flow.title}</h3>
                               </div>
-                              <p className="text-xs text-zinc-500 leading-relaxed">{flow.goal}</p>
+                              <p className="text-xs text-secondary leading-relaxed">{flow.goal}</p>
                            </div>
                            
-                           <div className="mt-8 pt-6 border-t border-zinc-800">
+                           <div className="mt-8 pt-6 border-t border-border">
                               <div className="flex items-center gap-2 mb-4 text-[10px] font-bold text-emerald-500 uppercase tracking-[0.2em]">
                                  <BrainCircuit size={12} /> Narrative Arc
                               </div>
-                              <p className="text-[10px] text-zinc-400 leading-relaxed italic">"{flow.keyHook}"</p>
-                              <button 
+                              <p className="text-[10px] text-secondary leading-relaxed italic">"{flow.keyHook}"</p>
+                              <button
                                  onClick={() => setSelectedGuide(GOLDEN_FLOW_GUIDES[flow.id])}
-                                 className="w-full mt-6 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-[10px] font-bold uppercase tracking-widest text-zinc-400 group-hover:bg-white group-hover:text-black transition-all flex items-center justify-center gap-2"
+                                 className="w-full mt-6 py-2 bg-page-bg border border-border rounded-xl text-[10px] font-bold uppercase tracking-widest text-secondary group-hover:bg-white group-hover:text-black transition-all flex items-center justify-center gap-2"
                               >
                                  <Play size={10} fill="currentColor" /> Initialize Sequence
                               </button>
@@ -558,8 +558,8 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
                <div className="max-w-5xl mx-auto space-y-12 animate-fade-in">
                   <header className="space-y-2">
                     <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-emerald-300">Scenario Architect</p>
-                    <h2 className="text-4xl font-serif font-bold tracking-tight text-white">Contextual Framing</h2>
-                    <p className="text-sm text-zinc-500">Choose a pre-built scenario; briefs and playbooks are ready without typing.</p>
+                    <h2 className="text-4xl font-serif font-bold tracking-tight text-primary">Contextual Framing</h2>
+                    <p className="text-sm text-secondary">Choose a pre-built scenario; briefs and playbooks are ready without typing.</p>
                   </header>
 
                   <div className="grid grid-cols-1 md:grid-cols-[1.4fr,1fr] gap-6 items-start">
@@ -569,19 +569,19 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
                           <button
                             key={preset.title}
                             onClick={() => { setSelectedPreset(idx); setScenario(preset); }}
-                            className={`p-4 rounded-2xl border text-left transition-all ${selectedPreset === idx ? 'bg-emerald-500/10 border-emerald-500/40 text-white' : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-emerald-400/40'}`}
+                            className={`p-4 rounded-2xl border text-left transition-all ${selectedPreset === idx ? 'bg-emerald-500/10 border-emerald-500/40 text-primary' : 'bg-card-bg border-border text-primary hover:border-emerald-400/40'}`}
                           >
                             <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-emerald-400 mb-1">Preset</div>
-                            <div className="text-lg font-semibold text-white leading-tight">{preset.title}</div>
-                            <div className="text-[11px] text-zinc-500 mt-1">{preset.persona}</div>
+                            <div className="text-lg font-semibold text-primary leading-tight">{preset.title}</div>
+                            <div className="text-[11px] text-secondary mt-1">{preset.persona}</div>
                           </button>
                         ))}
                       </div>
-                      <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-2xl space-y-3">
+                      <div className="p-4 bg-card-bg border border-border rounded-2xl space-y-3">
                         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400">
                            <Target size={14} /> Tips for High-Trust Briefs
                         </div>
-                        <ul className="text-sm text-zinc-400 space-y-2 list-disc list-inside">
+                        <ul className="text-sm text-secondary space-y-2 list-disc list-inside">
                            <li>Anchor to a business outcome (MTTR, Compliance, Agility).</li>
                            <li>Lead with UI; use CLI only to validate.</li>
                            <li>Embed one objection and the logic counter.</li>
@@ -591,14 +591,14 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
                     </div>
 
                     {scenario && (
-                      <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl space-y-3">
+                      <div className="p-5 bg-card-bg border border-border rounded-2xl space-y-3">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-emerald-300">Preset Brief</p>
-                            <h3 className="text-xl font-serif font-bold text-white">{scenario.title}</h3>
-                            <p className="text-xs text-zinc-500">{scenario.persona}</p>
+                            <h3 className="text-xl font-serif font-bold text-primary">{scenario.title}</h3>
+                            <p className="text-xs text-secondary">{scenario.persona}</p>
                           </div>
-                          <button onClick={() => handleExportBrief(scenario)} className="flex items-center gap-2 text-xs font-bold text-zinc-500 hover:text-white transition-colors">
+                          <button onClick={() => handleExportBrief(scenario)} className="flex items-center gap-2 text-xs font-bold text-secondary hover:text-primary transition-colors">
                             <Download size={14} /> Export Brief
                           </button>
                         </div>
@@ -606,7 +606,7 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
                           <div className="flex items-center gap-2 text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-2">
                             <MessageSquare size={10} /> Cognitive Angle
                           </div>
-                          <p className="text-sm text-zinc-300 leading-relaxed italic">"{scenario.cognitiveAngle}"</p>
+                          <p className="text-sm text-primary leading-relaxed italic">"{scenario.cognitiveAngle}"</p>
                         </div>
                       </div>
                     )}
@@ -614,10 +614,10 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
 
                   {scenario && (
                     <div className="space-y-8 animate-fade-in pb-20">
-                      <div className="flex justify-between items-end border-b border-zinc-800 pb-6">
+                      <div className="flex justify-between items-end border-b border-border pb-6">
                          <div className="space-y-2">
-                            <span className="text-[10px] font-bold text-zinc-500 uppercase">Instructional Playbook</span>
-                            <h2 className="text-3xl font-serif font-bold text-white leading-tight">{scenario.title}</h2>
+                            <span className="text-[10px] font-bold text-secondary uppercase">Instructional Playbook</span>
+                            <h2 className="text-3xl font-serif font-bold text-primary leading-tight">{scenario.title}</h2>
                             <p className="text-emerald-400 font-mono text-[10px] uppercase tracking-[0.4em]">Target Persona: {scenario.persona}</p>
                          </div>
                          <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
@@ -628,31 +628,31 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
 
                       <div className="space-y-6">
                         {scenario.playbook.map((step, idx) => (
-                          <div key={idx} className="group p-6 bg-zinc-900 border border-zinc-800 rounded-3xl hover:border-zinc-600 transition-all">
+                          <div key={idx} className="group p-6 bg-card-bg border border-border rounded-3xl hover:border-border transition-all">
                              <div className="flex gap-6">
-                                <div className="w-10 h-10 rounded-2xl bg-black border border-zinc-800 flex items-center justify-center font-serif font-bold text-emerald-500 shrink-0">
+                                <div className="w-10 h-10 rounded-2xl bg-surface-muted border border-border flex items-center justify-center font-serif font-bold text-emerald-500 shrink-0">
                                    0{idx + 1}
                                 </div>
                                 <div className="space-y-4 flex-1">
-                                   <h4 className="text-xl font-bold text-white leading-tight">{step.step}</h4>
-                                   
+                                   <h4 className="text-xl font-bold text-primary leading-tight">{step.step}</h4>
+
                                    <div className="p-4 bg-emerald-950/20 border border-emerald-500/20 rounded-xl">
                                       <div className="flex items-center gap-2 text-[8px] font-black text-emerald-500 uppercase tracking-widest mb-2">
                                          <MessageSquare size={10} /> Narrative Logic
                                       </div>
-                                      <p className="text-sm text-zinc-300 leading-relaxed font-medium italic">"{step.highlight}"</p>
+                                      <p className="text-sm text-primary leading-relaxed font-medium italic">"{step.highlight}"</p>
                                    </div>
 
                                    {step.cliCommand && (
-                                      <div className="mt-4 p-4 bg-black border border-zinc-800 rounded-xl relative group/code">
+                                      <div className="mt-4 p-4 bg-surface-muted border border-border rounded-xl relative group/code">
                                          <div className="flex justify-between items-center mb-2">
-                                            <span className="text-[8px] font-mono text-zinc-600 uppercase tracking-widest flex items-center gap-1"><Terminal size={10}/> Verification CLI</span>
+                                            <span className="text-[8px] font-mono text-secondary uppercase tracking-widest flex items-center gap-1"><Terminal size={10}/> Verification CLI</span>
                                          </div>
-                                         <pre className="text-[10px] font-mono text-zinc-500 pl-2 leading-relaxed">
+                                         <pre className="text-[10px] font-mono text-secondary pl-2 leading-relaxed">
                                             {step.cliCommand}
                                          </pre>
-                                         <button className="absolute top-3 right-3 p-1.5 rounded bg-zinc-900 border border-zinc-800 opacity-0 group-hover/code:opacity-100 transition-opacity">
-                                            <Copy size={10} className="text-zinc-600" />
+                                         <button className="absolute top-3 right-3 p-1.5 rounded bg-card-bg border border-border opacity-0 group-hover/code:opacity-100 transition-opacity">
+                                            <Copy size={10} className="text-secondary" />
                                          </button>
                                       </div>
                                    )}
@@ -665,26 +665,26 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
                       {(scenario.objection || scenario.evidence) && (
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                           {scenario.objection && (
-                            <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl space-y-3 lg:col-span-2">
+                            <div className="p-5 bg-card-bg border border-border rounded-2xl space-y-3 lg:col-span-2">
                               <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500">
                                 <AlertCircle size={12} /> Objection Logic
                               </div>
                               <div className="space-y-2">
-                                <h4 className="text-sm font-semibold text-white">{scenario.objection.title}</h4>
-                                <p className="text-xs text-zinc-400 italic">"{scenario.objection.trigger}"</p>
-                                <p className="text-sm text-zinc-300">{scenario.objection.counter}</p>
+                                <h4 className="text-sm font-semibold text-primary">{scenario.objection.title}</h4>
+                                <p className="text-xs text-secondary italic">"{scenario.objection.trigger}"</p>
+                                <p className="text-sm text-primary">{scenario.objection.counter}</p>
                               </div>
                             </div>
                           )}
                           {scenario.evidence && (
-                            <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl space-y-3">
+                            <div className="p-5 bg-card-bg border border-border rounded-2xl space-y-3">
                               <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400">
                                 <FileText size={12} /> Evidence Hooks
                               </div>
                               <ul className="space-y-2">
                                 {scenario.evidence.map((ev) => (
-                                  <li key={ev.title} className="text-sm text-zinc-300">
-                                    <span className="font-semibold text-white">{ev.title}:</span> {ev.summary}
+                                  <li key={ev.title} className="text-sm text-primary">
+                                    <span className="font-semibold text-primary">{ev.title}:</span> {ev.summary}
                                   </li>
                                 ))}
                               </ul>
@@ -700,24 +700,24 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
             {activeTab === 'IMPROVEMENTS' && (
                <div className="max-w-5xl mx-auto space-y-12 animate-fade-in">
                   <header className="max-w-2xl">
-                     <h2 className="text-5xl font-serif font-bold tracking-tighter mb-4 text-white">Capability Evolution</h2>
-                     <p className="text-xl text-zinc-500 font-light">Strategic upgrades to the Narrative Engine, aligning with the Cognition Layer roadmap.</p>
+                     <h2 className="text-5xl font-serif font-bold tracking-tighter mb-4 text-primary">Capability Evolution</h2>
+                     <p className="text-xl text-secondary font-light">Strategic upgrades to the Narrative Engine, aligning with the Cognition Layer roadmap.</p>
                   </header>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                      {improvements.map((imp) => (
-                        <div key={imp.id} className="group p-6 bg-zinc-900 border border-zinc-800 rounded-3xl hover:border-blue-500/30 transition-all flex flex-col shadow-xl">
+                        <div key={imp.id} className="group p-6 bg-card-bg border border-border rounded-3xl hover:border-blue-500/30 transition-all flex flex-col shadow-xl">
                            <div className="flex items-center gap-4 mb-4">
-                              <div className={`p-3 bg-zinc-950 border border-zinc-800 rounded-2xl ${imp.color} group-hover:scale-110 transition-transform`}>
+                              <div className={`p-3 bg-page-bg border border-border rounded-2xl ${imp.color} group-hover:scale-110 transition-transform`}>
                                  <imp.icon size={20} />
                               </div>
-                              <h3 className="text-sm font-bold text-white uppercase tracking-wider">{imp.title}</h3>
+                              <h3 className="text-sm font-bold text-primary uppercase tracking-wider">{imp.title}</h3>
                            </div>
-                           <p className="text-xs text-zinc-500 leading-relaxed flex-1">
+                           <p className="text-xs text-secondary leading-relaxed flex-1">
                               {imp.desc}
                            </p>
                            <div className="mt-6 flex items-center justify-between text-[8px] font-mono uppercase tracking-widest">
-                              <span className="text-zinc-700">Refinement Stage</span>
+                              <span className="text-secondary">Refinement Stage</span>
                               <span className="text-blue-500">Pipeline</span>
                            </div>
                         </div>
@@ -730,12 +730,12 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
                            <TrendingUp size={32} />
                         </div>
                         <div>
-                           <h4 className="text-xl font-bold text-white">Continuous Innovation</h4>
-                           <p className="text-sm text-zinc-500">All modules are grounded in the latest Arista Validated Designs and EOS firmware versions.</p>
+                           <h4 className="text-xl font-bold text-primary">Continuous Innovation</h4>
+                           <p className="text-sm text-secondary">All modules are grounded in the latest Arista Validated Designs and EOS firmware versions.</p>
                         </div>
                      </div>
                      <div className="text-right">
-                        <span className="block text-[10px] font-mono text-zinc-600 uppercase tracking-widest">Build Status</span>
+                        <span className="block text-[10px] font-mono text-secondary uppercase tracking-widest">Build Status</span>
                         <span className="text-lg font-bold text-emerald-500">100% Signal</span>
                      </div>
                   </div>
@@ -744,10 +744,10 @@ ${guide.playbook.map((step, i) => `${i+1}. ${step.step}\n   TALK TRACK: "${step.
          </div>
 
          {/* FOOTER STATS */}
-         <div className="h-10 bg-zinc-950 border-t border-zinc-900 px-8 flex items-center justify-between text-[8px] font-mono text-zinc-600 uppercase tracking-[0.4em] shrink-0 z-20">
+         <div className="h-10 bg-page-bg border-t border-border px-8 flex items-center justify-between text-[8px] font-mono text-secondary uppercase tracking-[0.4em] shrink-0 z-20">
             <div className="flex items-center gap-4">
                <span>Arista Demo Logic</span>
-               <span className="w-1 h-1 bg-zinc-800 rounded-full"></span>
+               <span className="w-1 h-1 bg-border rounded-full"></span>
                <span className="text-emerald-900">Cognitive Scaffolding Active</span>
             </div>
             <div>

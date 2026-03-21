@@ -22,8 +22,8 @@ export const OperationalVelocityAbout: React.FC<OperationalVelocityAboutProps> =
               <TrendingUp size={18} />
             </div>
             <div>
-              <h1 className="font-serif font-bold text-lg tracking-tight leading-none">Op-Velocity Modeler · About</h1>
-              <span className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1 block">Operational ROI and Automation Uplift</span>
+              <h1 className="app-header-title">Op-Velocity Modeler · About</h1>
+              <span className="app-header-subtitle">Operational ROI and Automation Uplift</span>
             </div>
           </div>
         </div>
@@ -39,7 +39,7 @@ export const OperationalVelocityAbout: React.FC<OperationalVelocityAboutProps> =
       <main className="flex-1 p-6 md:p-12 space-y-10 relative z-10">
         <section className="grid grid-cols-1 lg:grid-cols-[1.2fr,0.8fr] gap-6">
           <div className="p-8 rounded-[2.5rem] border border-border bg-card-bg/90 shadow-[0_25px_60px_-40px_rgba(0,0,0,0.85)] space-y-5">
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">
+            <div className="flex items-center gap-2 tool-label">
               <Info size={14} className="text-blue-400" /> Why this model exists
             </div>
             <h2 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">
@@ -56,7 +56,7 @@ export const OperationalVelocityAbout: React.FC<OperationalVelocityAboutProps> =
             </div>
           </div>
           <div className="p-6 rounded-[2.5rem] border border-border bg-card-bg/85 shadow-[0_25px_60px_-40px_rgba(0,0,0,0.85)] space-y-4">
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">
+            <div className="flex items-center gap-2 tool-label">
               <BookOpen size={14} className="text-blue-400" /> Assumptions
             </div>
             <ul className="text-sm text-primary/80 space-y-2 list-disc list-inside">
@@ -100,7 +100,7 @@ export const OperationalVelocityAbout: React.FC<OperationalVelocityAboutProps> =
 
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="p-6 rounded-[2rem] border border-border bg-card-bg/85 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] space-y-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">Typical Ranges</div>
+            <div className="tool-label">Typical Ranges</div>
             <ul className="text-sm text-primary/80 space-y-2">
               <li><span className="text-primary font-semibold">Changes:</span> 5-50 per week</li>
               <li><span className="text-primary font-semibold">Manual time:</span> 1-6 hours per change</li>
@@ -110,7 +110,7 @@ export const OperationalVelocityAbout: React.FC<OperationalVelocityAboutProps> =
             </ul>
           </div>
           <div className="p-6 rounded-[2rem] border border-border bg-card-bg/85 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] space-y-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">Validation Checklist</div>
+            <div className="tool-label">Validation Checklist</div>
             <ul className="text-sm text-primary/80 space-y-2">
               <li>Use change logs to validate weekly change volume.</li>
               <li>Sample tickets to estimate manual hours per change.</li>
@@ -119,7 +119,7 @@ export const OperationalVelocityAbout: React.FC<OperationalVelocityAboutProps> =
             </ul>
           </div>
           <div className="p-6 rounded-[2rem] border border-border bg-card-bg/85 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.85)] space-y-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">Scope Boundaries</div>
+            <div className="tool-label">Scope Boundaries</div>
             <ul className="text-sm text-primary/80 space-y-2">
               <li>Excludes tooling license costs and training time.</li>
               <li>Does not quantify outage impact or revenue loss.</li>
@@ -133,38 +133,38 @@ export const OperationalVelocityAbout: React.FC<OperationalVelocityAboutProps> =
             <Info size={14} className="text-blue-400" /> Math at a Glance
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-              <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">Manual Hours</p>
+            <div className="tool-note space-y-2">
+              <p className="tool-label">Manual Hours</p>
               <p className="text-sm text-primary font-mono">
                 (Changes/Week x Manual Hours x 52) + (Changes/Week x Manual Error% x Remediation Hours x 52)
               </p>
             </div>
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-              <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">Automated Hours</p>
+            <div className="tool-note space-y-2">
+              <p className="tool-label">Automated Hours</p>
               <p className="text-sm text-primary font-mono">
                 (Changes/Week x Auto Hours x 52) + (Changes/Week x Auto Error% x Remediation Hours x 52)
               </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-              <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">Cost</p>
+            <div className="tool-note space-y-2">
+              <p className="tool-label">Cost</p>
               <p className="text-sm text-primary font-mono">Total Hours x $/Hour</p>
             </div>
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-              <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">FTE Potential</p>
+            <div className="tool-note space-y-2">
+              <p className="tool-label">FTE Potential</p>
               <p className="text-sm text-primary font-mono">(Manual Hours - Automated Hours) / 2080</p>
             </div>
           </div>
-          <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
-            <p className="text-[11px] font-mono text-secondary uppercase tracking-widest">Change Risk Reduction</p>
+          <div className="tool-note space-y-2">
+            <p className="tool-label">Change Risk Reduction</p>
             <p className="text-sm text-primary font-mono">1 - (Auto Error% / Manual Error%)</p>
             <p className="text-xs text-secondary">Represents the percent reduction in change-related error rate.</p>
           </div>
         </section>
 
         <section className="p-8 rounded-[2.5rem] border border-border bg-card-bg/90 shadow-[0_25px_60px_-40px_rgba(0,0,0,0.85)]">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary">Executive Takeaway</div>
+          <div className="tool-label">Executive Takeaway</div>
           <p className="text-base md:text-lg text-primary/85 leading-relaxed mt-3">
             Lead with time: "Automation reduces operational hours and error remediation, turning change velocity into measurable ROI."
           </p>

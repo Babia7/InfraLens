@@ -51,8 +51,8 @@ export const AIFabricPOCPlanner: React.FC<AIFabricPOCPlannerProps> = ({ onBack }
               <ClipboardCheck size={18} />
             </div>
             <div>
-              <h1 className="font-serif font-bold text-lg tracking-tight leading-none">AI Fabric POC Planner</h1>
-              <span className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1 block">Proof Framework · Vault: AI Fabric POC Validation Workflow</span>
+              <h1 className="app-header-title">AI Fabric POC Planner</h1>
+              <span className="app-header-subtitle">Proof Framework · Vault: AI Fabric POC Validation Workflow</span>
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@ export const AIFabricPOCPlanner: React.FC<AIFabricPOCPlannerProps> = ({ onBack }
       {showBrief ? (
         <div className="flex-1 p-6 md:p-10">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-[10px] font-mono text-secondary uppercase tracking-widest">POC Brief Template</p>
+            <p className="tool-label">POC Brief Template</p>
             <button
               onClick={() => {
                 const el = document.createElement('a');
@@ -167,7 +167,7 @@ export const AIFabricPOCPlanner: React.FC<AIFabricPOCPlannerProps> = ({ onBack }
 
           {/* Test detail */}
           <section className="lg:col-span-2 overflow-y-auto space-y-4 pr-1">
-            <div className="p-6 rounded-3xl border border-border bg-card-bg">
+            <div className="tool-card-md">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${CATEGORY_COLOR[selectedTest.category] ?? 'text-secondary border-border'}`}>
@@ -198,8 +198,8 @@ export const AIFabricPOCPlanner: React.FC<AIFabricPOCPlannerProps> = ({ onBack }
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
-                <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-3">Procedure</p>
+              <div className="tool-note">
+                <p className="tool-label mb-3">Procedure</p>
                 <ol className="space-y-2">
                   {selectedTest.procedure.map((step, i) => (
                     <li key={step} className="flex gap-3 text-sm text-secondary">
@@ -210,8 +210,8 @@ export const AIFabricPOCPlanner: React.FC<AIFabricPOCPlannerProps> = ({ onBack }
                 </ol>
               </div>
 
-              <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
-                <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-3">Success Criteria</p>
+              <div className="tool-note">
+                <p className="tool-label mb-3">Success Criteria</p>
                 <ul className="space-y-2">
                   {selectedTest.successCriteria.map((c) => (
                     <li key={c} className="flex gap-2 text-sm text-secondary">
@@ -223,8 +223,8 @@ export const AIFabricPOCPlanner: React.FC<AIFabricPOCPlannerProps> = ({ onBack }
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
-              <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-3">Evidence to Capture</p>
+            <div className="tool-note">
+              <p className="tool-label mb-3">Evidence to Capture</p>
               <ul className="space-y-2">
                 {selectedTest.evidence.map((e) => (
                   <li key={e} className="flex gap-2 text-sm text-secondary">
@@ -236,8 +236,8 @@ export const AIFabricPOCPlanner: React.FC<AIFabricPOCPlannerProps> = ({ onBack }
             </div>
 
             {selectedTest.eosCLI && selectedTest.eosCLI.length > 0 && (
-              <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
-                <div className="flex items-center gap-2 mb-3 text-[10px] font-mono text-secondary uppercase tracking-widest">
+              <div className="tool-note">
+                <div className="flex items-center gap-2 mb-3 tool-label">
                   <Terminal size={12} /> EOS Validation Commands
                 </div>
                 <div className="space-y-2">

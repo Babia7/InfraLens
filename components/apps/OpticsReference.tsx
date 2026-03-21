@@ -101,7 +101,7 @@ export const OpticsReference: React.FC<OpticsReferenceProps> = ({ onBack }) => {
           ) : (
             <div className="space-y-6 max-w-3xl">
               {!searchQuery && (
-                <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">
+                <p className="tool-label">
                   {TAB_META[activeTab]?.label} — {displayKeys.length} concepts
                 </p>
               )}
@@ -111,7 +111,7 @@ export const OpticsReference: React.FC<OpticsReferenceProps> = ({ onBack }) => {
                 const keywords = KB_KEYWORDS[key] ?? [];
                 if (!definition) return null;
                 return (
-                  <div key={key} className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-3">
+                  <div key={key} className="tool-note space-y-3">
                     <div className="flex items-start justify-between gap-4">
                       <h3 className="font-semibold text-primary text-sm">
                         {key.replace(/_/g, ' ')}

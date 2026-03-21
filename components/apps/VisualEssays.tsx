@@ -1124,13 +1124,13 @@ export const VisualEssays: React.FC<VisualEssaysProps> = ({ onBack, startAbout =
 
   if (showAbout) {
     return (
-        <div className="min-h-screen bg-zinc-950 text-white font-sans flex flex-col md:flex-row overflow-hidden">
-          <aside className="w-full md:w-72 border-r border-zinc-800 bg-zinc-950 flex flex-col shrink-0">
+        <div className="min-h-screen bg-page-bg text-primary font-sans flex flex-col md:flex-row overflow-hidden">
+          <aside className="w-full md:w-72 border-r border-border bg-page-bg flex flex-col shrink-0">
              <div className="p-8 flex items-center gap-3">
-                <button onClick={() => setShowAbout(false)} className="p-2 -ml-2 text-zinc-500 hover:text-white rounded-lg hover:bg-zinc-900 transition-colors"><ArrowLeft size={18} /></button>
-                <div className="flex flex-col"><span className="font-serif font-bold text-lg">Essays</span><span className="text-[10px] font-mono text-zinc-600">Arista Field Spec</span></div>
+                <button onClick={() => setShowAbout(false)} className="p-2 -ml-2 text-secondary hover:text-primary rounded-lg hover:bg-card-bg transition-colors"><ArrowLeft size={18} /></button>
+                <div className="flex flex-col"><span className="font-serif font-bold text-lg">Essays</span><span className="tool-label">Arista Field Spec</span></div>
              </div>
-             <div className="p-6 border-t border-zinc-900 mt-auto"><button onClick={onBack} className="text-xs text-zinc-500 hover:text-white flex items-center gap-2 uppercase tracking-widest"><ArrowLeft size={12}/> System Home</button></div>
+             <div className="p-6 border-t border-border mt-auto"><button onClick={onBack} className="text-xs text-secondary hover:text-primary flex items-center gap-2 uppercase tracking-widest"><ArrowLeft size={12}/> System Home</button></div>
           </aside>
           <main className="flex-1 overflow-y-auto bg-[#09090b] p-8 md:p-20 relative">
             <div className="max-w-4xl mx-auto space-y-16 animate-fade-in pb-32">
@@ -1150,25 +1150,25 @@ export const VisualEssays: React.FC<VisualEssaysProps> = ({ onBack, startAbout =
         <div className="max-w-7xl mx-auto">
           <header className="mb-20">
             <div className="flex items-center gap-6 mb-8">
-                <button onClick={onBack} className="group flex items-center gap-2 text-zinc-500 hover:text-white transition-colors text-sm font-medium"><ArrowLeft size={16} /> Back</button>
+                <button onClick={onBack} className="group flex items-center gap-2 text-secondary hover:text-primary transition-colors text-sm font-medium"><ArrowLeft size={16} /> Back</button>
                 <button onClick={() => setShowAbout(true)} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-blue-500 hover:text-blue-400 transition-colors"><Info size={14} /> About Essays</button>
             </div>
-            <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tighter mb-4 text-white">Visual Essays</h1>
+            <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tighter mb-4 text-primary">Visual Essays</h1>
           </header>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
             {concepts.filter(c => !c.hidden).map((concept) => (
-              <div key={concept.id} onClick={() => setSelectedConcept(concept)} className="group relative bg-zinc-900 border border-zinc-800 rounded-3xl p-6 cursor-pointer hover:border-blue-500/30 transition-all">
+              <div key={concept.id} onClick={() => setSelectedConcept(concept)} className="group relative bg-card-bg border border-border rounded-3xl p-6 cursor-pointer hover:border-blue-500/30 transition-all">
                  {concept.id === 'c-polymathos' && (
                    <span className="absolute top-4 right-4 text-[10px] font-bold uppercase tracking-[0.3em] px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/40 text-emerald-200 shadow-[0_0_20px_rgba(16,185,129,0.25)]">
                      Featured
                    </span>
                  )}
                  <div className="mb-6 mt-4">
-                    <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 mb-4 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 rounded-2xl bg-card-bg border border-border mb-4 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
                         {concept.id === 'c-why-arista' ? <Sparkles size={20} /> : <Share2 size={20} />}
                     </div>
-                    <h2 className="text-2xl font-serif font-bold text-white mb-2">{concept.title}</h2>
-                    <p className="text-zinc-500 text-sm line-clamp-2">{concept.subtitle}</p>
+                    <h2 className="text-2xl font-serif font-bold text-primary mb-2">{concept.title}</h2>
+                    <p className="text-secondary text-sm line-clamp-2">{concept.subtitle}</p>
                  </div>
               </div>
             ))}
@@ -1179,22 +1179,22 @@ export const VisualEssays: React.FC<VisualEssaysProps> = ({ onBack, startAbout =
   }
 
   return (
-    <div className="min-h-screen bg-page-bg text-white font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-page-bg text-primary font-sans overflow-x-hidden">
         <nav className="fixed top-0 left-0 w-full p-6 flex justify-between items-center z-50 pointer-events-none">
-          <button onClick={() => setSelectedConcept(null)} className="w-10 h-10 rounded-full bg-zinc-900/80 border border-zinc-700 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all backdrop-blur-md pointer-events-auto"><X size={18} /></button>
-          <span className="font-mono text-xs uppercase text-zinc-400 bg-black/50 backdrop-blur px-3 py-1 rounded-full border border-white/10">{selectedConcept.title}</span>
+          <button onClick={() => setSelectedConcept(null)} className="w-10 h-10 rounded-full bg-card-bg/80 border border-border flex items-center justify-center text-primary hover:bg-white hover:text-black transition-all backdrop-blur-md pointer-events-auto"><X size={18} /></button>
+          <span className="font-mono text-xs uppercase text-secondary bg-surface-muted/50 backdrop-blur px-3 py-1 rounded-full border border-primary/10">{selectedConcept.title}</span>
         </nav>
         <div className="relative">
-          <div className="fixed inset-0 w-full h-screen z-0 flex items-center justify-center bg-zinc-950">
+          <div className="fixed inset-0 w-full h-screen z-0 flex items-center justify-center bg-page-bg">
             <ConceptVisual conceptId={selectedConcept.id} sectionIdx={activeSection} />
           </div>
           <div className="relative z-10 w-full pt-[50vh] pb-[50vh]">
             {selectedConcept.sections.map((section, idx) => (
               <div key={idx} data-section-index={idx} className="essay-section min-h-screen flex items-center justify-center pointer-events-none">
-                <div className="max-w-xl p-8 md:p-12 bg-zinc-950/80 backdrop-blur-xl border border-white/10 rounded-3xl pointer-events-auto transform transition-all duration-500">
+                <div className="max-w-xl p-8 md:p-12 bg-page-bg/80 backdrop-blur-xl border border-primary/10 rounded-3xl pointer-events-auto transform transition-all duration-500">
                   <span className="font-mono text-xs text-blue-400 uppercase mb-6 block border-b border-blue-500/20 pb-4">PART 0{idx + 1}</span>
-                  <h2 className="text-3xl md:text-5xl font-serif font-bold text-white mb-6 leading-tight">{section.heading}</h2>
-                  <p className="text-lg md:text-xl text-zinc-300 leading-relaxed font-light">{section.body}</p>
+                  <h2 className="text-3xl md:text-5xl font-serif font-bold text-primary mb-6 leading-tight">{section.heading}</h2>
+                  <p className="text-lg md:text-xl text-primary leading-relaxed font-light">{section.body}</p>
                 </div>
               </div>
             ))}

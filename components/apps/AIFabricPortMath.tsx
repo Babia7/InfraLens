@@ -115,7 +115,7 @@ export const AIFabricPortMath: React.FC<AIFabricPortMathProps> = ({ onBack }) =>
   }, [gpuCount, gpusPerNode, nicsPerNode, linkSpeed, planes, switchRadix, targetOversubRatio, growthTarget]);
 
   const inputClass = "w-full bg-card-bg border border-border rounded-xl px-3 py-2 text-sm text-primary focus:outline-none focus:border-violet-400/60 transition";
-  const labelClass = "text-[10px] font-mono text-secondary uppercase tracking-widest mb-1 block";
+  const labelClass = "tool-label mb-1";
 
   return (
     <div className="min-h-screen bg-page-bg text-primary font-sans flex flex-col">
@@ -129,8 +129,8 @@ export const AIFabricPortMath: React.FC<AIFabricPortMathProps> = ({ onBack }) =>
               <Calculator size={18} />
             </div>
             <div>
-              <h1 className="font-serif font-bold text-lg tracking-tight leading-none">Port Math Calculator</h1>
-              <span className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1 block">AI Fabric Sizing · Vault: Port Math Worksheet</span>
+              <h1 className="app-header-title">Port Math Calculator</h1>
+              <span className="app-header-subtitle">AI Fabric Sizing · Vault: Port Math Worksheet</span>
             </div>
           </div>
         </div>
@@ -139,8 +139,8 @@ export const AIFabricPortMath: React.FC<AIFabricPortMathProps> = ({ onBack }) =>
       <main className="flex-1 p-6 md:p-10 grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Inputs */}
         <section className="lg:col-span-2 space-y-5">
-          <div className="p-5 rounded-3xl border border-border bg-card-bg">
-            <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-4">Cluster Inputs</p>
+          <div className="tool-card">
+            <p className="tool-label mb-4">Cluster Inputs</p>
             <div className="space-y-4">
               <div>
                 <label className={labelClass}>GPU Count (Total Cluster)</label>
@@ -185,8 +185,8 @@ export const AIFabricPortMath: React.FC<AIFabricPortMathProps> = ({ onBack }) =>
             </div>
           </div>
 
-          <div className="p-5 rounded-3xl border border-border bg-card-bg">
-            <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-4">Switch Parameters</p>
+          <div className="tool-card">
+            <p className="tool-label mb-4">Switch Parameters</p>
             <div className="space-y-4">
               <div>
                 <label className={labelClass}>Switch Radix (Total Ports)</label>
@@ -220,7 +220,7 @@ export const AIFabricPortMath: React.FC<AIFabricPortMathProps> = ({ onBack }) =>
         {/* Results */}
         <section className="lg:col-span-3 space-y-4">
           {result.warnings.length > 0 && (
-            <div className="p-4 rounded-2xl border border-amber-400/30 bg-amber-500/5">
+            <div className="tool-warning">
               <div className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-widest text-amber-400">
                 <AlertTriangle size={14} /> Design Warnings
               </div>
@@ -231,8 +231,8 @@ export const AIFabricPortMath: React.FC<AIFabricPortMathProps> = ({ onBack }) =>
           )}
 
           {/* Key numbers */}
-          <div className="p-6 rounded-3xl border border-border bg-card-bg">
-            <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-4">Calculation Results</p>
+          <div className="tool-card-md">
+            <p className="tool-label mb-4">Calculation Results</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
               {[
                 { label: 'Node Count', value: result.nodeCount.toLocaleString() },
@@ -243,31 +243,31 @@ export const AIFabricPortMath: React.FC<AIFabricPortMathProps> = ({ onBack }) =>
                 { label: 'Spines / Plane', value: result.spineCountPerPlane },
               ].map(({ label, value }) => (
                 <div key={label} className="p-3 rounded-xl border border-border bg-card-bg/50 text-center">
-                  <div className="text-2xl font-bold text-primary">{value}</div>
-                  <div className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1">{label}</div>
+                  <div className="metric-value">{value}</div>
+                  <div className="metric-label">{label}</div>
                 </div>
               ))}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="p-3 rounded-xl border border-violet-400/30 bg-violet-500/5 text-center">
-                <div className="text-lg font-bold text-violet-400">{result.totalLeaves}</div>
-                <div className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1">Total Leaves ({planes} planes)</div>
+                <div className="metric-value-sm text-violet-400">{result.totalLeaves}</div>
+                <div className="metric-label">Total Leaves ({planes} planes)</div>
               </div>
               <div className="p-3 rounded-xl border border-blue-400/30 bg-blue-500/5 text-center">
-                <div className="text-lg font-bold text-blue-400">{result.totalSpines}</div>
-                <div className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1">Total Spines ({planes} planes)</div>
+                <div className="metric-value-sm text-blue-400">{result.totalSpines}</div>
+                <div className="metric-label">Total Spines ({planes} planes)</div>
               </div>
               <div className="p-3 rounded-xl border border-emerald-400/30 bg-emerald-500/5 text-center">
-                <div className="text-xs font-bold text-emerald-400">{result.actualOversubscription}</div>
-                <div className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1">Actual Oversubscription</div>
+                <div className="text-base font-bold text-emerald-400">{result.actualOversubscription}</div>
+                <div className="metric-label">Actual Oversubscription</div>
               </div>
             </div>
           </div>
 
           {/* Calculation trace */}
-          <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
-            <p className="text-[10px] font-mono text-secondary uppercase tracking-widest mb-3">Calculation Trace</p>
+          <div className="tool-note">
+            <p className="tool-label mb-3">Calculation Trace</p>
             <div className="space-y-2 font-mono text-xs text-secondary">
               <div className="flex items-center gap-2">
                 <ChevronRight size={12} className="text-violet-400" />
@@ -293,7 +293,7 @@ export const AIFabricPortMath: React.FC<AIFabricPortMathProps> = ({ onBack }) =>
           </div>
 
           {/* Platform recommendation */}
-          <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
+          <div className="tool-note">
             <div className="flex items-center gap-2 mb-3 text-xs font-bold uppercase tracking-widest text-secondary">
               <Server size={14} className="text-violet-400" /> Platform Recommendation
             </div>
@@ -301,14 +301,14 @@ export const AIFabricPortMath: React.FC<AIFabricPortMathProps> = ({ onBack }) =>
           </div>
 
           {/* Growth path */}
-          <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
+          <div className="tool-note">
             <div className="flex items-center gap-2 mb-3 text-xs font-bold uppercase tracking-widest text-secondary">
               <TrendingUp size={14} className="text-emerald-400" /> Growth Path ({growthTarget}× GPUs)
             </div>
             <p className="text-sm text-secondary leading-relaxed">{result.growthPath}</p>
           </div>
 
-          <div className="p-4 rounded-2xl border border-border bg-card-bg/40">
+          <div className="tool-note">
             <div className="flex items-start gap-2">
               <Info size={14} className="text-secondary mt-0.5 shrink-0" />
               <p className="text-xs text-secondary leading-relaxed">

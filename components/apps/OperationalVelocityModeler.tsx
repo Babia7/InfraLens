@@ -143,7 +143,7 @@ Notes:
                 </div>
                 <div>
                     <h1 className="text-xl font-serif font-bold tracking-tight text-primary">Op-Velocity</h1>
-                    <div className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-0.5">Automation ROI Lab</div>
+                    <div className="tool-label mt-0.5">Automation ROI Lab</div>
                 </div>
             </div>
          </div>

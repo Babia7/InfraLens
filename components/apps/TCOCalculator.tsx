@@ -340,7 +340,7 @@ Scope guardrails:
       </header>
 
             <section className="p-5 rounded-2xl border border-border bg-card-bg/80 shadow-sm">
-              <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">Executive Takeaway</div>
+              <div className="tool-label">Executive Takeaway</div>
               <p className="text-base text-primary/85 leading-relaxed mt-2">
                 Lead with the delta: "At this scale, Arista reduces {years}-year TCO by focusing on power efficiency and operational hours, not just hardware."
               </p>
@@ -467,7 +467,7 @@ Scope guardrails:
                   {showAssumptions && (
                     <div className="space-y-3 text-sm text-secondary">
                       <div className="p-3 rounded-xl border border-border bg-page-bg">
-                        <div className="text-[10px] font-mono uppercase tracking-widest text-secondary mb-1">Preset</div>
+                        <div className="tool-label mb-1">Preset</div>
                         <div>Region: {region}; Scale: {numSwitches} switches; Horizon: {years} years</div>
                       </div>
                       <div className="p-3 rounded-xl border border-border bg-page-bg">
@@ -481,11 +481,11 @@ Scope guardrails:
                         <div>Legacy {legacyWatts}W vs Arista {aristaWatts}W; PUE {pue}</div>
                       </div>
                       <div className="p-3 rounded-xl border border-border bg-page-bg">
-                        <div className="text-[10px] font-mono uppercase tracking-widest text-secondary mb-1">OpEx Model</div>
+                        <div className="tool-label mb-1">OpEx Model</div>
                         <div>Maintenance {legacyHours}h → {aristaHours}h per switch/year at ${hourlyRate}/hr</div>
                       </div>
                       <div className="p-3 rounded-xl border border-border bg-page-bg">
-                        <div className="text-[10px] font-mono uppercase tracking-widest text-secondary mb-1">Scope Guardrails</div>
+                        <div className="tool-label mb-1">Scope Guardrails</div>
                         <ul className="list-disc list-inside text-sm text-secondary space-y-1">
                           <li>Discounting and staffing mix changes are excluded.</li>
                           <li>Energy/labor use regional defaults; adjust if Finance provides overrides.</li>

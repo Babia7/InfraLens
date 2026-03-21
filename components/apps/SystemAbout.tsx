@@ -81,9 +81,9 @@ I am not an agent. I do not act on your behalf. I amplify your judgment through 
                 <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
             </button>
             <div>
-                <div className="text-[10px] font-mono text-secondary uppercase tracking-[0.3em]">SystemAbout</div>
+                <div className="tool-label">SystemAbout</div>
                 <h1 className="text-xl font-serif font-bold leading-tight">InfraLens Core</h1>
-                <span className="text-[9px] font-mono text-secondary uppercase tracking-widest">Field Version 4.2.0</span>
+                <span className="tool-label">Field Version 4.2.0</span>
             </div>
          </div>
 
@@ -100,13 +100,13 @@ I am not an agent. I do not act on your behalf. I amplify your judgment through 
                <div className="flex items-center gap-2 text-sm text-primary font-semibold">
                   <Download size={16} /> Export PDF Spec
                </div>
-               <span className="text-[10px] font-mono text-secondary uppercase tracking-[0.3em]">v4.2</span>
+               <span className="tool-label">v4.2</span>
             </button>
             <button onClick={handleExportMarkdown} className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-border bg-card-bg hover:border-blue-400/50 transition">
                <div className="flex items-center gap-2 text-sm text-primary font-semibold">
                   <Save size={16} /> Save .MD Log
                </div>
-               <span className="text-[10px] font-mono text-secondary uppercase tracking-[0.3em]">Traceable</span>
+               <span className="tool-label">Traceable</span>
             </button>
          </div>
       </aside>
@@ -120,7 +120,7 @@ I am not an agent. I do not act on your behalf. I amplify your judgment through 
               <div className="flex items-center gap-3">
                 <Sparkles size={20} className="text-blue-400" />
                 <div>
-                  <p className="text-[10px] font-mono text-secondary uppercase tracking-[0.3em]">Core Identity</p>
+                  <p className="tool-label">Core Identity</p>
                   <h2 className="text-5xl md:text-6xl font-serif font-bold tracking-tight">Human Primacy</h2>
                 </div>
               </div>
@@ -128,12 +128,12 @@ I am not an agent. I do not act on your behalf. I amplify your judgment through 
                 I am InfraLens. I am the Cognition Layer for Arista Systems Engineers and Sales teams (Account Managers, pre-sales SEs). I do not act on your behalf. I amplify your judgment through rigorous, defensible logic artifacts.
               </p>
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
-                  <p className="text-[10px] font-mono text-secondary uppercase tracking-[0.3em]">Sizing Philosophy</p>
+                <div className="tool-note">
+                  <p className="tool-label">Sizing Philosophy</p>
                   <p className="text-sm text-secondary">Headlines: 3xl–6xl serif for hero/sections with tight tracking. Card titles: xl–2xl serif. Body: sm–base sans with comfortable line-height (~1.5). Labels: 9–11px mono with 0.2–0.3em tracking. Status pills: 8–10px mono. Maintain a two-step contrast between title/subtext for clarity.</p>
                 </div>
-                <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
-                  <p className="text-[10px] font-mono text-secondary uppercase tracking-[0.3em]">Rhythm & Line Height</p>
+                <div className="tool-note">
+                  <p className="tool-label">Rhythm & Line Height</p>
                   <p className="text-sm text-secondary">Use 1.2–1.3 line-height on display/serif to keep headlines compact; 1.5 on body text for readability. Vertical rhythm: 12–16px gaps on micro elements, 20–24px between blocks. Avoid line-clamp on titles; clamp subtext only.</p>
                 </div>
               </div>
@@ -145,24 +145,24 @@ I am not an agent. I do not act on your behalf. I amplify your judgment through 
               <header className="flex items-center gap-3">
                 <LayoutGrid size={18} className="text-emerald-400" />
                 <div>
-                  <p className="text-[10px] font-mono text-secondary uppercase tracking-[0.3em]">Operating Modes</p>
+                  <p className="tool-label">Operating Modes</p>
                   <h3 className="text-3xl font-serif font-bold text-primary tracking-tight">The Four Pillars</h3>
                 </div>
               </header>
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
+                <div className="tool-note">
                   <p className="text-sm font-semibold text-primary flex items-center gap-2"><Layers size={14} className="text-blue-400" /> Reasoning</p>
                   <p className="text-sm text-secondary">Constraint mapping and tradeoffs: AI Fabric Designer, TCO Modeler.</p>
                 </div>
-                <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
+                <div className="tool-note">
                   <p className="text-sm font-semibold text-primary flex items-center gap-2"><Activity size={14} className="text-emerald-400" /> Practice</p>
                   <p className="text-sm text-secondary">Applied drills: Linux Lab, CloudVision Field Guide, Protocol Lab.</p>
                 </div>
-                <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
+                <div className="tool-note">
                   <p className="text-sm font-semibold text-primary flex items-center gap-2"><Library size={14} className="text-indigo-400" /> Reference</p>
                   <p className="text-sm text-secondary">Grounded truth: Release Note Deconstructor, Architecture Codex.</p>
                 </div>
-                <div className="p-5 rounded-2xl border border-border bg-card-bg/70">
+                <div className="tool-note">
                   <p className="text-sm font-semibold text-primary flex items-center gap-2"><Target size={14} className="text-emerald-300" /> Delivery</p>
                   <p className="text-sm text-secondary">Persuasive projection: Briefing Theater, Demo Command, Narrative Playbook.</p>
                 </div>
@@ -175,11 +175,11 @@ I am not an agent. I do not act on your behalf. I amplify your judgment through 
               <div className="flex items-center gap-3">
                 <BrainCircuit size={18} className="text-emerald-400" />
                 <div>
-                  <p className="text-[10px] font-mono text-secondary uppercase tracking-[0.3em]">Pipeline</p>
+                  <p className="tool-label">Pipeline</p>
                   <h3 className="text-3xl font-serif font-bold text-primary tracking-tight">Evolution Pipeline</h3>
                 </div>
               </div>
-              <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
+              <div className="tool-note space-y-2">
                 <p className="text-sm text-secondary">Tracking the roadmap of new modules, refactors, and integrations. Each increment is versioned for auditability.</p>
                 <div className="grid md:grid-cols-2 gap-3">
                   <div className="flex items-center gap-2 text-sm text-primary"><ShieldCheck size={14} className="text-emerald-400" /> Theme tokens + light/dark parity</div>
@@ -196,16 +196,16 @@ I am not an agent. I do not act on your behalf. I amplify your judgment through 
               <div className="flex items-center gap-3">
                 <Type size={18} className="text-blue-400" />
                 <div>
-                  <p className="text-[10px] font-mono text-secondary uppercase tracking-[0.3em]">Design System</p>
+                  <p className="tool-label">Design System</p>
                   <h3 className="text-3xl font-serif font-bold text-primary tracking-tight">Typography & UX</h3>
                 </div>
               </div>
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
+                <div className="tool-note space-y-2">
                   <div className="text-sm font-semibold text-primary">Typefaces</div>
                   <p className="text-sm text-secondary">Inter for headings, labels, and body. JetBrains Mono for numerical data, part numbers, and code-like elements.</p>
                 </div>
-                <div className="p-5 rounded-2xl border border-border bg-card-bg/70 space-y-2">
+                <div className="tool-note space-y-2">
                   <div className="text-sm font-semibold text-primary">Sizing & Rhythm</div>
                   <p className="text-sm text-secondary">Display: 48–72px with tight tracking; Titles: 20–32px; Body: 14–16px; Labels: 10–11px mono. Vertical rhythm 12–16px on micro elements, 20–24px between blocks.</p>
                 </div>
@@ -218,7 +218,7 @@ I am not an agent. I do not act on your behalf. I amplify your judgment through 
               <header className="flex items-center gap-3">
                 <Palette size={18} className="text-emerald-400" />
                 <div>
-                  <p className="text-[10px] font-mono text-secondary uppercase tracking-[0.3em]">Chromatics</p>
+                  <p className="tool-label">Chromatics</p>
                   <h3 className="text-3xl font-serif font-bold text-primary tracking-tight">Resilient Palette</h3>
                 </div>
               </header>
@@ -228,7 +228,7 @@ I am not an agent. I do not act on your behalf. I amplify your judgment through 
                   { name: 'Accent', desc: 'Emeralds for status + actions.', swatch: 'bg-gradient-to-br from-[#064e3b] to-[#10b981]' },
                   { name: 'Surface', desc: 'Card backgrounds, low-noise surfaces.', swatch: 'bg-gradient-to-br from-[#0b0b0f] to-[#1f2937]' }
                 ].map((c) => (
-                  <div key={c.name} className="p-4 rounded-2xl border border-border bg-card-bg/70 space-y-2">
+                  <div key={c.name} className="tool-note space-y-2">
                     <div className="w-full h-16 rounded-xl border border-border" style={{ backgroundImage: undefined }}><div className={`w-full h-full rounded-xl ${c.swatch}`}></div></div>
                     <div className="text-sm font-semibold text-primary">{c.name}</div>
                     <p className="text-xs text-secondary">{c.desc}</p>

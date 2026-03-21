@@ -259,20 +259,20 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
   // --- RENDER: MODULE SELECTION MENU ---
   if (!selectedPhase) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white font-sans flex flex-col overflow-hidden selection:bg-blue-500/30">
-        <header className="h-16 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-950 shrink-0 z-20">
+      <div className="min-h-screen bg-page-bg text-primary font-sans flex flex-col overflow-hidden selection:bg-blue-500/30">
+        <header className="h-16 border-b border-border flex items-center justify-between px-6 bg-page-bg shrink-0 z-20">
           <div className="flex items-center gap-6">
-              <button onClick={onBack} className="group p-2 text-zinc-500 hover:text-white transition-colors">
+              <button onClick={onBack} className="group p-2 text-secondary hover:text-primary transition-colors">
                   <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
               </button>
-              <div className="h-4 w-px bg-zinc-800"></div>
+              <div className="h-4 w-px bg-border"></div>
               <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400">
                       <Cloud size={18} />
                   </div>
                   <div>
-                      <h1 className="font-serif font-bold text-lg tracking-tight leading-none">CloudVision Field Guide</h1>
-                      <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest mt-1">Select Drill</span>
+                      <h1 className="app-header-title">CloudVision Field Guide</h1>
+                      <span className="tool-label mt-1">Select Drill</span>
                   </div>
               </div>
           </div>
@@ -283,8 +283,8 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
            
            <div className="max-w-5xl mx-auto space-y-8 relative z-10">
               <div className="text-center space-y-2">
-                 <h2 className="text-4xl md:text-5xl font-serif font-bold text-white tracking-tighter">Operational Readiness</h2>
-                 <p className="text-zinc-500 text-base md:text-lg max-w-2xl mx-auto">Choose your enablement path. From zero-touch fabrication to day-two cognitive operations.</p>
+                 <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary tracking-tighter">Operational Readiness</h2>
+                 <p className="text-secondary text-base md:text-lg max-w-2xl mx-auto">Choose your enablement path. From zero-touch fabrication to day-two cognitive operations.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -292,7 +292,7 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
                  {/* DAY 0 CARD - CAMPUS EDITION */}
                  <button 
                     onClick={() => handlePhaseSelect('DAY 0')}
-                    className="group relative bg-zinc-900 border border-zinc-800 rounded-[3rem] p-10 text-left hover:border-blue-500/50 hover:bg-zinc-900/80 transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl"
+                    className="group relative bg-card-bg border border-border rounded-[3rem] p-10 text-left hover:border-blue-500/50 hover:bg-card-bg/80 transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl"
                  >
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <div className="relative z-10 flex flex-col h-full">
@@ -301,12 +301,12 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
                        </div>
                        <div className="space-y-2 mb-6">
                           <span className="text-xs font-bold text-blue-500 uppercase tracking-widest border border-blue-900/50 px-3 py-1 rounded-full bg-blue-900/10">Day 0 Protocol</span>
-                          <h3 className="text-3xl font-serif font-bold text-white">Campus Initialization</h3>
+                          <h3 className="text-3xl font-serif font-bold text-primary">Campus Initialization</h3>
                        </div>
-                       <p className="text-sm text-zinc-400 leading-relaxed mb-12 max-w-sm">
+                       <p className="text-sm text-secondary leading-relaxed mb-12 max-w-sm">
                           Master the Campus Edge. Learn ZTP for PoE switches, configure 802.1X identity security, and unify wired/wireless management.
                        </p>
-                       <div className="mt-auto flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-500 group-hover:text-white transition-colors">
+                       <div className="mt-auto flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-secondary group-hover:text-primary transition-colors">
                           Start Drill <ChevronRight size={14} />
                        </div>
                     </div>
@@ -315,7 +315,7 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
                  {/* DAY 1 CARD */}
                  <button 
                     onClick={() => handlePhaseSelect('DAY 1')}
-                    className="group relative bg-zinc-900 border border-zinc-800 rounded-[3rem] p-10 text-left hover:border-emerald-500/50 hover:bg-zinc-900/80 transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl"
+                    className="group relative bg-card-bg border border-border rounded-[3rem] p-10 text-left hover:border-emerald-500/50 hover:bg-card-bg/80 transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl"
                  >
                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <div className="relative z-10 flex flex-col h-full">
@@ -324,12 +324,12 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
                        </div>
                        <div className="space-y-2 mb-6">
                           <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest border border-emerald-900/50 px-3 py-1 rounded-full bg-emerald-900/10">Day 1 Protocol</span>
-                          <h3 className="text-3xl font-serif font-bold text-white">Cognitive Operations</h3>
+                          <h3 className="text-3xl font-serif font-bold text-primary">Cognitive Operations</h3>
                        </div>
-                       <p className="text-sm text-zinc-400 leading-relaxed mb-12 max-w-sm">
+                       <p className="text-sm text-secondary leading-relaxed mb-12 max-w-sm">
                           Move beyond "Lights On." Deep dive into state-streaming telemetry, real-time compliance auditing, and forensic time-travel debugging.
                        </p>
-                       <div className="mt-auto flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-500 group-hover:text-white transition-colors">
+                       <div className="mt-auto flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-secondary group-hover:text-primary transition-colors">
                           Start Drill <ChevronRight size={14} />
                        </div>
                    </div>
@@ -338,7 +338,7 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
                  {/* STUDIO CARD */}
                  <button 
                     onClick={() => handlePhaseSelect('STUDIO')}
-                    className="group relative bg-zinc-900 border border-zinc-800 rounded-[3rem] p-10 text-left hover:border-violet-500/50 hover:bg-zinc-900/80 transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl md:col-span-2"
+                    className="group relative bg-card-bg border border-border rounded-[3rem] p-10 text-left hover:border-violet-500/50 hover:bg-card-bg/80 transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl md:col-span-2"
                  >
                     <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <div className="relative z-10 flex flex-col h-full">
@@ -347,12 +347,12 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
                        </div>
                        <div className="space-y-2 mb-6">
                           <span className="text-xs font-bold text-violet-400 uppercase tracking-widest border border-violet-900/50 px-3 py-1 rounded-full bg-violet-900/10">Studios</span>
-                          <h3 className="text-3xl font-serif font-bold text-white">CloudVision Studios</h3>
+                          <h3 className="text-3xl font-serif font-bold text-primary">CloudVision Studios</h3>
                        </div>
-                       <p className="text-sm text-zinc-400 leading-relaxed mb-12 max-w-2xl">
+                       <p className="text-sm text-secondary leading-relaxed mb-12 max-w-2xl">
                           Model intent, map profiles to ports visually, and generate validated change controls from a single data layer.
                        </p>
-                       <div className="mt-auto flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-500 group-hover:text-white transition-colors">
+                       <div className="mt-auto flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-secondary group-hover:text-primary transition-colors">
                           Start Studio <ChevronRight size={14} />
                        </div>
                     </div>
@@ -367,29 +367,29 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
 
   // --- RENDER: ACTIVE MODULE VIEW ---
   return (
-    <div className="min-h-screen bg-zinc-950 text-white font-sans flex flex-col overflow-hidden selection:bg-blue-500/30">
+    <div className="min-h-screen bg-page-bg text-primary font-sans flex flex-col overflow-hidden selection:bg-blue-500/30">
       {/* HEADER */}
-      <header className="h-16 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-950 shrink-0 z-20">
+      <header className="h-16 border-b border-border flex items-center justify-between px-6 bg-page-bg shrink-0 z-20">
         <div className="flex items-center gap-6">
-            <button onClick={handleBack} className="group p-2 text-zinc-500 hover:text-white transition-colors">
+            <button onClick={handleBack} className="group p-2 text-secondary hover:text-primary transition-colors">
                 <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
             </button>
-            <div className="h-4 w-px bg-zinc-800"></div>
+            <div className="h-4 w-px bg-border"></div>
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400">
                     <Cloud size={18} />
                 </div>
                 <div>
-                    <h1 className="font-serif font-bold text-lg tracking-tight leading-none">CloudVision Field Guide</h1>
-                    <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest mt-1">Operational Enablement v3.3</span>
+                    <h1 className="app-header-title">CloudVision Field Guide</h1>
+                    <span className="tool-label mt-1">Operational Enablement v3.3</span>
                 </div>
             </div>
         </div>
            <div className="flex items-center gap-4">
-           <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest">Step {activeStepIdx + 1} of {activeSteps.length}</span>
+           <span className="tool-label">Step {activeStepIdx + 1} of {activeSteps.length}</span>
            <div className="flex gap-1">
               {activeSteps.map((_, i) => (
-                <div key={i} className={`h-1 w-3 rounded-full transition-all duration-300 ${i <= activeStepIdx ? theme.progress : 'bg-zinc-800'}`}></div>
+                <div key={i} className={`h-1 w-3 rounded-full transition-all duration-300 ${i <= activeStepIdx ? theme.progress : 'bg-border'}`}></div>
               ))}
            </div>
         </div>
@@ -407,34 +407,34 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
                      <div className={`px-3 py-1 rounded-full border text-[10px] font-bold uppercase tracking-widest ${theme.badge}`}>
                         {currentStep.phase}
                      </div>
-                     <div className="h-px w-8 bg-zinc-800"></div>
-                     <span className="text-zinc-600 font-mono text-[10px] uppercase tracking-widest">Enablement Module</span>
+                     <div className="h-px w-8 bg-border"></div>
+                     <span className="text-secondary font-mono text-[10px] uppercase tracking-widest">Enablement Module</span>
                   </div>
                   
-                  <h2 className="text-5xl md:text-7xl font-serif font-bold tracking-tighter leading-none text-white">
+                  <h2 className="text-5xl md:text-7xl font-serif font-bold tracking-tighter leading-none text-primary">
                     {currentStep.title}
                   </h2>
                   
-                  <p className="text-2xl text-zinc-400 font-light leading-relaxed">
+                  <p className="text-2xl text-secondary font-light leading-relaxed">
                      {currentStep.description}
                   </p>
                </div>
 
                {/* Outcomes and safeguards for the current phase */}
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-zinc-900/40 border border-zinc-800 rounded-[1.5rem] p-5">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-card-bg/40 border border-border rounded-[1.5rem] p-5">
                   {[
                     { label: 'Outcomes', items: SUPPORT_CONTENT[currentStep.phase].outcomes },
                     { label: 'Partner Toolkit', items: SUPPORT_CONTENT[currentStep.phase].partner },
                     { label: 'Safeguards', items: SUPPORT_CONTENT[currentStep.phase].safeguards },
                     { label: 'Metrics', items: SUPPORT_CONTENT[currentStep.phase].metrics }
                   ].map((card) => (
-                    <div key={card.label} className="p-3 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-2">
-                      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+                    <div key={card.label} className="p-3 rounded-xl border border-border bg-page-bg/60 space-y-2">
+                      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-secondary">
                         <CheckCircle2 size={12} className="text-blue-400" /> {card.label}
                       </div>
                       <ul className="space-y-1">
                         {card.items.map((item) => (
-                          <li key={item} className="text-sm text-zinc-300 flex gap-2">
+                          <li key={item} className="text-sm text-primary flex gap-2">
                             <span className="text-blue-500">•</span>
                             <span>{item}</span>
                           </li>
@@ -445,11 +445,11 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
                </div>
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3">
-                  <div className="p-6 bg-zinc-900 border border-zinc-800 rounded-[1.75rem] space-y-3 shadow-xl">
-                     <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <div className="p-6 bg-card-bg border border-border rounded-[1.75rem] space-y-3 shadow-xl">
+                     <h4 className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em] flex items-center gap-2">
                         <Layout size={14} /> UI Focus Area
                      </h4>
-                     <p className="text-lg font-medium text-white">{currentStep.uiFocus}</p>
+                     <p className="text-lg font-medium text-primary">{currentStep.uiFocus}</p>
                   </div>
                   <div className={`p-6 rounded-[1.75rem] space-y-3 shadow-xl border ${theme.insightCard}`}>
                      <h4 className={`text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-2 ${theme.insightHeading}`}>
@@ -461,13 +461,13 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
 
                {currentStep.cliSnippet && (
                   <div className="space-y-4">
-                     <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                     <h4 className="text-[10px] font-bold text-secondary uppercase tracking-widest flex items-center gap-2">
                         <Terminal size={14} /> Verification Command
                      </h4>
-                     <div className="p-8 bg-black border border-zinc-800 rounded-3xl font-mono text-blue-400/80 shadow-inner group relative overflow-hidden">
+                     <div className="p-8 bg-surface-muted border border-border rounded-3xl font-mono text-blue-400/80 shadow-inner group relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
                         <code className="text-xl">{currentStep.cliSnippet}</code>
-                        <div className="absolute top-4 right-6 text-[9px] text-zinc-700 opacity-0 group-hover:opacity-100 transition-opacity font-bold">EOS_KERNEL_STATE_STREAM</div>
+                        <div className="absolute top-4 right-6 text-[9px] text-secondary opacity-0 group-hover:opacity-100 transition-opacity font-bold">EOS_KERNEL_STATE_STREAM</div>
                      </div>
                   </div>
                )}
@@ -477,7 +477,7 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
                     <button 
                        onClick={prevStep} 
                        disabled={activeStepIdx === 0}
-                       className="p-4 rounded-2xl border border-zinc-800 text-zinc-500 hover:text-white hover:border-zinc-600 transition-all disabled:opacity-10 disabled:cursor-not-allowed"
+                       className="p-4 rounded-2xl border border-border text-secondary hover:text-primary hover:border-border transition-all disabled:opacity-10 disabled:cursor-not-allowed"
                     >
                        <ChevronRight size={24} className="rotate-180" />
                     </button>
@@ -491,7 +491,7 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
                     ) : (
                       <button 
                          onClick={handleBack}
-                         className="px-10 py-4 bg-emerald-600 text-white font-bold rounded-2xl flex items-center gap-3 hover:bg-emerald-500 hover:scale-105 transition-all shadow-2xl shadow-emerald-900/20"
+                         className="px-10 py-4 bg-emerald-600 text-primary font-bold rounded-2xl flex items-center gap-3 hover:bg-emerald-500 hover:scale-105 transition-all shadow-2xl shadow-emerald-900/20"
                       >
                          Path Complete <CheckCircle2 size={20} />
                       </button>
@@ -499,20 +499,20 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
                   </div>
                   
                   <div className="hidden lg:block">
-                     <span className="text-[10px] font-mono text-zinc-700 uppercase tracking-[0.4em]">Continuity Protocol Active</span>
+                     <span className="text-[10px] font-mono text-secondary uppercase tracking-[0.4em]">Continuity Protocol Active</span>
                   </div>
                </div>
             </div>
          </div>
 
          {/* RIGHT: VISUAL SCHEMATIC */}
-         <div className="w-full md:w-96 lg:w-[500px] bg-zinc-900 border-l border-zinc-800 p-10 flex flex-col items-center justify-center relative overflow-hidden shrink-0">
+         <div className="w-full md:w-96 lg:w-[500px] bg-card-bg border-l border-border p-10 flex flex-col items-center justify-center relative overflow-hidden shrink-0">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.1)_0%,transparent_70%)]"></div>
             
             <div className="relative z-10 w-full max-w-xs flex flex-col items-center gap-16">
                 
                 {/* Visual State Mapping */}
-                <div className={`w-40 h-40 rounded-[3rem] bg-zinc-950 border-2 transition-all duration-1000 flex items-center justify-center shadow-2xl relative overflow-hidden group ${theme.heroBorder}`}>
+                <div className={`w-40 h-40 rounded-[3rem] bg-page-bg border-2 transition-all duration-1000 flex items-center justify-center shadow-2xl relative overflow-hidden group ${theme.heroBorder}`}>
                     <div className={`absolute inset-0 bg-gradient-to-br ${theme.heroGradient} to-transparent`}></div>
                     {theme.heroIcon === 'DAY0' && <Zap size={64} className="text-blue-500 group-hover:scale-110 transition-transform" />}
                     {theme.heroIcon === 'DAY1' && <Activity size={64} className="text-emerald-500 group-hover:scale-110 transition-transform animate-pulse" />}
@@ -529,34 +529,34 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
                       { icon: Layout, label: 'Studios Engine', active: selectedPhase === 'STUDIO' && activeStepIdx >= 1 }
                     ].map((layer, i) => (
                        <div key={i} className={`flex items-center gap-6 w-full transition-all duration-700 ${layer.active ? 'opacity-100 translate-x-0' : 'opacity-10 translate-x-10'}`}>
-                          <div className={`w-12 h-12 rounded-xl border flex items-center justify-center ${layer.active ? theme.layerColor : 'border-zinc-800 text-zinc-800'}`}>
+                          <div className={`w-12 h-12 rounded-xl border flex items-center justify-center ${layer.active ? theme.layerColor : 'border-border text-secondary'}`}>
                              <layer.icon size={20} />
                           </div>
                           <div className="flex-1">
-                             <div className={`h-1 rounded-full overflow-hidden bg-zinc-800`}>
+                             <div className={`h-1 rounded-full overflow-hidden bg-border`}>
                                 <div className={`h-full transition-all duration-1000 ${layer.active ? theme.progress : 'bg-transparent'} ${layer.active ? 'w-full' : 'w-0'}`}></div>
                              </div>
-                             <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest mt-1 block">{layer.label}</span>
+                             <span className="text-[9px] font-mono text-secondary uppercase tracking-widest mt-1 block">{layer.label}</span>
                           </div>
                        </div>
                     ))}
                 </div>
 
                 {/* Status HUD (Small) */}
-                <div className="p-6 bg-zinc-950/80 backdrop-blur-xl border border-zinc-800 rounded-3xl w-full">
+                <div className="p-6 bg-page-bg/80 backdrop-blur-xl border border-border rounded-3xl w-full">
                     <div className="flex justify-between items-center mb-2">
-                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">System Load</span>
+                        <span className="text-[10px] font-bold text-secondary uppercase tracking-widest">System Load</span>
                         <span className="text-[10px] font-mono text-emerald-500">LOW</span>
                     </div>
                     <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Grounding</span>
+                        <span className="text-[10px] font-bold text-secondary uppercase tracking-widest">Grounding</span>
                         <span className="text-[10px] font-mono text-blue-500">VERIFIED</span>
                     </div>
                 </div>
             </div>
 
             {/* Bottom Decoration */}
-            <div className="absolute bottom-10 left-10 flex gap-12 font-mono text-[8px] text-zinc-700 tracking-[0.6em] uppercase">
+            <div className="absolute bottom-10 left-10 flex gap-12 font-mono text-[8px] text-secondary tracking-[0.6em] uppercase">
                <span>Arista_Enablement</span>
                <span>v3.3_Field_Guide</span>
             </div>
@@ -564,16 +564,16 @@ export const CloudVisionEnablement: React.FC<CloudVisionEnablementProps> = ({ on
       </main>
 
       {/* FOOTER */}
-      <footer className="h-12 border-t border-zinc-800 bg-zinc-950 flex items-center justify-between px-8 shrink-0 z-20">
-         <div className="flex items-center gap-4 text-[9px] font-mono text-zinc-600 uppercase tracking-[0.4em]">
+      <footer className="h-12 border-t border-border bg-page-bg flex items-center justify-between px-8 shrink-0 z-20">
+         <div className="flex items-center gap-4 text-[9px] font-mono text-secondary uppercase tracking-[0.4em]">
             <span>Cognitive Operations Hub</span>
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
             <span className="text-blue-900">Uplink Stable</span>
          </div>
          <div className="flex items-center gap-3">
-            <span className="text-[8px] font-mono text-zinc-700 uppercase">Latency: 4ms</span>
-            <div className="w-px h-3 bg-zinc-800"></div>
-            <span className="text-[8px] font-mono text-zinc-700 uppercase">Arista OS // Strategic Layer</span>
+            <span className="text-[8px] font-mono text-secondary uppercase">Latency: 4ms</span>
+            <div className="w-px h-3 bg-border"></div>
+            <span className="text-[8px] font-mono text-secondary uppercase">Arista OS // Strategic Layer</span>
          </div>
       </footer>
     </div>

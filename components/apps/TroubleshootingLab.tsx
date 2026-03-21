@@ -43,12 +43,12 @@ function ScenarioCard({
       className={`w-full text-left p-4 rounded-xl border transition-all space-y-2 ${
         isActive
           ? 'border-blue-500/40 bg-blue-500/5'
-          : 'border-zinc-800 bg-zinc-900/40 hover:border-zinc-700'
+          : 'border-border bg-card-bg/40 hover:border-border'
       }`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <div className="text-xs font-semibold text-zinc-200 leading-snug">{scenario.title}</div>
+          <div className="text-xs font-semibold text-primary leading-snug">{scenario.title}</div>
         </div>
         {isCompleted && <CheckCircle2 size={14} className="text-emerald-400 shrink-0 mt-0.5" />}
       </div>
@@ -94,7 +94,7 @@ function ScenarioDetail({
             {scenario.severity}
           </span>
         </div>
-        <h2 className="text-xl font-bold text-white leading-tight">{scenario.title}</h2>
+        <h2 className="text-xl font-bold text-primary leading-tight">{scenario.title}</h2>
       </div>
 
       {/* Symptom */}
@@ -102,20 +102,20 @@ function ScenarioDetail({
         <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.3em] text-red-400">
           <AlertTriangle size={13} /> Symptom
         </div>
-        <p className="text-sm text-zinc-300 leading-relaxed">{scenario.symptom}</p>
+        <p className="text-sm text-primary leading-relaxed">{scenario.symptom}</p>
       </div>
 
       {/* Context */}
-      <div className="p-4 bg-zinc-900/60 border border-zinc-800 rounded-xl space-y-2">
-        <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500">
+      <div className="p-4 bg-card-bg/60 border border-border rounded-xl space-y-2">
+        <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.3em] text-secondary">
           <Eye size={13} /> Environment Context
         </div>
-        <p className="text-sm text-zinc-400 leading-relaxed">{scenario.context}</p>
+        <p className="text-sm text-secondary leading-relaxed">{scenario.context}</p>
       </div>
 
       {/* Diagnosis Steps */}
       <div className="space-y-3">
-        <div className="text-[10px] font-mono uppercase tracking-[0.35em] text-zinc-500 flex items-center gap-2">
+        <div className="text-[10px] font-mono uppercase tracking-[0.35em] text-secondary flex items-center gap-2">
           <Terminal size={13} className="text-blue-400" /> Diagnosis Steps — reveal one at a time
         </div>
 
@@ -125,7 +125,7 @@ function ScenarioDetail({
             <div
               key={idx}
               className={`rounded-xl border transition-all overflow-hidden ${
-                revealed ? 'border-zinc-700 bg-zinc-900/50' : 'border-zinc-800/50 bg-zinc-950/30 opacity-40'
+                revealed ? 'border-border bg-card-bg/50' : 'border-border/50 bg-page-bg/30 opacity-40'
               }`}
             >
               <div className="p-4 space-y-3">
@@ -134,20 +134,20 @@ function ScenarioDetail({
                     {idx + 1}
                   </div>
                   <div className="flex-1 space-y-1">
-                    <div className="text-sm font-semibold text-zinc-200">{step.check}</div>
+                    <div className="text-sm font-semibold text-primary">{step.check}</div>
                     {revealed && (
                       <>
-                        <div className="p-3 bg-zinc-950 border border-zinc-800 rounded-lg font-mono text-[11px] text-emerald-400 whitespace-pre-wrap">
+                        <div className="p-3 bg-surface-muted border border-border rounded-lg font-mono text-[11px] text-emerald-400 whitespace-pre-wrap">
                           {step.command}
                         </div>
                         <div className="grid md:grid-cols-2 gap-3 mt-2">
                           <div className="p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-lg space-y-1">
                             <div className="text-[9px] font-mono uppercase tracking-wider text-emerald-500">Expected</div>
-                            <p className="text-xs text-zinc-300 leading-relaxed">{step.expected}</p>
+                            <p className="text-xs text-primary leading-relaxed">{step.expected}</p>
                           </div>
                           <div className="p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg space-y-1">
                             <div className="text-[9px] font-mono uppercase tracking-wider text-amber-500">If Different</div>
-                            <p className="text-xs text-zinc-300 leading-relaxed">{step.divergence}</p>
+                            <p className="text-xs text-primary leading-relaxed">{step.divergence}</p>
                           </div>
                         </div>
                       </>
@@ -175,17 +175,17 @@ function ScenarioDetail({
           <button
             onClick={() => setShowRootCause(!showRootCause)}
             className={`w-full p-4 rounded-xl border text-left transition-all space-y-1 ${
-              showRootCause ? 'border-red-500/30 bg-red-500/5' : 'border-zinc-700 bg-zinc-900/50 hover:border-red-500/30'
+              showRootCause ? 'border-red-500/30 bg-red-500/5' : 'border-border bg-card-bg/50 hover:border-red-500/30'
             }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.3em] text-red-400">
                 <ShieldAlert size={13} /> Root Cause
               </div>
-              {showRootCause ? <ChevronDown size={14} className="text-zinc-500" /> : <ChevronRight size={14} className="text-zinc-500" />}
+              {showRootCause ? <ChevronDown size={14} className="text-secondary" /> : <ChevronRight size={14} className="text-secondary" />}
             </div>
             {showRootCause && (
-              <p className="text-sm text-zinc-300 leading-relaxed mt-2">{scenario.rootCause}</p>
+              <p className="text-sm text-primary leading-relaxed mt-2">{scenario.rootCause}</p>
             )}
           </button>
 
@@ -202,7 +202,7 @@ function ScenarioDetail({
                 <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.3em] text-blue-400">
                   <BadgeCheck size={13} /> Prevention
                 </div>
-                <p className="text-sm text-zinc-300 leading-relaxed">{scenario.prevention}</p>
+                <p className="text-sm text-primary leading-relaxed">{scenario.prevention}</p>
               </div>
 
               {!isCompleted && (
@@ -247,21 +247,21 @@ export const TroubleshootingLab: React.FC<TroubleshootingLabProps> = ({ onBack }
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white font-sans flex flex-col selection:bg-blue-500/30">
+    <div className="min-h-screen bg-page-bg text-primary font-sans flex flex-col selection:bg-blue-500/30">
       {/* Header */}
-      <header className="h-16 border-b border-zinc-800 flex items-center justify-between px-8 bg-zinc-950 shrink-0 z-50">
+      <header className="h-16 border-b border-border flex items-center justify-between px-8 bg-page-bg shrink-0 z-50">
         <div className="flex items-center gap-6">
-          <button onClick={onBack} className="group p-2 text-zinc-500 hover:text-white transition-colors">
+          <button onClick={onBack} className="group p-2 text-secondary hover:text-primary transition-colors">
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
           </button>
-          <div className="h-4 w-px bg-zinc-800" />
+          <div className="h-4 w-px bg-border" />
           <div className="flex items-center gap-3">
             <div className="p-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
               <AlertTriangle size={20} />
             </div>
             <div>
               <h1 className="text-sm font-bold uppercase tracking-wider">Troubleshooting Lab</h1>
-              <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Break-Fix Scenarios · 12 Field Cases</span>
+              <span className="tool-label">Break-Fix Scenarios · 12 Field Cases</span>
             </div>
           </div>
         </div>
@@ -272,7 +272,7 @@ export const TroubleshootingLab: React.FC<TroubleshootingLabProps> = ({ onBack }
           </div>
           <button
             onClick={() => setCompleted({})}
-            className="p-1.5 text-zinc-600 hover:text-zinc-400 transition"
+            className="p-1.5 text-secondary hover:text-secondary transition"
             title="Reset progress"
           >
             <RotateCcw size={14} />
@@ -282,10 +282,10 @@ export const TroubleshootingLab: React.FC<TroubleshootingLabProps> = ({ onBack }
 
       <div className="flex-1 flex min-h-0">
         {/* Left sidebar: protocol filter + scenario list */}
-        <aside className="w-72 shrink-0 border-r border-zinc-800 bg-zinc-950 flex flex-col overflow-hidden">
+        <aside className="w-72 shrink-0 border-r border-border bg-page-bg flex flex-col overflow-hidden">
           {/* Protocol filter */}
-          <div className="p-4 border-b border-zinc-800 space-y-2">
-            <div className="flex items-center gap-2 text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-600">
+          <div className="p-4 border-b border-border space-y-2">
+            <div className="flex items-center gap-2 text-[9px] font-mono uppercase tracking-[0.3em] text-secondary">
               <Filter size={11} /> Filter by Protocol
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -296,7 +296,7 @@ export const TroubleshootingLab: React.FC<TroubleshootingLabProps> = ({ onBack }
                   className={`text-[9px] font-mono uppercase tracking-wider px-2 py-1 rounded border transition-all ${
                     protocolFilter === tag
                       ? 'border-blue-500/50 bg-blue-500/10 text-blue-400'
-                      : 'border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
+                      : 'border-border text-secondary hover:border-border hover:text-primary'
                   }`}
                 >
                   {tag}
@@ -317,7 +317,7 @@ export const TroubleshootingLab: React.FC<TroubleshootingLabProps> = ({ onBack }
               />
             ))}
             {filtered.length === 0 && (
-              <div className="text-center py-8 text-zinc-600 text-sm">No scenarios for this filter.</div>
+              <div className="text-center py-8 text-secondary text-sm">No scenarios for this filter.</div>
             )}
           </div>
         </aside>
@@ -335,18 +335,18 @@ export const TroubleshootingLab: React.FC<TroubleshootingLabProps> = ({ onBack }
         </main>
 
         {/* Right: progress sidebar */}
-        <aside className="w-56 shrink-0 border-l border-zinc-800 bg-zinc-950 p-4 space-y-4 hidden xl:block overflow-y-auto">
-          <div className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-600 flex items-center gap-2">
+        <aside className="w-56 shrink-0 border-l border-border bg-page-bg p-4 space-y-4 hidden xl:block overflow-y-auto">
+          <div className="text-[9px] font-mono uppercase tracking-[0.3em] text-secondary flex items-center gap-2">
             <Trophy size={11} className="text-amber-500" /> Progress
           </div>
 
           {/* Overall progress bar */}
           <div className="space-y-1.5">
-            <div className="flex justify-between text-[9px] text-zinc-500">
+            <div className="flex justify-between text-[9px] text-secondary">
               <span>Field Ready</span>
               <span className="text-emerald-400">{completionPct}%</span>
             </div>
-            <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-border rounded-full overflow-hidden">
               <div
                 className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: `${completionPct}%` }}
@@ -363,11 +363,11 @@ export const TroubleshootingLab: React.FC<TroubleshootingLabProps> = ({ onBack }
                 <div key={proto} className="space-y-1">
                   <div className="flex justify-between text-[9px]">
                     <span className={`font-mono uppercase ${PROTOCOL_COLOR[proto].split(' ')[1]}`}>{proto}</span>
-                    <span className="text-zinc-600">{done}/{total}</span>
+                    <span className="text-secondary">{done}/{total}</span>
                   </div>
-                  <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="h-1 bg-border rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-zinc-600 rounded-full transition-all"
+                      className="h-full bg-secondary rounded-full transition-all"
                       style={{ width: total > 0 ? `${(done / total) * 100}%` : '0%' }}
                     />
                   </div>
@@ -377,9 +377,9 @@ export const TroubleshootingLab: React.FC<TroubleshootingLabProps> = ({ onBack }
           </div>
 
           {/* Tips */}
-          <div className="mt-6 p-3 bg-zinc-900/60 border border-zinc-800 rounded-xl space-y-2">
-            <div className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-600">Field Tips</div>
-            <ul className="text-[10px] text-zinc-500 space-y-2">
+          <div className="mt-6 p-3 bg-card-bg/60 border border-border rounded-xl space-y-2">
+            <div className="text-[9px] font-mono uppercase tracking-[0.3em] text-secondary">Field Tips</div>
+            <ul className="text-[10px] text-secondary space-y-2">
               <li>• Reveal steps one by one — diagnose before reading the answer.</li>
               <li>• Root cause unlocks only after all steps are shown.</li>
               <li>• Complete all in a domain for field readiness.</li>

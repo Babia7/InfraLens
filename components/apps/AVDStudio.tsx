@@ -23,7 +23,7 @@ const OVERLAY_META: Record<string, { rtL2: string; rtL3: string; note: string }>
 
 const InputGroup = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="space-y-2">
-    <label className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500">{label}</label>
+    <label className="tool-label">{label}</label>
     {children}
   </div>
 );
@@ -368,12 +368,12 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
   const ometa = OVERLAY_META[overlay] ?? OVERLAY_META['evpn-ebgp'];
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white font-sans flex flex-col md:flex-row overflow-hidden selection:bg-blue-500/30">
+    <div className="min-h-screen bg-page-bg text-primary font-sans flex flex-col md:flex-row overflow-hidden selection:bg-blue-500/30">
 
       {/* LEFT: PARAMETERS */}
-      <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r border-zinc-800 bg-zinc-950 flex flex-col shrink-0 z-30 h-[50vh] md:h-screen overflow-y-auto">
-         <div className="p-6 border-b border-zinc-900">
-            <button onClick={onBack} className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest mb-6">
+      <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r border-border bg-page-bg flex flex-col shrink-0 z-30 h-[50vh] md:h-screen overflow-y-auto">
+         <div className="p-6 border-b border-border">
+            <button onClick={onBack} className="flex items-center gap-2 text-secondary hover:text-primary transition-colors text-[10px] font-bold uppercase tracking-widest mb-6">
                 <ArrowLeft size={12} /> Fabric Labs
             </button>
             <div className="flex items-center gap-3">
@@ -382,7 +382,7 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                 </div>
                 <div>
                     <h1 className="text-lg font-serif font-bold tracking-tight">AVD Studio</h1>
-                    <div className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest mt-0.5">Build Pipeline v4.0</div>
+                    <div className="tool-label mt-0.5">Build Pipeline v4.0</div>
                 </div>
             </div>
          </div>
@@ -392,7 +392,7 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                 <input
                   value={fabricName}
                   onChange={e => setFabricName(e.target.value.toUpperCase().replace(/\s/g, '-'))}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
+                  className="w-full bg-card-bg border border-border rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
                 />
             </InputGroup>
 
@@ -402,7 +402,7 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                       type="number" min={1} max={8}
                       value={spines}
                       onChange={e => setSpines(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
+                      className="w-full bg-card-bg border border-border rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
                     />
                 </InputGroup>
                 <InputGroup label="Leafs">
@@ -410,7 +410,7 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                       type="number" min={2} max={96}
                       value={leafs}
                       onChange={e => setLeafs(Math.max(2, parseInt(e.target.value) || 2))}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
+                      className="w-full bg-card-bg border border-border rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
                     />
                 </InputGroup>
             </div>
@@ -421,7 +421,7 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                       type="number"
                       value={asnSpine}
                       onChange={e => setAsnSpine(parseInt(e.target.value) || 65000)}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
+                      className="w-full bg-card-bg border border-border rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
                     />
                 </InputGroup>
                 <InputGroup label="Leaf ASN Base">
@@ -429,7 +429,7 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                       type="number"
                       value={asnLeafBase}
                       onChange={e => setAsnLeafBase(parseInt(e.target.value) || 65001)}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
+                      className="w-full bg-card-bg border border-border rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
                     />
                 </InputGroup>
             </div>
@@ -438,7 +438,7 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                 <select
                   value={platform}
                   onChange={e => setPlatform(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all appearance-none"
+                  className="w-full bg-card-bg border border-border rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all appearance-none"
                 >
                     <option value="7050X3">7050X3 — Leaf (25/100G)</option>
                     <option value="7060X5">7060X5 — High-Density Leaf/Spine</option>
@@ -446,20 +446,20 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                     <option value="7800R4">7800R4 — Chassis Spine</option>
                     <option value="vEOS-lab">vEOS-lab — Lab/CI</option>
                 </select>
-                <p className="text-[9px] font-mono text-zinc-600 mt-1">{pmeta.desc}</p>
+                <p className="text-[9px] font-mono text-secondary mt-1">{pmeta.desc}</p>
             </InputGroup>
 
             <InputGroup label="Overlay Protocol">
                 <select
                   value={overlay}
                   onChange={e => setOverlay(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all appearance-none"
+                  className="w-full bg-card-bg border border-border rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all appearance-none"
                 >
                     <option value="evpn-ebgp">EVPN/VXLAN — eBGP Overlay</option>
                     <option value="evpn-ibgp">EVPN/VXLAN — iBGP + RR</option>
                     <option value="vrf-lite">VRF-lite (Campus / No VXLAN)</option>
                 </select>
-                <p className="text-[9px] font-mono text-zinc-600 mt-1">{ometa.note}</p>
+                <p className="text-[9px] font-mono text-secondary mt-1">{ometa.note}</p>
             </InputGroup>
 
             <InputGroup label="VRFs (comma-separated)">
@@ -467,7 +467,7 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                   value={vrfList}
                   onChange={e => setVrfList(e.target.value)}
                   placeholder="Prod, Dev, Mgmt"
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
+                  className="w-full bg-card-bg border border-border rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
                 />
             </InputGroup>
 
@@ -476,16 +476,16 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                   value={mgmtSubnet}
                   onChange={e => setMgmtSubnet(e.target.value)}
                   placeholder="10.255.0"
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
+                  className="w-full bg-card-bg border border-border rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 outline-none transition-all"
                 />
-                <p className="text-[9px] font-mono text-zinc-600 mt-1">Spines: .10+, Leafs: .20+</p>
+                <p className="text-[9px] font-mono text-secondary mt-1">Spines: .10+, Leafs: .20+</p>
             </InputGroup>
 
-            <div className="pt-4 border-t border-zinc-900">
+            <div className="pt-4 border-t border-border">
                 <button
                   onClick={handleBuild}
                   disabled={loading}
-                  className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20 group"
+                  className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-primary font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20 group"
                 >
                     {loading ? <Loader2 size={18} className="animate-spin" /> : <Play size={16} fill="white" />}
                     Build Fabric
@@ -499,23 +499,23 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none"></div>
 
          {/* TOP NAV BAR */}
-         <div className="h-14 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between px-6 shrink-0 relative z-10">
-            <div className="flex gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+         <div className="h-14 bg-card-bg border-b border-border flex items-center justify-between px-6 shrink-0 relative z-10">
+            <div className="flex gap-1 bg-page-bg p-1 rounded-lg border border-border">
                 <button
                   onClick={() => setActiveView('YAML')}
-                  className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${activeView === 'YAML' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+                  className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${activeView === 'YAML' ? 'bg-border text-primary' : 'text-secondary hover:text-primary'}`}
                 >
                    <FileCode size={12} /> YAML Blueprint
                 </button>
                 <button
                   onClick={() => setActiveView('EOS')}
-                  className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${activeView === 'EOS' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+                  className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${activeView === 'EOS' ? 'bg-border text-primary' : 'text-secondary hover:text-primary'}`}
                 >
                    <Terminal size={12} /> EOS Preview
                 </button>
                 <button
                   onClick={() => setActiveView('VALIDATION')}
-                  className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${activeView === 'VALIDATION' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+                  className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${activeView === 'VALIDATION' ? 'bg-border text-primary' : 'text-secondary hover:text-primary'}`}
                 >
                    <ShieldCheck size={12} /> Validation
                 </button>
@@ -528,7 +528,7 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                          activeView === 'YAML' ? result.yaml : activeView === 'EOS' ? result.eos : result.validation,
                          `${fabricName.toLowerCase()}.${activeView === 'YAML' ? 'yml' : activeView === 'EOS' ? 'eos.txt' : 'validation.txt'}`
                        )}
-                       className="p-2 text-zinc-500 hover:text-white transition-colors rounded-lg border border-zinc-800 hover:bg-zinc-800"
+                       className="p-2 text-secondary hover:text-primary transition-colors rounded-lg border border-border hover:bg-border"
                        title="Download Source"
                     >
                        <Download size={16} />
@@ -538,14 +538,14 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
          </div>
 
          {/* CONTENT VIEW */}
-         <div className="flex-1 overflow-auto bg-black p-8 font-mono text-sm relative">
+         <div className="flex-1 overflow-auto bg-surface-muted p-8 font-mono text-sm relative">
             {!result && !loading && (
                 <div className="h-full flex flex-col items-center justify-center text-center opacity-30">
-                    <div className="w-24 h-24 border border-dashed border-zinc-800 rounded-full flex items-center justify-center mb-8">
-                        <Network size={32} className="text-zinc-600" />
+                    <div className="w-24 h-24 border border-dashed border-border rounded-full flex items-center justify-center mb-8">
+                        <Network size={32} className="text-secondary" />
                     </div>
-                    <h3 className="text-xl font-serif italic text-zinc-500">Configure parameters and click Build Fabric</h3>
-                    <p className="text-zinc-700 text-xs mt-3 font-mono">Generates AVD-compatible YAML + EOS config preview</p>
+                    <h3 className="text-xl font-serif italic text-secondary">Configure parameters and click Build Fabric</h3>
+                    <p className="text-secondary text-xs mt-3 font-mono">Generates AVD-compatible YAML + EOS config preview</p>
                 </div>
             )}
 
@@ -556,8 +556,8 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                         <Loader2 size={32} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-500 animate-spin" />
                     </div>
                     <div>
-                        <h4 className="font-bold text-white uppercase tracking-widest text-sm">Synthesizing Topology</h4>
-                        <p className="text-zinc-500 text-xs mt-2 font-mono">[AVD-Kernel: Building {overlay.toUpperCase()} fabric...]</p>
+                        <h4 className="font-bold text-primary uppercase tracking-widest text-sm">Synthesizing Topology</h4>
+                        <p className="text-secondary text-xs mt-2 font-mono">[AVD-Kernel: Building {overlay.toUpperCase()} fabric...]</p>
                     </div>
                 </div>
             )}
@@ -565,40 +565,40 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
             {result && !loading && (
                 <div className="animate-fade-in h-full flex flex-col">
                     {activeView === 'YAML' && (
-                        <pre className="text-blue-200 leading-relaxed bg-zinc-950 p-6 rounded-xl border border-zinc-800 shadow-inner overflow-auto h-full selection:bg-blue-900/50 text-xs">
+                        <pre className="text-blue-200 leading-relaxed bg-page-bg p-6 rounded-xl border border-border shadow-inner overflow-auto h-full selection:bg-blue-900/50 text-xs">
                             {result.yaml}
                         </pre>
                     )}
                     {activeView === 'EOS' && (
-                        <pre className="text-emerald-200 leading-relaxed bg-zinc-950 p-6 rounded-xl border border-zinc-800 shadow-inner overflow-auto h-full selection:bg-emerald-900/50 text-xs">
+                        <pre className="text-emerald-200 leading-relaxed bg-page-bg p-6 rounded-xl border border-border shadow-inner overflow-auto h-full selection:bg-emerald-900/50 text-xs">
                             {result.eos}
                         </pre>
                     )}
                     {activeView === 'VALIDATION' && (
                         <div className="max-w-3xl space-y-6 py-4">
-                            <div className="flex items-start gap-6 p-8 bg-zinc-900 border border-zinc-800 rounded-[2rem] shadow-xl">
+                            <div className="flex items-start gap-6 p-8 bg-card-bg border border-border rounded-[2rem] shadow-xl">
                                 <div className="p-3 bg-blue-500/10 rounded-2xl border border-blue-500/20 text-blue-400">
                                     <Sparkles size={24} />
                                 </div>
                                 <div className="space-y-3">
-                                    <h3 className="text-2xl font-serif font-bold text-white">Architectural Summary</h3>
-                                    <div className="space-y-1 text-zinc-400 text-sm leading-relaxed font-mono">
-                                        <p><span className="text-zinc-500">Fabric:</span> <span className="text-white">{fabricName}</span></p>
-                                        <p><span className="text-zinc-500">Topology:</span> {spines}x Spine × {leafs}x Leaf ({Math.ceil(leafs / 2)} MLAG pairs)</p>
-                                        <p><span className="text-zinc-500">Overlay:</span> {overlay === 'evpn-ebgp' ? 'EVPN/VXLAN (eBGP overlay)' : overlay === 'evpn-ibgp' ? 'EVPN/VXLAN (iBGP + RR)' : 'VRF-lite (no VXLAN)'}</p>
-                                        <p><span className="text-zinc-500">Platform:</span> {platform} — {pmeta.desc}</p>
-                                        <p><span className="text-zinc-500">VRFs:</span> {vrfs.join(', ')}</p>
-                                        <p><span className="text-zinc-500">RT Schema:</span> L2: {ometa.rtL2} · L3: {ometa.rtL3}</p>
+                                    <h3 className="text-2xl font-serif font-bold text-primary">Architectural Summary</h3>
+                                    <div className="space-y-1 text-secondary text-sm leading-relaxed font-mono">
+                                        <p><span className="text-secondary">Fabric:</span> <span className="text-primary">{fabricName}</span></p>
+                                        <p><span className="text-secondary">Topology:</span> {spines}x Spine × {leafs}x Leaf ({Math.ceil(leafs / 2)} MLAG pairs)</p>
+                                        <p><span className="text-secondary">Overlay:</span> {overlay === 'evpn-ebgp' ? 'EVPN/VXLAN (eBGP overlay)' : overlay === 'evpn-ibgp' ? 'EVPN/VXLAN (iBGP + RR)' : 'VRF-lite (no VXLAN)'}</p>
+                                        <p><span className="text-secondary">Platform:</span> {platform} — {pmeta.desc}</p>
+                                        <p><span className="text-secondary">VRFs:</span> {vrfs.join(', ')}</p>
+                                        <p><span className="text-secondary">RT Schema:</span> L2: {ometa.rtL2} · L3: {ometa.rtL3}</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl">
+                                <div className="p-6 bg-card-bg/50 border border-border rounded-2xl">
                                     <h4 className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                                         <ShieldCheck size={14} /> Pre-flight Checklist
                                     </h4>
-                                    <ul className="space-y-2 text-xs text-zinc-400 font-mono">
+                                    <ul className="space-y-2 text-xs text-secondary font-mono">
                                         <li>• MTU 9214 verified underlay → leaf → spine</li>
                                         <li>• Loopback0 reachable from all VTEPs</li>
                                         {overlay !== 'vrf-lite' && <li>• TCAM profile: <span className="text-blue-400">{pmeta.tcam}</span> applied</li>}
@@ -609,14 +609,14 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                                         <li>• Snapshot taken before first change window</li>
                                     </ul>
                                 </div>
-                                <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl">
+                                <div className="p-6 bg-card-bg/50 border border-border rounded-2xl">
                                     <h4 className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                                         <AlertCircle size={14} /> Platform Caveats
                                     </h4>
-                                    <ul className="space-y-2 text-xs text-zinc-400 font-mono">
+                                    <ul className="space-y-2 text-xs text-secondary font-mono">
                                         <li>• Buffer profile: <span className="text-amber-400">{pmeta.bufferNote}</span></li>
                                         <li>• Max uplinks per leaf: {pmeta.maxUplinks}</li>
-                                        <li>• MACsec capable: <span className={pmeta.macsec ? 'text-emerald-400' : 'text-zinc-600'}>{pmeta.macsec ? 'Yes' : 'No'}</span></li>
+                                        <li>• MACsec capable: <span className={pmeta.macsec ? 'text-emerald-400' : 'text-secondary'}>{pmeta.macsec ? 'Yes' : 'No'}</span></li>
                                         {overlay === 'evpn-ibgp' && <li>• RR required on spines — enable with evpn_role: server</li>}
                                         {overlay !== 'vrf-lite' && <li>• VRF VNI allocation: 50001–{50000 + vrfs.length} (document before deploy)</li>}
                                         <li>• MLAG keepalive must survive peer-link failure</li>
@@ -625,16 +625,16 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
                                 </div>
                             </div>
 
-                            <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl">
+                            <div className="p-6 bg-card-bg/50 border border-border rounded-2xl">
                                 <h4 className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                                     <GitBranch size={14} /> AVD Pipeline Steps
                                 </h4>
-                                <ol className="space-y-2 text-xs text-zinc-400 font-mono">
-                                    <li><span className="text-blue-500">1.</span> Copy YAML blueprint to <span className="text-zinc-300">group_vars/{fabricName.toLowerCase()}.yml</span></li>
-                                    <li><span className="text-blue-500">2.</span> Run <span className="text-zinc-300">ansible-playbook playbooks/build.yml --tags build</span></li>
-                                    <li><span className="text-blue-500">3.</span> Review generated EOS configs in <span className="text-zinc-300">intended/configs/</span></li>
-                                    <li><span className="text-blue-500">4.</span> Run <span className="text-zinc-300">--tags validate</span> for pre-flight checks</li>
-                                    <li><span className="text-blue-500">5.</span> Deploy via <span className="text-zinc-300">--tags deploy</span> with CloudVision Change Control</li>
+                                <ol className="space-y-2 text-xs text-secondary font-mono">
+                                    <li><span className="text-blue-500">1.</span> Copy YAML blueprint to <span className="text-primary">group_vars/{fabricName.toLowerCase()}.yml</span></li>
+                                    <li><span className="text-blue-500">2.</span> Run <span className="text-primary">ansible-playbook playbooks/build.yml --tags build</span></li>
+                                    <li><span className="text-blue-500">3.</span> Review generated EOS configs in <span className="text-primary">intended/configs/</span></li>
+                                    <li><span className="text-blue-500">4.</span> Run <span className="text-primary">--tags validate</span> for pre-flight checks</li>
+                                    <li><span className="text-blue-500">5.</span> Deploy via <span className="text-primary">--tags deploy</span> with CloudVision Change Control</li>
                                     <li><span className="text-blue-500">6.</span> Post-deploy: capture snapshot + run BGP/EVPN validation checks</li>
                                 </ol>
                             </div>
@@ -645,10 +645,10 @@ export const AVDStudio: React.FC<AVDStudioProps> = ({ onBack }) => {
          </div>
 
          {/* FOOTER BAR */}
-         <div className="h-10 bg-zinc-950 border-t border-zinc-900 px-6 flex items-center justify-between text-[8px] font-mono text-zinc-600 uppercase tracking-[0.4em] relative z-10 shrink-0">
+         <div className="h-10 bg-page-bg border-t border-border px-6 flex items-center justify-between text-[8px] font-mono text-secondary uppercase tracking-[0.4em] relative z-10 shrink-0">
              <div className="flex items-center gap-4">
                 <span>AVD Studio v4.0</span>
-                <span className="w-1 h-1 bg-zinc-800 rounded-full"></span>
+                <span className="w-1 h-1 bg-border rounded-full"></span>
                 <span className="text-blue-900">Arista Validated Designs</span>
              </div>
              <div>

@@ -280,8 +280,8 @@ export const ProtocolCollisionMapper: React.FC<ProtocolCollisionMapperProps> = (
               <GitBranch size={18} />
             </div>
             <div>
-              <h1 className="font-serif font-bold text-lg tracking-tight leading-none">Protocol Collision Mapper</h1>
-              <span className="text-[10px] font-mono text-secondary uppercase tracking-widest mt-1 block">Config → Interaction Analysis</span>
+              <h1 className="app-header-title">Protocol Collision Mapper</h1>
+              <span className="app-header-subtitle">Config → Interaction Analysis</span>
             </div>
           </div>
         </div>
@@ -313,7 +313,7 @@ export const ProtocolCollisionMapper: React.FC<ProtocolCollisionMapperProps> = (
         </section>
 
         <section className="lg:col-span-2 space-y-6">
-          <div className="p-6 rounded-3xl border border-border bg-card-bg">
+          <div className="tool-card-md">
             <div className="flex items-center gap-3 mb-4">
               <div className={`px-3 py-1 rounded-full border text-[10px] font-bold uppercase tracking-widest ${severityColor}`}>
                 Severity: {selected.severity}
@@ -325,7 +325,7 @@ export const ProtocolCollisionMapper: React.FC<ProtocolCollisionMapperProps> = (
             <p className="text-lg text-primary font-semibold mb-4">{selected.title}</p>
             <p className="text-secondary text-sm leading-relaxed">{selected.description}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                <div className="p-4 rounded-2xl border border-border bg-card-bg/60">
+                <div className="tool-note">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-secondary mb-2">
                     <Network size={14} className="text-blue-400" /> Signals
                   </div>
@@ -349,7 +349,7 @@ export const ProtocolCollisionMapper: React.FC<ProtocolCollisionMapperProps> = (
                     </ul>
                   </div>
                 </div>
-                <div className="p-4 rounded-2xl border border-border bg-card-bg/60">
+                <div className="tool-note">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-secondary mb-2">
                     <Shield size={14} className="text-emerald-400" /> Mitigations
                   </div>
@@ -378,7 +378,7 @@ export const ProtocolCollisionMapper: React.FC<ProtocolCollisionMapperProps> = (
               </div>
             </div>
 
-          <div className="p-5 rounded-2xl border border-border bg-card-bg/70 flex flex-col md:flex-row gap-4">
+          <div className="tool-note flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-secondary mb-2">
                 <RefreshCw size={14} className="text-cyan-400" /> Recommended Flow
@@ -394,7 +394,7 @@ export const ProtocolCollisionMapper: React.FC<ProtocolCollisionMapperProps> = (
           </div>
 
           {selected.references && selected.references.length > 0 && (
-            <div className="p-4 rounded-2xl border border-border bg-card-bg/60">
+            <div className="tool-note">
               <p className="text-xs font-bold uppercase tracking-widest text-secondary mb-2">References</p>
               <ul className="space-y-1">
                 {selected.references.map((ref) => (

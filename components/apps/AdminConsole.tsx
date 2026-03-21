@@ -14,7 +14,7 @@ interface AdminConsoleProps {
  */
 const InputGroup = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="space-y-1.5">
-    <label className="text-[10px] font-mono uppercase tracking-widest text-secondary">{label}</label>
+    <label className="tool-label">{label}</label>
     {children}
   </div>
 );
@@ -302,7 +302,7 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
                         </div>
                         <div>
                             <h1 className="text-2xl font-serif font-bold tracking-tight">System Admin</h1>
-                            <div className="text-[10px] font-mono text-secondary uppercase tracking-widest">System Configuration Shell</div>
+                            <div className="tool-label">System Configuration Shell</div>
                         </div>
                     </div>
                 </div>
@@ -323,20 +323,20 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
                 <div className="p-4 bg-card-bg border border-border rounded-xl">
-                    <div className="text-[10px] font-mono uppercase tracking-widest text-secondary mb-1">Data Version</div>
+                    <div className="tool-label mb-1">Data Version</div>
                     <div className="text-sm font-bold text-primary">{DATA_VERSION}</div>
                 </div>
                 <div className="p-4 bg-card-bg border border-border rounded-xl">
-                    <div className="text-[10px] font-mono uppercase tracking-widest text-secondary mb-1">Last Saved</div>
+                    <div className="tool-label mb-1">Last Saved</div>
                     <div className="text-sm font-semibold text-emerald-300">{formatTimestamp(telemetry.lastSaved)}</div>
                 </div>
                 <div className="p-4 bg-card-bg border border-border rounded-xl">
-                    <div className="text-[10px] font-mono uppercase tracking-widest text-secondary mb-1">Last Error</div>
+                    <div className="tool-label mb-1">Last Error</div>
                     <div className="text-xs text-amber-300 line-clamp-2">{telemetry.lastError || '—'}</div>
                 </div>
                 <div className="p-4 bg-card-bg border border-border rounded-xl flex items-center justify-between">
                     <div>
-                        <div className="text-[10px] font-mono uppercase tracking-widest text-secondary mb-1">Snapshots</div>
+                        <div className="tool-label mb-1">Snapshots</div>
                         <div className="text-sm font-semibold text-primary">{profiles.length} saved</div>
                     </div>
                     <button onClick={() => refreshTelemetry()} className="p-2 text-secondary hover:text-primary rounded-lg hover:bg-card-bg transition-colors border border-transparent hover:border-border" title="Refresh telemetry">
@@ -345,7 +345,7 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
                 </div>
                 <div className="p-4 bg-card-bg border border-border rounded-xl flex items-center justify-between">
                     <div>
-                        <div className="text-[10px] font-mono uppercase tracking-widest text-secondary mb-1">Admin Apps</div>
+                        <div className="tool-label mb-1">Admin Apps</div>
                         <div className="text-sm font-semibold text-primary">{showAdminApps ? 'Visible' : 'Hidden'}</div>
                     </div>
                     <div className="flex gap-2 items-center">
@@ -446,7 +446,7 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
                         <div className="border border-dashed border-border rounded-lg p-3 space-y-3">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <div className="text-[10px] font-mono uppercase tracking-widest text-secondary">Profile Name</div>
+                                    <div className="tool-label">Profile Name</div>
                                     <input value={profileName} onChange={e => setProfileName(e.target.value)} placeholder="e.g. workshop-1" className="mt-1 w-full bg-page-bg border border-border rounded p-2 text-xs text-primary" />
                                 </div>
                                 <button onClick={handleSaveProfile} className="h-9 px-3 bg-white text-black rounded font-bold text-[10px] uppercase tracking-wider hover:bg-zinc-200 transition-colors self-end">
@@ -455,7 +455,7 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
                             </div>
                             {profiles.length > 0 && (
                               <div className="space-y-2">
-                                <div className="text-[10px] font-mono uppercase tracking-widest text-secondary">Saved Profiles</div>
+                                <div className="tool-label">Saved Profiles</div>
                                 <div className="flex flex-wrap gap-2">
                                   {profiles.map(name => (
                                     <div key={name} className={`flex items-center gap-2 bg-page-bg border px-3 py-1 rounded-full text-xs ${activeProfile === name ? 'border-emerald-500/40' : 'border-border'}`}>
