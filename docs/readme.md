@@ -23,6 +23,21 @@ InfraLens is deployed as a containerized static web application.
 	•	Runtime: NGINX serving the built Vite application
 	•	Port: 8080
 
+Authentication (Firebase)
+
+InfraLens supports optional Firebase Authentication with Google sign-in.
+
+To enable auth, provide the following environment variables at build/runtime:
+	•	VITE_ENABLE_AUTH=true
+	•	VITE_FIREBASE_API_KEY
+	•	VITE_FIREBASE_AUTH_DOMAIN
+	•	VITE_FIREBASE_PROJECT_ID
+	•	VITE_FIREBASE_APP_ID
+	•	VITE_FIREBASE_STORAGE_BUCKET (optional)
+	•	VITE_FIREBASE_MESSAGING_SENDER_ID (optional)
+
+If `VITE_ENABLE_AUTH` is not set to `true`, InfraLens runs without auth gating.
+
 This repository contains the application source and container build definition used for that deployment.
 
 ⸻

@@ -5,6 +5,8 @@ import { InfraLensProvider } from './context/InfraLensContext';
 import { Loader2 } from 'lucide-react';
 import { toolsRegistry } from './config/toolsRegistry';
 import { Toaster } from 'sonner';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthScreen } from './components/layout/AuthScreen';
 
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-page-bg flex items-center justify-center text-zinc-500">
@@ -50,6 +52,17 @@ const RouteView = ({ section }: { section: SectionType }) => {
 };
 
 function App() {
+  return (
+    <InfraLensProvider>
+      <AuthProvider>
+        <AppShell />
+      </AuthProvider>
+    </InfraLensProvider>
+  );
+}
+
+function AppShell() {
+  const { authEnabled, user, loading, signInWithGoogle, signOutUser } = useAuth();
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window === 'undefined') return 'dark';
     const saved = localStorage.getItem('infralens_theme') as 'dark' | 'light' | null;
@@ -63,9 +76,17 @@ function App() {
     localStorage.setItem('infralens_theme', theme);
   }, [theme]);
 
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (authEnabled && !user) {
+    return <AuthScreen onSignIn={signInWithGoogle} />;
+  }
+
   return (
-    <InfraLensProvider>
-      <Toaster 
+      <>
+      <Toaster
         position="top-center" 
         richColors 
         closeButton 
@@ -85,6 +106,14 @@ function App() {
                   >
                     {theme === 'light' ? 'Switch to Dark' : 'Switch to Light'}
                   </button>
+                  {authEnabled && user && (
+                    <button
+                      onClick={() => void signOutUser()}
+                      className="px-3 py-1.5 rounded-full text-[11px] font-semibold border border-border bg-card-bg hover:border-rose-400/60 transition"
+                    >
+                      Sign out
+                    </button>
+                  )}
                 </div>
               </div>
                <Routes>
@@ -105,7 +134,7 @@ function App() {
             </HashRouter>
          </Suspense>
       </div>
-    </InfraLensProvider>
+    </>
   );
 }
 
