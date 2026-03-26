@@ -1,0 +1,18 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Each user can only access files under their own folder.
+    match /users/{uid}/{allPaths=**} {
+      allow read, write: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Default deny for all other paths.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
