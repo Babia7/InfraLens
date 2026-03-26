@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "firebase:login": "firebase login",
+    "firebase:emulators": "firebase emulators:start",
+    "firebase:rules:deploy": "firebase deploy --only firestore:rules,storage",
+    "firebase:indexes:deploy": "firebase deploy --only firestore:indexes"
   },
   "dependencies": {
     "firebase": "^11.10.0",
@@ -22,6 +26,7 @@
     "@testing-library/react": "^16.2.0",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "firebase-tools": "^14.1.0",
     "jsdom": "^26.0.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",

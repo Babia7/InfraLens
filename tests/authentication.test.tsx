@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import App from '@/App';
 import { hasRequiredFirebaseConfig, isAuthFeatureEnabled } from '@/services/firebase';
@@ -43,6 +43,9 @@ describe('Authentication setup', () => {
   it('keeps app accessible when auth flag is not enabled', async () => {
     window.location.hash = '#/admin';
     render(<App />);
+
+    fireEvent.change(screen.getByLabelText('App access PIN'), { target: { value: '19901991' } });
+    fireEvent.click(screen.getByRole('button', { name: /unlock infralens/i }));
 
     expect(await screen.findByText(/Admin Apps/i)).toBeInTheDocument();
   });

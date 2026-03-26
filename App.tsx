@@ -7,6 +7,8 @@ import { toolsRegistry } from './config/toolsRegistry';
 import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuthScreen } from './components/layout/AuthScreen';
+import { PinLockScreen } from './components/layout/PinLockScreen';
+import { MANDATORY_APP_PIN, clearUnlockedSession, isPinLockEnabled, isPinUnlockedInSession, unlockSession } from './services/pinLock';
 
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-page-bg flex items-center justify-center text-zinc-500">
@@ -63,6 +65,8 @@ function App() {
 
 function AppShell() {
   const { authEnabled, user, loading, signInWithGoogle, signOutUser } = useAuth();
+  const pinLockEnabled = isPinLockEnabled();
+  const [pinUnlocked, setPinUnlocked] = useState<boolean>(() => !pinLockEnabled || isPinUnlockedInSession());
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window === 'undefined') return 'dark';
     const saved = localStorage.getItem('infralens_theme') as 'dark' | 'light' | null;
@@ -78,6 +82,21 @@ function AppShell() {
 
   if (loading) {
     return <LoadingSpinner />;
+  }
+
+  if (pinLockEnabled && !pinUnlocked) {
+    return (
+      <PinLockScreen
+        onUnlock={(candidatePin) => {
+          const ok = candidatePin.trim() === MANDATORY_APP_PIN;
+          if (ok) {
+            unlockSession();
+            setPinUnlocked(true);
+          }
+          return ok;
+        }}
+      />
+    );
   }
 
   if (authEnabled && !user) {
@@ -108,7 +127,11 @@ function AppShell() {
                   </button>
                   {authEnabled && user && (
                     <button
-                      onClick={() => void signOutUser()}
+                      onClick={() => {
+                        clearUnlockedSession();
+                        setPinUnlocked(!pinLockEnabled);
+                        void signOutUser();
+                      }}
                       className="px-3 py-1.5 rounded-full text-[11px] font-semibold border border-border bg-card-bg hover:border-rose-400/60 transition"
                     >
                       Sign out
