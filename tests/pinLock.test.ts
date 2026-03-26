@@ -1,15 +1,14 @@
 import { describe, expect, it, beforeEach } from 'vitest';
-import { clearUnlockedSession, getConfiguredAppPin, isPinLockEnabled, isPinUnlockedInSession, unlockSession } from '@/services/pinLock';
+import { MANDATORY_APP_PIN, clearUnlockedSession, isPinLockEnabled, isPinUnlockedInSession, unlockSession } from '@/services/pinLock';
 
 describe('pin lock utilities', () => {
   beforeEach(() => {
     sessionStorage.clear();
   });
 
-  it('treats VITE_APP_PIN as optional and trims whitespace', () => {
-    expect(getConfiguredAppPin({ VITE_APP_PIN: ' 1234 ' })).toBe('1234');
-    expect(isPinLockEnabled({ VITE_APP_PIN: '   ' })).toBe(false);
-    expect(isPinLockEnabled({ VITE_APP_PIN: '0000' })).toBe(true);
+  it('uses mandatory app pin gate with fixed pin', () => {
+    expect(MANDATORY_APP_PIN).toBe('19901991');
+    expect(isPinLockEnabled()).toBe(true);
   });
 
   it('stores and clears unlocked state in session storage', () => {
@@ -20,4 +19,3 @@ describe('pin lock utilities', () => {
     expect(isPinUnlockedInSession()).toBe(false);
   });
 });
-

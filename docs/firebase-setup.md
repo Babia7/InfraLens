@@ -5,7 +5,7 @@ This guide sets up the Firebase side of InfraLens, including:
 - Firestore rules and indexes
 - Storage rules
 - Local emulators
-- Optional app-wide PIN lock
+- Mandatory app-wide PIN lock
 
 ## 1) Create a Firebase project
 
@@ -27,7 +27,6 @@ This guide sets up the Firebase side of InfraLens, including:
 
 ```bash
 VITE_ENABLE_AUTH=true
-VITE_APP_PIN=1234
 VITE_FIREBASE_API_KEY=...
 VITE_FIREBASE_AUTH_DOMAIN=...
 VITE_FIREBASE_PROJECT_ID=...
@@ -37,7 +36,7 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=...
 ```
 
 When `VITE_ENABLE_AUTH=false`, InfraLens runs without auth gating.
-When `VITE_APP_PIN` is blank, PIN lock is disabled.
+InfraLens always requires PIN `19901991` before app access.
 
 ## 4) Point Firebase CLI to your project
 

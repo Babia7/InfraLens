@@ -8,7 +8,7 @@ import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuthScreen } from './components/layout/AuthScreen';
 import { PinLockScreen } from './components/layout/PinLockScreen';
-import { clearUnlockedSession, getConfiguredAppPin, isPinLockEnabled, isPinUnlockedInSession, unlockSession } from './services/pinLock';
+import { MANDATORY_APP_PIN, clearUnlockedSession, isPinLockEnabled, isPinUnlockedInSession, unlockSession } from './services/pinLock';
 
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-page-bg flex items-center justify-center text-zinc-500">
@@ -65,8 +65,7 @@ function App() {
 
 function AppShell() {
   const { authEnabled, user, loading, signInWithGoogle, signOutUser } = useAuth();
-  const appPin = getConfiguredAppPin(import.meta.env);
-  const pinLockEnabled = isPinLockEnabled(import.meta.env);
+  const pinLockEnabled = isPinLockEnabled();
   const [pinUnlocked, setPinUnlocked] = useState<boolean>(() => !pinLockEnabled || isPinUnlockedInSession());
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window === 'undefined') return 'dark';
@@ -89,7 +88,7 @@ function AppShell() {
     return (
       <PinLockScreen
         onUnlock={(candidatePin) => {
-          const ok = candidatePin.trim() === appPin;
+          const ok = candidatePin.trim() === MANDATORY_APP_PIN;
           if (ok) {
             unlockSession();
             setPinUnlocked(true);

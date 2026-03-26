@@ -42,10 +42,10 @@ For Firebase project bootstrap (Auth, Firestore rules/indexes, Storage rules, an
 
 docs/firebase-setup.md
 
-App PIN lock (optional)
+App PIN lock (mandatory)
 
-Set `VITE_APP_PIN` to require a PIN gate before users can access the app shell.
-If blank, no PIN lock is shown.
+InfraLens now always shows a PIN gate before app access.
+The required PIN is `19901991`.
 
 This repository contains the application source and container build definition used for that deployment.
 

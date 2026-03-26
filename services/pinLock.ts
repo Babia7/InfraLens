@@ -1,12 +1,7 @@
-export type PinLockEnv = {
-  VITE_APP_PIN?: string;
-};
-
 const APP_UNLOCKED_STORAGE_KEY = 'infralens_pin_unlocked';
+export const MANDATORY_APP_PIN = '19901991';
 
-export const getConfiguredAppPin = (env: PinLockEnv): string => (env.VITE_APP_PIN ?? '').trim();
-
-export const isPinLockEnabled = (env: PinLockEnv): boolean => getConfiguredAppPin(env).length > 0;
+export const isPinLockEnabled = (): boolean => true;
 
 export const isPinUnlockedInSession = (): boolean => {
   if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') {
@@ -25,4 +20,3 @@ export const clearUnlockedSession = (): void => {
   if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') return;
   sessionStorage.removeItem(APP_UNLOCKED_STORAGE_KEY);
 };
-
