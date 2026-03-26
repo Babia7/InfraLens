@@ -38,6 +38,15 @@ To enable auth, provide the following environment variables at build/runtime:
 
 If `VITE_ENABLE_AUTH` is not set to `true`, InfraLens runs without auth gating.
 
+For Firebase project bootstrap (Auth, Firestore rules/indexes, Storage rules, and emulators), use:
+
+docs/firebase-setup.md
+
+App PIN lock (optional)
+
+Set `VITE_APP_PIN` to require a PIN gate before users can access the app shell.
+If blank, no PIN lock is shown.
+
 This repository contains the application source and container build definition used for that deployment.
 
 ⸻
