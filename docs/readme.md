@@ -29,6 +29,7 @@ InfraLens supports optional Firebase Authentication with Google sign-in.
 
 To enable auth, provide the following environment variables at build/runtime:
 	•	VITE_ENABLE_AUTH=true
+	•	VITE_ALLOWED_GOOGLE_EMAILS (optional, comma-separated allowlist)
 	•	VITE_FIREBASE_API_KEY
 	•	VITE_FIREBASE_AUTH_DOMAIN
 	•	VITE_FIREBASE_PROJECT_ID
@@ -37,10 +38,15 @@ To enable auth, provide the following environment variables at build/runtime:
 	•	VITE_FIREBASE_MESSAGING_SENDER_ID (optional)
 
 If `VITE_ENABLE_AUTH` is not set to `true`, InfraLens runs without auth gating.
+If `VITE_ALLOWED_GOOGLE_EMAILS` is set (example: `tinurajan1@gmail.com`), only those Google accounts are permitted in-app.
 
 For Firebase project bootstrap (Auth, Firestore rules/indexes, Storage rules, and emulators), use:
 
 docs/firebase-setup.md
+
+For Cloud Run Identity-Aware Proxy setup with Google OAuth, use:
+
+docs/gcp-iap-setup.md
 
 App PIN lock (mandatory)
 

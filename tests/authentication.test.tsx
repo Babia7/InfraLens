@@ -2,7 +2,12 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import App from '@/App';
-import { hasRequiredFirebaseConfig, isAuthFeatureEnabled } from '@/services/firebase';
+import {
+  hasRequiredFirebaseConfig,
+  isAllowedGoogleUser,
+  isAuthFeatureEnabled,
+  parseAllowedGoogleEmails,
+} from '@/services/firebase';
 
 describe('Authentication setup', () => {
   beforeEach(() => {
@@ -38,6 +43,17 @@ describe('Authentication setup', () => {
         VITE_FIREBASE_APP_ID: '1:123:web:abc',
       })
     ).toBe(false);
+  });
+
+  it('parses and enforces allowed Google email list', () => {
+    expect(parseAllowedGoogleEmails(' tinurajan1@gmail.com,TEAM@Example.com ')).toEqual([
+      'tinurajan1@gmail.com',
+      'team@example.com',
+    ]);
+
+    expect(isAllowedGoogleUser('tinurajan1@gmail.com', ['tinurajan1@gmail.com'])).toBe(true);
+    expect(isAllowedGoogleUser('other@gmail.com', ['tinurajan1@gmail.com'])).toBe(false);
+    expect(isAllowedGoogleUser('anyone@gmail.com', [])).toBe(true);
   });
 
   it('keeps app accessible when auth flag is not enabled', async () => {

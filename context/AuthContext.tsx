@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { GoogleAuthProvider, User, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
-import { auth, authEnabled } from '@/services/firebase';
+import { allowedGoogleEmails, auth, authEnabled, isAllowedGoogleUser } from '@/services/firebase';
 
 interface AuthContextValue {
   authEnabled: boolean;
@@ -38,7 +38,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       signInWithGoogle: async () => {
         if (!authEnabled || !auth) return;
         const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider);
+        const userEmail = result.user.email;
+        if (!isAllowedGoogleUser(userEmail, allowedGoogleEmails)) {
+          await signOut(auth);
+          throw new Error('This Google account is not approved for InfraLens access.');
+        }
       },
       signOutUser: async () => {
         if (!authEnabled || !auth) return;

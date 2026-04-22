@@ -27,6 +27,7 @@ This guide sets up the Firebase side of InfraLens, including:
 
 ```bash
 VITE_ENABLE_AUTH=true
+VITE_ALLOWED_GOOGLE_EMAILS=tinurajan1@gmail.com
 VITE_FIREBASE_API_KEY=...
 VITE_FIREBASE_AUTH_DOMAIN=...
 VITE_FIREBASE_PROJECT_ID=...
@@ -36,6 +37,7 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=...
 ```
 
 When `VITE_ENABLE_AUTH=false`, InfraLens runs without auth gating.
+When `VITE_ALLOWED_GOOGLE_EMAILS` is set, only those Google accounts can remain signed in.
 InfraLens always requires PIN `19901991` before app access.
 
 ## 4) Point Firebase CLI to your project

@@ -67,6 +67,7 @@ function AppShell() {
   const { authEnabled, user, loading, signInWithGoogle, signOutUser } = useAuth();
   const pinLockEnabled = isPinLockEnabled();
   const [pinUnlocked, setPinUnlocked] = useState<boolean>(() => !pinLockEnabled || isPinUnlockedInSession());
+  const [signInError, setSignInError] = useState<string | null>(null);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window === 'undefined') return 'dark';
     const saved = localStorage.getItem('infralens_theme') as 'dark' | 'light' | null;
@@ -100,7 +101,20 @@ function AppShell() {
   }
 
   if (authEnabled && !user) {
-    return <AuthScreen onSignIn={signInWithGoogle} />;
+    return (
+      <AuthScreen
+        error={signInError}
+        onSignIn={async () => {
+          try {
+            setSignInError(null);
+            await signInWithGoogle();
+          } catch (error) {
+            const defaultMessage = 'Unable to sign in with Google. Please try again.';
+            setSignInError(error instanceof Error ? error.message : defaultMessage);
+          }
+        }}
+      />
+    );
   }
 
   return (
