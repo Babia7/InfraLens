@@ -3,6 +3,7 @@ import { Auth, getAuth } from 'firebase/auth';
 
 export type FirebaseEnv = {
   VITE_ENABLE_AUTH?: string;
+  VITE_ALLOWED_GOOGLE_EMAILS?: string;
   VITE_FIREBASE_API_KEY?: string;
   VITE_FIREBASE_AUTH_DOMAIN?: string;
   VITE_FIREBASE_PROJECT_ID?: string;
@@ -26,9 +27,26 @@ export const isAuthFeatureEnabled = (env: FirebaseEnv): boolean => {
   return env.VITE_ENABLE_AUTH === 'true' && hasRequiredFirebaseConfig(env);
 };
 
+export const parseAllowedGoogleEmails = (value?: string): string[] => {
+  if (!value) return [];
+
+  return value
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter((email) => email.length > 0);
+};
+
+export const isAllowedGoogleUser = (email: string | null | undefined, allowedEmails: string[]): boolean => {
+  if (!email) return false;
+  if (allowedEmails.length === 0) return true;
+
+  return allowedEmails.includes(email.trim().toLowerCase());
+};
+
 const env = import.meta.env as unknown as FirebaseEnv;
 
 export const authEnabled = isAuthFeatureEnabled(env);
+export const allowedGoogleEmails = parseAllowedGoogleEmails(env.VITE_ALLOWED_GOOGLE_EMAILS);
 
 let auth: Auth | null = null;
 
