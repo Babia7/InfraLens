@@ -48,6 +48,8 @@ For Cloud Run Identity-Aware Proxy setup with Google OAuth, use:
 
 docs/gcp-iap-setup.md
 
+InfraLens container proxy (`nginx.conf`) now enforces IAP identity headers, so user-facing requests must pass through Google IAP.
+
 App PIN lock (mandatory)
 
 InfraLens now always shows a PIN gate before app access.

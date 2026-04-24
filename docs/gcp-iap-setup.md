@@ -8,14 +8,26 @@ This runbook configures InfraLens behind **Google Cloud IAP** and ensures only a
 - Cloud Run service for InfraLens deployed.
 - Org policy that permits IAP use.
 
-## 2) Configure OAuth consent + client for IAP
+## 2) Lock Cloud Run behind the load balancer
+
+Require all traffic to come through the HTTPS Load Balancer (so IAP can enforce Google login):
+
+```bash
+gcloud run services update <SERVICE_NAME> \
+  --region=<REGION> \
+  --ingress=internal-and-cloud-load-balancing
+```
+
+InfraLens nginx now rejects requests that do not include the IAP identity header (`X-Goog-Authenticated-User-Email`), returning `401` for non-IAP requests.
+
+## 3) Configure OAuth consent + client for IAP
 
 1. In Google Cloud Console, open **APIs & Services > OAuth consent screen** and configure the app (internal/external as required).
 2. Open **APIs & Services > Credentials** and create an OAuth client used by IAP.
 3. Open **Security > Identity-Aware Proxy** and enable IAP for the Cloud Run backend service.
 4. Attach the OAuth client to IAP when prompted.
 
-## 3) Grant IAP access
+## 4) Grant IAP access
 
 Grant the IAP-secured Web App User role to the InfraLens admin:
 
@@ -30,7 +42,7 @@ gcloud projects add-iam-policy-binding <PROJECT_ID> \
   --role="roles/iap.httpsResourceAccessor"
 ```
 
-## 4) Enforce approved Google users inside InfraLens
+## 5) Enforce approved Google users inside InfraLens
 
 Set these environment variables in the InfraLens deployment:
 
@@ -43,9 +55,10 @@ VITE_ALLOWED_GOOGLE_EMAILS=tinurajan1@gmail.com
 - `VITE_ALLOWED_GOOGLE_EMAILS` restricts access to a comma-separated allowlist.
 - If allowlist is empty, any successfully authenticated Google account is allowed.
 
-## 5) Verify behavior
+## 6) Verify behavior
 
 1. Open InfraLens URL in an incognito window.
 2. Confirm IAP requires Google login before the app loads.
 3. Confirm `tinurajan1@gmail.com` can pass IAP and app sign-in.
 4. Confirm a non-allowlisted account gets rejected by the app with an approval error.
+5. Confirm direct `run.app` URL access is blocked unless it is reached through IAP + load balancer.
